@@ -1,14 +1,15 @@
-# Frutos do Amanhã — redesign "da semente ao fruto"
+# Frutos do Amanhã — "da semente ao fruto"
 
-Site completo no visual novo: **25 telas**, as mesmas do site publicado em
-`ong-frutos-do-amanha.onrender.com`, com o conteúdo real já no lugar.
+Site completo no visual novo: **34 telas**, com o conteúdo real já no lugar. Cobre o
+site público, as mesmas páginas de `ong-frutos-do-amanha.onrender.com`, mais as dez
+telas do painel administrativo.
 
 ## Como rodar
 
-Não tem build. Abra a pasta **raiz do repositório** num servidor local:
+Não tem build. Abra a **raiz do repositório** num servidor local:
 
-- VS Code → extensão **Live Server** → botão direito em `redesign/index.html` → *Open with Live Server*
-- ou no terminal, na raiz do repositório: `npx serve .` (ou `python -m http.server`) e acesse `/redesign/`
+- VS Code → extensão **Live Server** → botão direito em `index.html` → *Open with Live Server*
+- ou no terminal, na raiz do repositório: `npx serve .` (ou `python -m http.server`)
 
 ## As telas
 
@@ -33,7 +34,6 @@ Não tem build. Abra a pasta **raiz do repositório** num servidor local:
 | `confirmar-email.html` | Três estados: aguardando, confirmado, expirado |
 | `redefinir-senha.html` | Dois estados: formulário e link expirado |
 | `404.html` | Página não encontrada |
-| `admin.html` | Painel administrativo |
 | `mapa-do-site.html` | Todas as páginas |
 | `privacidade.html` · `termos.html` | Documentos legais, com sumário lateral |
 
@@ -41,32 +41,51 @@ As telas com mais de um estado aceitam `?estado=` no endereço:
 `confirmar-email.html?estado=confirmado`, `?estado=expirado`,
 `redefinir-senha.html?estado=expirado`.
 
+### O painel
+
+| Arquivo | O que é |
+| --- | --- |
+| `admin.html` | Visão geral — placares, pendências e atalhos |
+| `admin-solicitacoes.html` | Solicitações de vaga das famílias |
+| `admin-voluntarios.html` | Candidaturas de voluntariado |
+| `admin-criancas.html` | Crianças atendidas |
+| `admin-responsaveis.html` | Responsáveis legais |
+| `admin-doadores.html` | Doadores |
+| `admin-doacoes.html` | Doações recebidas |
+| `admin-projetos.html` | Projetos e atividades |
+| `admin-noticias.html` | Notícias publicadas |
+| `admin-usuarios.html` | Administradores com acesso |
+
+O painel não é anunciado nas páginas públicas: saiu do rodapé e do mapa do site.
+Chega-se pelo endereço direto, `admin.html`. O único link que ainda aponta para ele
+está em `redefinir-senha.html`, no fim do fluxo de troca de senha.
+
 ## Fotos
 
-O site procura cada foto primeiro em `assets/img/` e depois em `../fotos-provisorias/`
-(pasta na raiz do repositório), testando `.webp`, `.jpg`, `.jpeg` e `.png`.
+As fotos vivem em `assets/img/`, ao lado dos SVGs da interface. Para cada nome o site
+tenta `.webp`, `.jpg`, `.jpeg` e `.png`, nessa ordem, e fica com o primeiro que existir
+— hoje isso custa uma requisição perdida no `.webp` antes de achar o `.jpg`, que some
+no dia em que os `.webp` forem gerados.
 
-Os nomes são **os mesmos do site publicado**, então copiar o `assets/img/` do site
-atual para cá já resolve a maioria:
+As 17 fotos que as páginas pedem estão todas no lugar:
 
-`hero-criancas` · `sede-vila-matias` · `feirinha-da-crianca` · `estudando-para-o-amanha` ·
-`quermesse-beneficente` · `galeria-reforco` · `galeria-danca` · `galeria-informatica` ·
-`galeria-arte` · `galeria-esporte` · `galeria-convivencia`
+`hero-criancas` · `sede-vila-matias` · `feirinha-da-crianca` · `feirinha-2` ·
+`estudando-para-o-amanha` · `estudando-2` · `quermesse-beneficente` · `quermesse-2` ·
+`pilar-empreendedorismo` · `lista-material` · `entrega-julho` · `galeria-reforco` ·
+`galeria-danca` · `galeria-informatica` · `galeria-arte` · `galeria-esporte` ·
+`galeria-convivencia`
 
-Faltam quatro que o site atual não tem: `pilar-empreendedorismo`, `feirinha-2`,
-`estudando-2` e `quermesse-2`.
-
-Onde a foto não existe aparece uma moldura hachurada com o nome do arquivo esperado.
+Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo esperado.
 
 ## Estrutura
 
 ```
-redesign/
-├── *.html                       25 páginas
+.
+├── *.html                       34 páginas
 └── assets/
     ├── css/  tokens.css · base.css · components.css · paginas.css · home.css
     ├── js/   nucleo.js · efeitos.js · paginas.js · home.js
-    └── img/  logo.svg · favicon.svg · rasgo*.svg · pix-qr-exemplo.svg
+    └── img/  as 17 fotos · logo.svg · favicon.svg · rasgo*.svg · pix-qr-exemplo.svg
 ```
 
 - `tokens.css` — cores, fontes, espaçamentos e curvas de animação, tudo em `:root`
@@ -103,14 +122,16 @@ mas não enviam nada. Para ligar ao back-end, use os scripts do site atual
 - `doar.html` → checkout do Mercado Pago
 - `voluntariado.html` → endpoint de candidatura
 - `solicitar-vaga.html` → endpoint de solicitação
-- `admin.html` → dados reais do painel (hoje são de exemplo)
+- o painel → dados reais (hoje são de exemplo em todas as dez telas)
 - chave Pix e QR code → hoje são fictícios
 
 ## Pendências de conteúdo — [CONTEÚDO REAL AQUI]
 
-- Chave Pix real e QR code correspondente
+O marcador ainda aparece 12 vezes, em 11 páginas.
+
+- Chave Pix real e QR code correspondente (hoje a chave é `123e4567-…`, fictícia)
 - Números reais da prestação de contas (os de `transparencia.html` são exemplo)
 - Relatórios em PDF
-- Fotos que faltam (lista acima)
-- Imagem de compartilhamento `assets/img/og-home.jpg` (1200×630)
+- Imagem de compartilhamento `assets/img/og-home.jpg` (1200×630): as meta tags de todas
+  as páginas já apontam para ela, mas o arquivo ainda não existe
 - Confirmar se os números de impacto são ~300/~250 ou +144/+88
