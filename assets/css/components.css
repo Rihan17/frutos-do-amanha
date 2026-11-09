@@ -1,0 +1,492 @@
+/* ==========================================================
+   Componentes compartilhados entre todas as páginas
+   ========================================================== */
+
+/* ---------- Marca (as três árvores) ---------- */
+.marca { overflow: visible; }
+.marca .tronco, .marca .chao {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.marca .copa use { fill: var(--folha); }
+.marca .copa .clara { fill: var(--folha-clara); }
+.marca .frutos { display: none; }
+.marca .fruto { fill: var(--caqui); }
+.marca .fruto--pitanga { fill: var(--pitanga); }
+.marca--madura .frutos { display: inline; }
+[data-tom="escuro"] .marca .copa use { fill: #6E8F55; }
+[data-tom="escuro"] .marca .copa .clara { fill: #93AE72; }
+
+/* ---------- Botões: forma de semente, não pílula ---------- */
+.botao {
+  --bg: var(--terra);
+  --fg: var(--papel);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  justify-content: center;
+  gap: .7em;
+  padding: 1.05em 1.7em 1.1em;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--f-texto);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: .01em;
+  text-decoration: none;
+  border-radius: 58% 42% 55% 45% / 62% 48% 52% 38%;
+  transition: border-radius .6s var(--ease-brota), background-color var(--d-micro) var(--ease-brota);
+  will-change: transform;
+}
+.botao:hover { border-radius: 44% 56% 42% 58% / 45% 60% 40% 55%; }
+.botao__texto { position: relative; display: inline-block; }
+.botao svg { width: 1.1em; height: 1.1em; flex: none; }
+.botao--doar { --bg: var(--pitanga-tinta); --fg: #fff; font-size: 1.05rem; }
+.botao--doar:hover { --bg: #9E232B; }
+.botao--claro { --bg: var(--papel); --fg: var(--terra); }
+.botao--claro:hover { --bg: #fff; }
+.botao--folha { --bg: var(--folha); --fg: var(--papel); }
+.botao--grande { font-size: clamp(1.05rem, 1.4vw, 1.3rem); padding: 1.2em 2em 1.25em; }
+.botao:active { transform: translateY(2px); }
+
+/* ---------- Cabeçalho ---------- */
+.topo {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--z-header);
+  color: var(--terra);
+  transition: transform .6s var(--ease-brota), color .4s var(--ease-brota);
+}
+.topo__barra {
+  display: flex;
+  align-items: center;
+  gap: var(--e-5);
+  padding-block: clamp(.7rem, 1.4vw, 1.1rem);
+}
+.topo::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -16px;
+  background: var(--papel);
+  -webkit-mask: linear-gradient(#000 0 0) 0 0 / 100% calc(100% - 15px) no-repeat, url("../img/rasgo-baixo.svg") 0 100% / 100% 16px no-repeat;
+          mask: linear-gradient(#000 0 0) 0 0 / 100% calc(100% - 15px) no-repeat, url("../img/rasgo-baixo.svg") 0 100% / 100% 16px no-repeat;
+  opacity: 0;
+  transition: opacity .4s var(--ease-brota), background-color .4s var(--ease-brota);
+}
+.topo.solido::before { opacity: 1; }
+.topo.escuro { color: var(--papel); }
+.topo.escuro::before { background: var(--terra); }
+.topo.escondido { transform: translateY(-110%); }
+.topo > * { position: relative; }
+
+.topo__marca {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: .6rem;
+  text-decoration: none;
+  margin-right: auto;
+}
+.topo__marca .marca { width: 58px; height: auto; }
+.topo__nome {
+  font-family: var(--f-display);
+  font-size: 1.12rem;
+  font-weight: 620;
+  line-height: .95;
+  letter-spacing: -.02em;
+  font-variation-settings: "SOFT" 100, "opsz" 24;
+}
+.topo__nome small {
+  display: block;
+  font-family: var(--f-texto);
+  font-size: .62rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  opacity: .75;
+  margin-top: .2rem;
+}
+.topo__ancoras { display: none; gap: clamp(1rem, 2vw, 2rem); list-style: none; padding: 0; }
+.topo__ancoras a {
+  position: relative;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.topo__ancoras a::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -5px;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--d-micro) var(--ease-brota);
+}
+.topo__ancoras a:hover::after,
+.topo__ancoras a[aria-current="true"]::after { transform: scaleX(1); transform-origin: left; }
+.topo__acoes { display: flex; align-items: center; gap: .6rem; }
+.topo .botao { font-size: .88rem; padding: .78em 1.25em .82em; }
+.botao-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .6rem .3rem;
+  font-weight: 700;
+  font-size: .88rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.botao-menu__linhas { position: relative; width: 26px; height: 12px; }
+.botao-menu__linhas::before, .botao-menu__linhas::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform .5s var(--ease-brota);
+}
+.botao-menu__linhas::before { top: 0; rotate: -2deg; }
+.botao-menu__linhas::after { bottom: 0; right: 6px; rotate: 1.5deg; }
+@media (min-width: 1100px) { .topo__ancoras { display: flex; } }
+@media (max-width: 520px) {
+  .topo__nome small { display: none; }
+  .topo__marca .marca { width: 46px; }
+  .topo__nome { font-size: 1rem; }
+  .topo .botao--doar { padding: .7em 1em .74em; }
+  .botao-menu__texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}
+
+/* ---------- Menu em tela cheia ---------- */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-menu);
+  background: var(--terra);
+  color: var(--papel);
+  display: flex;
+  flex-direction: column;
+  padding: clamp(5.5rem, 12vh, 8rem) var(--margem) var(--e-6);
+  overflow-y: auto;
+  visibility: hidden;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path .8s var(--ease-seiva), visibility 0s .8s;
+}
+.menu.aberto { visibility: visible; clip-path: inset(0 0 0 0); transition: clip-path .8s var(--ease-seiva), visibility 0s; }
+.menu__lista { list-style: none; padding: 0; counter-reset: item; }
+.menu__lista li { counter-increment: item; border-top: 1px solid rgb(243 235 221 / .16); }
+.menu__lista a {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(.8rem, 3vw, 2.5rem);
+  padding-block: clamp(.4rem, 1.2vh, .9rem);
+  text-decoration: none;
+  font-family: var(--f-display);
+  font-size: clamp(2.2rem, 6.5vw, 5.4rem);
+  line-height: 1;
+  letter-spacing: -.035em;
+  font-variation-settings: "SOFT" 0, "WONK" 0, "opsz" 144;
+  transition: font-variation-settings .6s var(--ease-brota), color .3s;
+}
+.menu__lista a::before {
+  content: "0" counter(item);
+  font-family: var(--f-texto);
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: var(--caqui);
+  min-width: 2.5ch;
+}
+.menu__lista a:hover, .menu__lista a:focus-visible { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; color: var(--mel); font-style: italic; }
+.menu__lista small {
+  margin-left: auto;
+  font-family: var(--f-texto);
+  font-size: .82rem;
+  letter-spacing: .04em;
+  opacity: .6;
+  font-style: normal;
+  text-align: right;
+}
+.menu__rodape { margin-top: auto; padding-top: var(--e-6); display: flex; flex-wrap: wrap; gap: var(--e-4) var(--e-7); font-size: .92rem; }
+.menu__rodape a { color: var(--mel); }
+@media (max-width: 640px) { .menu__lista small { display: none; } }
+body.menu-aberto .topo { color: var(--papel); }
+body.menu-aberto .topo::before { opacity: 0; }
+body.menu-aberto .botao-menu__linhas::before { transform: translateY(5px) rotate(40deg); }
+body.menu-aberto .botao-menu__linhas::after { transform: translateY(-5px) rotate(-44deg); right: 0; }
+
+/* ---------- Cursor contextual ---------- */
+.cursor {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: var(--z-cursor);
+  pointer-events: none;
+  display: none;
+}
+.tem-cursor .cursor { display: block; }
+.cursor__bola {
+  position: absolute;
+  width: 84px; height: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: 50%;
+  background: var(--caqui);
+  transform: scale(.14);
+  transition: transform .5s var(--ease-brota), background-color .3s;
+}
+.cursor__texto {
+  position: absolute;
+  translate: -50% -50%;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: lowercase;
+  color: var(--terra);
+  opacity: 0;
+  transition: opacity .25s;
+  white-space: nowrap;
+}
+.cursor.rotulo .cursor__bola { transform: scale(1); }
+.cursor.rotulo .cursor__texto { opacity: 1; transition-delay: .1s; }
+.cursor.doar .cursor__bola { background: var(--mel); }
+.cursor.link .cursor__bola { transform: scale(.34); }
+.cursor.pressionado .cursor__bola { transform: scale(.1); }
+/* Faixas laranja: a bola do cursor tambem e caqui e some no fundo. Sobre
+   elas a bola vira terra (4,9:1 contra o caqui) e o rotulo vira papel.
+   A variante "doar", em mel, tem o mesmo problema nessas faixas, por isso
+   ela aparece aqui com especificidade maior que a regra .cursor.doar. */
+.cursor.sobre-caqui .cursor__bola,
+.cursor.sobre-caqui.doar .cursor__bola { background: var(--terra); }
+.cursor.sobre-caqui .cursor__texto { color: var(--papel); }
+
+/* ---------- Cortina orgânica entre páginas ---------- */
+.cortina {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-cortina);
+  pointer-events: none;
+  overflow: hidden;
+  visibility: hidden;
+}
+.cortina.ativa { visibility: visible; pointer-events: all; }
+.cortina svg {
+  position: absolute;
+  left: -5vw;
+  /* O reset "img, svg, video { max-width: 100% }" cortaria os 110vw em 100%,
+     e a cortina deixaria uma faixa da página à mostra na direita. */
+  max-width: none;
+  width: 110vw;
+  height: 150vh;
+  top: -25vh;
+  transform: translateY(110%);
+  fill: var(--terra);
+}
+.cortina .marca { position: absolute; width: 120px; left: 50%; top: 50%; translate: -50% -50%; color: var(--papel); opacity: 0; }
+
+/* ---------- Loader: a semente que germina ---------- */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  background: var(--terra);
+  color: var(--papel);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+.loader__palco { width: min(58vw, 320px); }
+.loader__palco svg { overflow: visible; width: 100%; height: auto; }
+.loader .semente-queda { fill: #8A6547; }
+.loader .semente-brilho { fill: #B08A63; }
+.loader__nome {
+  font-family: var(--f-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -.02em;
+  font-variation-settings: "SOFT" 100, "opsz" 72;
+  opacity: 0;
+}
+.loader__dica {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.5rem, 5vh, 3rem);
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgb(243 235 221 / .8);
+  opacity: 0;
+}
+.loader__dica svg { width: 12px; height: 40px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.loader__dica path { stroke-dasharray: 60; animation: gota 2.2s var(--ease-seiva) infinite; }
+@keyframes gota { 0% { stroke-dashoffset: 60; } 60% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -60; } }
+html.intro-ativa, html.intro-ativa body { overflow: hidden; }
+.loader.fora { display: none; }
+
+/* ---------- Microinteração: folhas e frutos brotando ---------- */
+.brotos { position: fixed; inset: 0; pointer-events: none; z-index: 85; overflow: hidden; }
+.broto-p {
+  position: absolute;
+  width: 18px; height: 18px;
+  margin: -9px 0 0 -9px;
+  animation: brotar .9s var(--ease-brota) forwards;
+}
+.broto-p--folha { fill: var(--folha-clara); }
+.broto-p--caqui { fill: var(--caqui); }
+.broto-p--pitanga { fill: var(--pitanga); }
+@keyframes brotar {
+  0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+  45% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(var(--s, 1)) rotate(var(--r)); opacity: 0; }
+}
+
+/* ---------- Bloco da chave Pix ---------- */
+.pix {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--e-5);
+  align-items: center;
+  background: var(--terra);
+  color: var(--papel);
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  rotate: -1deg;
+  max-width: 560px;
+}
+.pix__qr { width: clamp(96px, 12vw, 140px); background: var(--papel); padding: 8px; }
+.pix__qr img { width: 100%; }
+.pix__chave { display: grid; gap: .6rem; min-width: 0; }
+.pix__chave code { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: .86rem; word-break: break-all; color: var(--mel); }
+.pix__aviso { font-size: .75rem; color: rgb(243 235 221 / .72); }
+.pix .botao { justify-self: start; font-size: .88rem; padding: .7em 1.2em .75em; }
+
+/* ---------- FAQ em acordeão ---------- */
+.faq { border-top: 1.5px solid currentColor; }
+.faq details { border-bottom: 1.5px solid rgb(43 29 20 / .22); }
+.faq summary {
+  list-style: none;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: clamp(.75rem, 2vw, 1.75rem);
+  padding-block: clamp(1rem, 2vw, 1.5rem);
+  cursor: pointer;
+  font-family: var(--f-display);
+  font-size: clamp(1.3rem, 2.2vw, 2rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  font-variation-settings: "SOFT" 40, "opsz" 48;
+  transition: font-variation-settings .5s var(--ease-brota);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary:hover { font-variation-settings: "SOFT" 100, "opsz" 48; }
+.faq__n { font-family: var(--f-texto); font-size: .78rem; font-weight: 700; letter-spacing: .1em; color: var(--caqui-tinta); }
+.faq__sinal { width: 26px; height: 26px; align-self: center; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; transition: transform .5s var(--ease-brota); }
+.faq details[open] .faq__sinal { transform: rotate(135deg); }
+.faq__resposta { overflow: hidden; }
+.faq__resposta > div { padding: 0 0 1.5rem calc(2.5ch + clamp(.75rem, 2vw, 1.75rem)); max-width: 68ch; }
+.faq__resposta ul { padding-left: 1.1em; margin-top: .4rem; }
+.faq__resposta li::marker { color: var(--caqui); }
+
+/* ---------- Conversa (mockup de mensagens) ---------- */
+.conversa {
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  padding: clamp(1.2rem, 2.5vw, 2rem);
+  background: var(--papel);
+  color: var(--terra);
+  border-radius: 6px 6px 28px 6px;
+  rotate: -1.2deg;
+  box-shadow: 0 1px 0 rgb(43 29 20 / .2), 0 24px 40px -28px rgb(43 29 20 / .7);
+}
+.conversa__topo { display: flex; align-items: center; gap: .7rem; padding-bottom: .8rem; border-bottom: 1px dashed rgb(43 29 20 / .25); font-size: .85rem; font-weight: 700; }
+.conversa__topo .marca { width: 40px; }
+.conversa__topo small { display: block; font-weight: 500; color: var(--casca); }
+.balao {
+  max-width: 86%;
+  padding: .75rem 1rem .8rem;
+  font-size: .98rem;
+  line-height: 1.45;
+}
+.balao--pessoa { align-self: flex-end; background: var(--mel); border-radius: 18px 18px 4px 18px; }
+.balao--ong { align-self: flex-start; background: #E3D6BE; border-radius: 18px 18px 18px 4px; }
+.balao small { display: block; margin-top: .25rem; font-size: .7rem; opacity: .65; text-align: right; }
+.digitando { align-self: flex-start; display: inline-flex; gap: 4px; padding: .8rem 1rem; background: #E3D6BE; border-radius: 18px 18px 18px 4px; }
+.digitando i { width: 7px; height: 7px; border-radius: 50%; background: var(--casca); animation: digita 1s infinite ease-in-out; }
+.digitando i:nth-child(2) { animation-delay: .15s; }
+.digitando i:nth-child(3) { animation-delay: .3s; }
+@keyframes digita { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+/* ---------- Rodapé: a colheita ---------- */
+.rodape {
+  --cor: var(--terra);
+  position: relative;
+  background: var(--terra);
+  color: var(--papel);
+  padding-block: var(--e-9) var(--e-6);
+  overflow: hidden;
+}
+.rodape__pomar { width: min(100%, 780px); margin-bottom: var(--e-7); color: #C9A882; }
+.rodape__cidades {
+  font-family: var(--f-display);
+  font-size: clamp(3rem, 11.5vw, 12.5rem);
+  line-height: .86;
+  letter-spacing: -.045em;
+  font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+  font-weight: 500;
+}
+.rodape__cidades span { display: block; }
+.rodape__cidades em { color: var(--caqui); font-style: italic; font-weight: 300; }
+.rodape__grade { margin-top: var(--e-8); row-gap: var(--e-6); }
+.rodape__grade > div { grid-column: span 12; }
+.rodape h2 { font-family: var(--f-texto); font-size: var(--t-rotulo); letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--mel); margin-bottom: .9rem; line-height: 1.2; }
+.rodape address { font-style: normal; font-size: clamp(1.25rem, 2vw, 1.75rem); font-family: var(--f-display); line-height: 1.2; letter-spacing: -.01em; font-variation-settings: "SOFT" 100, "opsz" 36; }
+.rodape ul { list-style: none; padding: 0; display: grid; gap: .35rem; }
+.rodape a { text-decoration: none; }
+.rodape a:hover { color: var(--mel); }
+.rodape__base {
+  margin-top: var(--e-8);
+  padding-top: var(--e-5);
+  border-top: 1px solid rgb(243 235 221 / .18);
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 2rem;
+  justify-content: space-between;
+  font-size: .82rem;
+  color: rgb(243 235 221 / .7);
+}
+@media (min-width: 760px) {
+  .rodape__grade > .rodape__endereco { grid-column: 1 / span 6; }
+  .rodape__grade > div:nth-child(2) { grid-column: 8 / span 2; }
+  .rodape__grade > div:nth-child(3) { grid-column: 10 / span 3; }
+}
+
+/* ---------- Ajustes de camada e cursor ---------- */
+body.menu-aberto .topo { z-index: calc(var(--z-menu) + 1); transform: none; }
+.tem-cursor body, .tem-cursor a, .tem-cursor button, .tem-cursor summary, .tem-cursor [data-cursor] { cursor: none; }
+.tem-cursor input, .tem-cursor textarea, .tem-cursor select { cursor: text; }
+.cursor { opacity: 0; transition: opacity .3s; }
+.loader::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -30px;
+  height: 32px;
+  background: var(--terra);
+  -webkit-mask: url("../img/rasgo-baixo.svg") 0 0 / 100% 100% no-repeat;
+          mask: url("../img/rasgo-baixo.svg") 0 0 / 100% 100% no-repeat;
+}
+.js:not(.no-motion) .hero__titulo { visibility: hidden; }
+
+/* Máscara de linha do SplitText: espaço para acentos e descendentes (ç, j, p) */
+.linha-split-mask { padding-bottom: .16em; margin-bottom: -.16em; padding-top: .06em; margin-top: -.06em; }
+body.menu-aberto .topo__ancoras { visibility: hidden; }

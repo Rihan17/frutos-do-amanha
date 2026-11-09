@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ONG Frutos do Amanhã — Educação, Respeito e Disciplina | São Vicente/SP</title>
+  <meta name="description" content="Desde 2011, a ONG Frutos do Amanhã impacta a vida de crianças, adolescentes e suas famílias em São Vicente e Praia Grande por meio da educação, cultura, esporte e empreendedorismo.">
+  <meta name="theme-color" content="#2B1D14">
+  <link rel="canonical" href="https://ongfrutosdoamanha.com/">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="ONG Frutos do Amanhã">
+  <meta property="og:title" content="Prazer, somos os frutos que mudam futuros.">
+  <meta property="og:description" content="Desde 2011, impactamos a vida de crianças por meio da educação, cultura, esporte e empreendedorismo. São Vicente e Praia Grande/SP.">
+  <meta property="og:url" content="https://ongfrutosdoamanha.com/">
+  <meta property="og:image" content="https://ongfrutosdoamanha.com/assets/img/og-home.jpg"><!-- [CONTEÚDO REAL AQUI] imagem 1200×630 -->
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "NGO",
+    "name": "ONG Frutos do Amanhã — Projetos Sociais",
+    "slogan": "Educação, Respeito e Disciplina.",
+    "foundingDate": "2011-02-09",
+    "founder": { "@type": "Person", "name": "Heloisa Morais" },
+    "taxID": "14.538.126/0001-29",
+    "url": "https://ongfrutosdoamanha.com/",
+    "sameAs": ["https://www.instagram.com/ongfrutosdoamanha/"],
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Rua Geralda Martins de Oliveira, 355 — Vila Matias",
+      "addressLocality": "São Vicente",
+      "addressRegion": "SP",
+      "postalCode": "11345-230",
+      "addressCountry": "BR"
+    },
+    "areaServed": ["São Vicente, SP", "Praia Grande, SP"]
+  }
+  </script>
+
+  <!-- Marca a página como "com JS" antes de pintar (evita piscar) -->
+  <script>
+    document.documentElement.classList.add('js');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('no-motion');
+  </script>
+
+  <!-- Fontes: Fraunces (Google Fonts, variável com SOFT/WONK) + Satoshi (Fontshare) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap">
+
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/home.css">
+
+  <!-- GSAP + ScrollTrigger + SplitText: animações ligadas ao scroll e texto linha a linha.
+       Lenis: rolagem suave sincronizada com o ScrollTrigger. Todos com defer. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/SplitText.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+  <script defer src="assets/js/nucleo.js"></script>
+  <script defer src="assets/js/efeitos.js"></script>
+  <script defer src="assets/js/home.js"></script>
+</head>
+<body data-pagina="home">
+  <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- Sprite com a folha usada pelas árvores -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <path id="fda-folha" d="M0 0C5-7 15-7 20 0C15 7 5 7 0 0Z"/>
+      <symbol id="i-broto" viewBox="0 0 24 24"><path d="M12 21.5C12 16 12.3 12 12 8.5M12 12.6C8 12.4 5.2 9.6 4.6 5.4 9 5.3 11.8 8.2 12 12.6ZM12 10.2C15.2 10.1 18.4 7.6 19.4 3.8 15.3 3.7 12.4 6.3 12 10.2Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-seta" viewBox="0 0 46 22"><path d="M2 11.4C14 9.8 30 12.2 44 10.6M34.5 3C38 6 41 8.6 44 10.6 40.2 13.2 37.2 16 34.2 19.4"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M3.5 12.8C6 14.2 8 16.8 9.3 19.4 12 12.4 16.2 7.2 21 3.8"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- Loader: a semente cai, germina e vira as três árvores -->
+  <div class="loader" role="region" aria-label="Introdução — role a página para entrar" data-loader>
+    <div class="loader__palco">
+      <svg viewBox="0 0 200 140" aria-hidden="true">
+        <g class="loader__semente">
+          <ellipse class="semente-queda" cx="100" cy="0" rx="7" ry="10"/>
+          <ellipse class="semente-brilho" cx="97.5" cy="-3" rx="2" ry="4"/>
+        </g>
+        <g class="marca" style="color:#C9A882"><g class="arvore arvore--1" style="--i:1"><path class="tronco" d="M34.0 116C33.0 104.4 35.5 97.9 34.0 89.9M34.0 89.9C25.0 82.9 21.4 78.3 18.9 72.5M34.0 89.9C41.2 81.8 44.8 77.1 48.4 71.3M34.0 89.9C34.0 81.2 36.0 72.5 35.0 65.5" pathLength="1"/><g class="copa" style="transform-origin:34px 78px"><use class="clara" href="#fda-folha" transform="translate(42.8 76.0) rotate(-16) scale(0.80)"/><use href="#fda-folha" transform="translate(34.4 68.5) rotate(-78) scale(0.67)"/><use href="#fda-folha" transform="translate(46.0 81.6) rotate(26) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(27.7 68.7) rotate(-138) scale(0.69)"/><use href="#fda-folha" transform="translate(34.3 68.4) rotate(-79) scale(0.69)"/><use href="#fda-folha" transform="translate(19.8 81.2) rotate(172) scale(0.60)"/><use class="clara" href="#fda-folha" transform="translate(27.0 83.0) rotate(162) scale(0.77)"/><use href="#fda-folha" transform="translate(23.9 76.3) rotate(-167) scale(0.74)"/><use href="#fda-folha" transform="translate(23.8 76.5) rotate(-169) scale(0.79)"/><use class="clara" href="#fda-folha" transform="translate(31.1 72.6) rotate(-109) scale(0.65)"/><use href="#fda-folha" transform="translate(31.8 84.1) rotate(85) scale(0.73)"/><use href="#fda-folha" transform="translate(23.5 77.4) rotate(-198) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(28.7 84.3) rotate(146) scale(0.70)"/><use href="#fda-folha" transform="translate(29.8 81.9) rotate(116) scale(0.60)"/><use href="#fda-folha" transform="translate(31.4 86.2) rotate(123) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(25.5 72.5) rotate(-137) scale(0.72)"/><use href="#fda-folha" transform="translate(36.5 71.2) rotate(-60) scale(0.65)"/><use href="#fda-folha" transform="translate(21.0 82.7) rotate(148) scale(0.76)"/></g><g class="frutos"><circle class="fruto" cx="25.2" cy="77.1" r="3.6"/><circle class="fruto" cx="43.3" cy="71.3" r="3.6"/><circle class="fruto fruto--pitanga" cx="32.8" cy="70.0" r="3.6"/></g></g><g class="arvore arvore--2" style="--i:2"><path class="tronco" d="M90.0 116C89.0 99.6 91.5 87.1 90.0 79.1M90.0 79.1C78.0 69.3 73.2 62.7 69.8 54.5M90.0 79.1C99.6 67.6 104.4 61.1 109.2 52.9M90.0 79.1C90.0 66.8 92.0 54.5 91.0 44.7" pathLength="1"/><g class="copa" style="transform-origin:90px 62px"><use class="clara" href="#fda-folha" transform="translate(104.7 52.3) rotate(-31) scale(0.92)"/><use href="#fda-folha" transform="translate(90.5 50.6) rotate(-76) scale(0.78)"/><use href="#fda-folha" transform="translate(108.3 67.5) rotate(5) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(103.4 68.7) rotate(50) scale(0.72)"/><use href="#fda-folha" transform="translate(93.1 72.4) rotate(79) scale(0.76)"/><use href="#fda-folha" transform="translate(84.5 57.6) rotate(-166) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(89.1 72.0) rotate(87) scale(0.80)"/><use href="#fda-folha" transform="translate(80.0 54.0) rotate(-118) scale(0.71)"/><use href="#fda-folha" transform="translate(74.5 59.8) rotate(-154) scale(0.87)"/><use class="clara" href="#fda-folha" transform="translate(80.6 54.0) rotate(-145) scale(0.74)"/><use href="#fda-folha" transform="translate(100.2 56.5) rotate(-24) scale(0.85)"/><use href="#fda-folha" transform="translate(87.4 67.2) rotate(125) scale(0.80)"/><use class="clara" href="#fda-folha" transform="translate(103.6 70.7) rotate(28) scale(0.67)"/><use href="#fda-folha" transform="translate(89.4 70.1) rotate(79) scale(0.71)"/><use href="#fda-folha" transform="translate(81.5 68.1) rotate(131) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(88.2 51.2) rotate(-116) scale(0.70)"/><use href="#fda-folha" transform="translate(88.1 72.6) rotate(76) scale(0.72)"/><use href="#fda-folha" transform="translate(100.0 70.3) rotate(21) scale(0.72)"/><use class="clara" href="#fda-folha" transform="translate(93.8 51.2) rotate(-77) scale(0.84)"/><use href="#fda-folha" transform="translate(71.9 65.5) rotate(172) scale(0.81)"/><use href="#fda-folha" transform="translate(104.3 52.8) rotate(-39) scale(0.84)"/><use class="clara" href="#fda-folha" transform="translate(73.1 67.8) rotate(148) scale(0.89)"/><use href="#fda-folha" transform="translate(101.9 56.9) rotate(2) scale(0.76)"/><use href="#fda-folha" transform="translate(86.3 71.6) rotate(112) scale(0.76)"/><use class="clara" href="#fda-folha" transform="translate(80.2 59.0) rotate(-156) scale(0.78)"/><use href="#fda-folha" transform="translate(101.8 60.4) rotate(8) scale(0.74)"/><use href="#fda-folha" transform="translate(103.1 56.7) rotate(-21) scale(0.85)"/><use class="clara" href="#fda-folha" transform="translate(85.7 55.4) rotate(-99) scale(0.89)"/></g><g class="frutos"><circle class="fruto" cx="75.4" cy="62.0" r="4.0"/><circle class="fruto" cx="80.7" cy="51.2" r="4.0"/><circle class="fruto fruto--pitanga" cx="81.7" cy="56.3" r="4.0"/><circle class="fruto" cx="91.7" cy="51.6" r="4.0"/><circle class="fruto" cx="106.8" cy="56.2" r="4.0"/></g></g><g class="arvore arvore--3" style="--i:3"><path class="tronco" d="M156.0 116C155.0 94.0 157.5 74.5 156.0 66.5M156.0 66.5C140.5 53.3 134.3 44.5 130.0 33.5M156.0 66.5C168.4 51.1 174.6 42.3 180.8 31.3M156.0 66.5C156.0 50.0 158.0 33.5 157.0 20.3" pathLength="1"/><g class="copa" style="transform-origin:156px 43px"><use class="clara" href="#fda-folha" transform="translate(131.3 51.7) rotate(149) scale(0.94)"/><use href="#fda-folha" transform="translate(149.9 54.0) rotate(112) scale(0.97)"/><use href="#fda-folha" transform="translate(135.5 34.0) rotate(-173) scale(0.95)"/><use class="clara" href="#fda-folha" transform="translate(167.9 25.9) rotate(-79) scale(0.78)"/><use href="#fda-folha" transform="translate(138.9 48.4) rotate(168) scale(1.00)"/><use href="#fda-folha" transform="translate(166.6 33.0) rotate(-43) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(167.8 34.0) rotate(-51) scale(0.91)"/><use href="#fda-folha" transform="translate(179.4 44.5) rotate(-6) scale(0.96)"/><use href="#fda-folha" transform="translate(149.8 50.0) rotate(110) scale(0.90)"/><use class="clara" href="#fda-folha" transform="translate(165.9 46.9) rotate(4) scale(0.86)"/><use href="#fda-folha" transform="translate(172.9 37.4) rotate(1) scale(0.79)"/><use href="#fda-folha" transform="translate(135.0 45.0) rotate(165) scale(0.77)"/><use class="clara" href="#fda-folha" transform="translate(150.6 62.6) rotate(131) scale(0.96)"/><use href="#fda-folha" transform="translate(179.9 43.1) rotate(-13) scale(0.83)"/><use href="#fda-folha" transform="translate(173.7 28.8) rotate(-51) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(178.3 53.5) rotate(45) scale(0.76)"/><use href="#fda-folha" transform="translate(168.9 40.5) rotate(-25) scale(0.79)"/><use href="#fda-folha" transform="translate(142.8 30.3) rotate(-115) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(150.0 59.5) rotate(103) scale(0.85)"/><use href="#fda-folha" transform="translate(148.0 52.2) rotate(133) scale(0.96)"/><use href="#fda-folha" transform="translate(164.1 48.7) rotate(52) scale(0.78)"/><use class="clara" href="#fda-folha" transform="translate(177.0 53.6) rotate(27) scale(1.01)"/><use href="#fda-folha" transform="translate(161.5 34.3) rotate(-61) scale(0.85)"/><use href="#fda-folha" transform="translate(146.5 45.2) rotate(160) scale(1.03)"/><use class="clara" href="#fda-folha" transform="translate(178.7 48.2) rotate(16) scale(0.89)"/><use href="#fda-folha" transform="translate(176.8 41.4) rotate(-1) scale(0.75)"/><use href="#fda-folha" transform="translate(151.9 33.7) rotate(-89) scale(0.88)"/><use class="clara" href="#fda-folha" transform="translate(140.8 57.9) rotate(146) scale(0.88)"/><use href="#fda-folha" transform="translate(164.1 43.4) rotate(25) scale(0.84)"/><use href="#fda-folha" transform="translate(159.2 38.8) rotate(-62) scale(0.99)"/><use class="clara" href="#fda-folha" transform="translate(151.8 38.5) rotate(-113) scale(0.92)"/><use href="#fda-folha" transform="translate(170.4 54.5) rotate(42) scale(1.03)"/><use href="#fda-folha" transform="translate(175.1 39.3) rotate(10) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(144.2 35.8) rotate(-135) scale(0.81)"/><use href="#fda-folha" transform="translate(163.7 39.7) rotate(-40) scale(0.87)"/><use href="#fda-folha" transform="translate(154.6 38.4) rotate(-91) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(152.9 59.3) rotate(95) scale(0.91)"/><use href="#fda-folha" transform="translate(164.1 37.4) rotate(-47) scale(0.91)"/><use href="#fda-folha" transform="translate(181.4 47.1) rotate(-7) scale(0.86)"/><use class="clara" href="#fda-folha" transform="translate(177.8 33.0) rotate(-40) scale(0.79)"/></g><g class="frutos"><circle class="fruto" cx="131.4" cy="39.9" r="4.4"/><circle class="fruto" cx="177.6" cy="43.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="152.6" cy="55.9" r="4.4"/><circle class="fruto" cx="156.4" cy="57.2" r="4.4"/><circle class="fruto" cx="147.2" cy="34.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="142.8" cy="56.0" r="4.4"/><circle class="fruto" cx="155.5" cy="59.1" r="4.4"/><circle class="fruto" cx="140.1" cy="47.2" r="4.4"/></g></g><path class="chao" d="M6 116.5C40 114.8 70 117.6 104 116.2S170 115 196 116.8" pathLength="1"/></g>
+      </svg>
+    </div>
+    <p class="loader__nome" aria-hidden="true">Frutos do Amanhã</p>
+    <p class="loader__dica" data-dica aria-hidden="true"><svg viewBox="0 0 12 40"><path d="M6 2C5.4 13 6.6 26 6 38"/></svg>role para entrar</p>
+  </div>
+
+  <!-- Cabeçalho fixo -->
+  <header class="topo escuro" data-topo>
+    <div class="envelope topo__barra">
+      <a class="topo__marca" href="index.html" aria-label="ONG Frutos do Amanhã — página inicial">
+        <svg class="marca" viewBox="0 0 200 120" aria-hidden="true" focusable="false"><g class="arvore arvore--1" style="--i:1"><path class="tronco" d="M34.0 116C33.0 104.4 35.5 97.9 34.0 89.9M34.0 89.9C25.0 82.9 21.4 78.3 18.9 72.5M34.0 89.9C41.2 81.8 44.8 77.1 48.4 71.3M34.0 89.9C34.0 81.2 36.0 72.5 35.0 65.5" pathLength="1"/><g class="copa" style="transform-origin:34px 78px"><use class="clara" href="#fda-folha" transform="translate(42.8 76.0) rotate(-16) scale(0.80)"/><use href="#fda-folha" transform="translate(34.4 68.5) rotate(-78) scale(0.67)"/><use href="#fda-folha" transform="translate(46.0 81.6) rotate(26) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(27.7 68.7) rotate(-138) scale(0.69)"/><use href="#fda-folha" transform="translate(34.3 68.4) rotate(-79) scale(0.69)"/><use href="#fda-folha" transform="translate(19.8 81.2) rotate(172) scale(0.60)"/><use class="clara" href="#fda-folha" transform="translate(27.0 83.0) rotate(162) scale(0.77)"/><use href="#fda-folha" transform="translate(23.9 76.3) rotate(-167) scale(0.74)"/><use href="#fda-folha" transform="translate(23.8 76.5) rotate(-169) scale(0.79)"/><use class="clara" href="#fda-folha" transform="translate(31.1 72.6) rotate(-109) scale(0.65)"/><use href="#fda-folha" transform="translate(31.8 84.1) rotate(85) scale(0.73)"/><use href="#fda-folha" transform="translate(23.5 77.4) rotate(-198) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(28.7 84.3) rotate(146) scale(0.70)"/><use href="#fda-folha" transform="translate(29.8 81.9) rotate(116) scale(0.60)"/><use href="#fda-folha" transform="translate(31.4 86.2) rotate(123) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(25.5 72.5) rotate(-137) scale(0.72)"/><use href="#fda-folha" transform="translate(36.5 71.2) rotate(-60) scale(0.65)"/><use href="#fda-folha" transform="translate(21.0 82.7) rotate(148) scale(0.76)"/></g><g class="frutos"><circle class="fruto" cx="25.2" cy="77.1" r="3.6"/><circle class="fruto" cx="43.3" cy="71.3" r="3.6"/><circle class="fruto fruto--pitanga" cx="32.8" cy="70.0" r="3.6"/></g></g><g class="arvore arvore--2" style="--i:2"><path class="tronco" d="M90.0 116C89.0 99.6 91.5 87.1 90.0 79.1M90.0 79.1C78.0 69.3 73.2 62.7 69.8 54.5M90.0 79.1C99.6 67.6 104.4 61.1 109.2 52.9M90.0 79.1C90.0 66.8 92.0 54.5 91.0 44.7" pathLength="1"/><g class="copa" style="transform-origin:90px 62px"><use class="clara" href="#fda-folha" transform="translate(104.7 52.3) rotate(-31) scale(0.92)"/><use href="#fda-folha" transform="translate(90.5 50.6) rotate(-76) scale(0.78)"/><use href="#fda-folha" transform="translate(108.3 67.5) rotate(5) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(103.4 68.7) rotate(50) scale(0.72)"/><use href="#fda-folha" transform="translate(93.1 72.4) rotate(79) scale(0.76)"/><use href="#fda-folha" transform="translate(84.5 57.6) rotate(-166) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(89.1 72.0) rotate(87) scale(0.80)"/><use href="#fda-folha" transform="translate(80.0 54.0) rotate(-118) scale(0.71)"/><use href="#fda-folha" transform="translate(74.5 59.8) rotate(-154) scale(0.87)"/><use class="clara" href="#fda-folha" transform="translate(80.6 54.0) rotate(-145) scale(0.74)"/><use href="#fda-folha" transform="translate(100.2 56.5) rotate(-24) scale(0.85)"/><use href="#fda-folha" transform="translate(87.4 67.2) rotate(125) scale(0.80)"/><use class="clara" href="#fda-folha" transform="translate(103.6 70.7) rotate(28) scale(0.67)"/><use href="#fda-folha" transform="translate(89.4 70.1) rotate(79) scale(0.71)"/><use href="#fda-folha" transform="translate(81.5 68.1) rotate(131) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(88.2 51.2) rotate(-116) scale(0.70)"/><use href="#fda-folha" transform="translate(88.1 72.6) rotate(76) scale(0.72)"/><use href="#fda-folha" transform="translate(100.0 70.3) rotate(21) scale(0.72)"/><use class="clara" href="#fda-folha" transform="translate(93.8 51.2) rotate(-77) scale(0.84)"/><use href="#fda-folha" transform="translate(71.9 65.5) rotate(172) scale(0.81)"/><use href="#fda-folha" transform="translate(104.3 52.8) rotate(-39) scale(0.84)"/><use class="clara" href="#fda-folha" transform="translate(73.1 67.8) rotate(148) scale(0.89)"/><use href="#fda-folha" transform="translate(101.9 56.9) rotate(2) scale(0.76)"/><use href="#fda-folha" transform="translate(86.3 71.6) rotate(112) scale(0.76)"/><use class="clara" href="#fda-folha" transform="translate(80.2 59.0) rotate(-156) scale(0.78)"/><use href="#fda-folha" transform="translate(101.8 60.4) rotate(8) scale(0.74)"/><use href="#fda-folha" transform="translate(103.1 56.7) rotate(-21) scale(0.85)"/><use class="clara" href="#fda-folha" transform="translate(85.7 55.4) rotate(-99) scale(0.89)"/></g><g class="frutos"><circle class="fruto" cx="75.4" cy="62.0" r="4.0"/><circle class="fruto" cx="80.7" cy="51.2" r="4.0"/><circle class="fruto fruto--pitanga" cx="81.7" cy="56.3" r="4.0"/><circle class="fruto" cx="91.7" cy="51.6" r="4.0"/><circle class="fruto" cx="106.8" cy="56.2" r="4.0"/></g></g><g class="arvore arvore--3" style="--i:3"><path class="tronco" d="M156.0 116C155.0 94.0 157.5 74.5 156.0 66.5M156.0 66.5C140.5 53.3 134.3 44.5 130.0 33.5M156.0 66.5C168.4 51.1 174.6 42.3 180.8 31.3M156.0 66.5C156.0 50.0 158.0 33.5 157.0 20.3" pathLength="1"/><g class="copa" style="transform-origin:156px 43px"><use class="clara" href="#fda-folha" transform="translate(131.3 51.7) rotate(149) scale(0.94)"/><use href="#fda-folha" transform="translate(149.9 54.0) rotate(112) scale(0.97)"/><use href="#fda-folha" transform="translate(135.5 34.0) rotate(-173) scale(0.95)"/><use class="clara" href="#fda-folha" transform="translate(167.9 25.9) rotate(-79) scale(0.78)"/><use href="#fda-folha" transform="translate(138.9 48.4) rotate(168) scale(1.00)"/><use href="#fda-folha" transform="translate(166.6 33.0) rotate(-43) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(167.8 34.0) rotate(-51) scale(0.91)"/><use href="#fda-folha" transform="translate(179.4 44.5) rotate(-6) scale(0.96)"/><use href="#fda-folha" transform="translate(149.8 50.0) rotate(110) scale(0.90)"/><use class="clara" href="#fda-folha" transform="translate(165.9 46.9) rotate(4) scale(0.86)"/><use href="#fda-folha" transform="translate(172.9 37.4) rotate(1) scale(0.79)"/><use href="#fda-folha" transform="translate(135.0 45.0) rotate(165) scale(0.77)"/><use class="clara" href="#fda-folha" transform="translate(150.6 62.6) rotate(131) scale(0.96)"/><use href="#fda-folha" transform="translate(179.9 43.1) rotate(-13) scale(0.83)"/><use href="#fda-folha" transform="translate(173.7 28.8) rotate(-51) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(178.3 53.5) rotate(45) scale(0.76)"/><use href="#fda-folha" transform="translate(168.9 40.5) rotate(-25) scale(0.79)"/><use href="#fda-folha" transform="translate(142.8 30.3) rotate(-115) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(150.0 59.5) rotate(103) scale(0.85)"/><use href="#fda-folha" transform="translate(148.0 52.2) rotate(133) scale(0.96)"/><use href="#fda-folha" transform="translate(164.1 48.7) rotate(52) scale(0.78)"/><use class="clara" href="#fda-folha" transform="translate(177.0 53.6) rotate(27) scale(1.01)"/><use href="#fda-folha" transform="translate(161.5 34.3) rotate(-61) scale(0.85)"/><use href="#fda-folha" transform="translate(146.5 45.2) rotate(160) scale(1.03)"/><use class="clara" href="#fda-folha" transform="translate(178.7 48.2) rotate(16) scale(0.89)"/><use href="#fda-folha" transform="translate(176.8 41.4) rotate(-1) scale(0.75)"/><use href="#fda-folha" transform="translate(151.9 33.7) rotate(-89) scale(0.88)"/><use class="clara" href="#fda-folha" transform="translate(140.8 57.9) rotate(146) scale(0.88)"/><use href="#fda-folha" transform="translate(164.1 43.4) rotate(25) scale(0.84)"/><use href="#fda-folha" transform="translate(159.2 38.8) rotate(-62) scale(0.99)"/><use class="clara" href="#fda-folha" transform="translate(151.8 38.5) rotate(-113) scale(0.92)"/><use href="#fda-folha" transform="translate(170.4 54.5) rotate(42) scale(1.03)"/><use href="#fda-folha" transform="translate(175.1 39.3) rotate(10) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(144.2 35.8) rotate(-135) scale(0.81)"/><use href="#fda-folha" transform="translate(163.7 39.7) rotate(-40) scale(0.87)"/><use href="#fda-folha" transform="translate(154.6 38.4) rotate(-91) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(152.9 59.3) rotate(95) scale(0.91)"/><use href="#fda-folha" transform="translate(164.1 37.4) rotate(-47) scale(0.91)"/><use href="#fda-folha" transform="translate(181.4 47.1) rotate(-7) scale(0.86)"/><use class="clara" href="#fda-folha" transform="translate(177.8 33.0) rotate(-40) scale(0.79)"/></g><g class="frutos"><circle class="fruto" cx="131.4" cy="39.9" r="4.4"/><circle class="fruto" cx="177.6" cy="43.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="152.6" cy="55.9" r="4.4"/><circle class="fruto" cx="156.4" cy="57.2" r="4.4"/><circle class="fruto" cx="147.2" cy="34.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="142.8" cy="56.0" r="4.4"/><circle class="fruto" cx="155.5" cy="59.1" r="4.4"/><circle class="fruto" cx="140.1" cy="47.2" r="4.4"/></g></g><path class="chao" d="M6 116.5C40 114.8 70 117.6 104 116.2S170 115 196 116.8" pathLength="1"/></svg>
+        <span class="topo__nome" aria-hidden="true">Frutos do Amanhã<small>Projetos sociais · desde 2011</small></span>
+      </a>
+      <nav aria-label="Seções da página">
+        <ul class="topo__ancoras">
+        <li><a href="quem-somos.html">Quem somos</a></li>
+        <li><a href="projetos.html">Projetos</a></li>
+        <li><a href="como-ajudar.html">Como ajudar</a></li>
+        <li><a href="voluntariado.html">Voluntariado</a></li>
+        <li><a href="transparencia.html">Transparência</a></li>
+        </ul>
+      </nav>
+      <div class="topo__acoes">
+        <a class="botao botao--doar" href="doar.html" data-cursor="doar" data-broto>Doar</a>
+        <button class="botao-menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-botao>
+          <span class="botao-menu__texto">Menu</span><span class="botao-menu__linhas" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Menu de páginas -->
+  <div class="menu" id="menu" data-tom="escuro" data-menu aria-label="Menu principal" role="dialog" aria-modal="true">
+    <nav aria-label="Páginas">
+      <ul class="menu__lista">
+        <li><a href="index.html" aria-current="page">Início <small>semente</small></a></li>
+        <li><a href="quem-somos.html">Quem somos <small>a história desde 2011</small></a></li>
+        <li><a href="projetos.html">Projetos <small>feirinha, estudos, quermesse</small></a></li>
+        <li><a href="como-ajudar.html">Como ajudar <small>pix, itens, voluntariado</small></a></li>
+        <li><a href="transparencia.html">Transparência <small>prestação de contas</small></a></li>
+        <li><a href="noticias.html">Notícias <small>eventos e ações</small></a></li>
+        <li><a href="contato.html">Contato <small>vila matias, são vicente</small></a></li>
+      </ul>
+    </nav>
+    <div class="menu__rodape">
+      <span>Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</span>
+      <a href="https://www.instagram.com/ongfrutosdoamanha/" rel="noopener" target="_blank">@ongfrutosdoamanha</a>
+    </div>
+  </div>
+
+  <main id="conteudo">
+    <!-- Linha de crescimento: desenhada pelo JS de acordo com a altura da página -->
+    <svg class="raiz" aria-hidden="true" focusable="false" data-raiz></svg>
+
+    <!-- ============ 01 · SEMENTE ============ -->
+    <section class="hero capitulo" data-tom="escuro" data-etapa="semente" aria-labelledby="hero-titulo">
+      <div class="hero__solo" aria-hidden="true" data-solo></div>
+
+      <div class="hero__semente" aria-hidden="true" data-semente-hero>
+        <svg viewBox="0 0 420 520">
+          <defs>
+            <radialGradient id="g-semente" cx="38%" cy="30%" r="75%">
+              <stop offset="0" stop-color="#C39469"/>
+              <stop offset=".55" stop-color="#8A6041"/>
+              <stop offset="1" stop-color="#4A301E"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="228" cy="470" rx="150" ry="22" fill="#1C120C" opacity=".7"/>
+          <g transform="rotate(-18 210 250)">
+            <path d="M212 34C318 50 368 196 338 330 314 438 238 478 186 458 102 428 70 306 100 184 120 104 158 28 212 34Z" fill="url(#g-semente)"/>
+            <path d="M214 46C196 150 202 300 190 448" fill="none" stroke="#3A2416" stroke-width="3.2" stroke-linecap="round" opacity=".75"/>
+            <path d="M152 108C136 150 130 196 136 236" fill="none" stroke="#F3EBDD" stroke-width="10" stroke-linecap="round" opacity=".22"/>
+            <g fill="none" stroke="#2B1D14" stroke-width="2" stroke-linecap="round" opacity=".38">
+              <path d="M300 170C312 200 318 240 314 280"/><path d="M286 150C302 196 306 250 298 312"/>
+              <path d="M318 214C322 250 320 296 306 344"/><path d="M270 330C282 360 280 396 266 424"/>
+            </g>
+            <!-- ponta da raiz que começa a sair -->
+            <path class="hero__radicula" d="M190 452C188 476 196 494 184 512 176 524 182 540 170 552" fill="none" stroke="#C9A882" stroke-width="3" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="envelope">
+        <div class="hero__topo">
+          <p class="rotulo">01 — Semente</p>
+          <p class="rotulo" aria-hidden="true">Vila Matias · São Vicente/SP</p>
+        </div>
+
+        <h1 class="hero__titulo" id="hero-titulo" data-titulo-hero>
+          <span class="linha">Prazer,</span>
+          <span class="linha recuo">somos os <em>frutos</em></span>
+          <span class="linha">que mudam</span>
+          <span class="linha recuo">futuros.</span>
+        </h1>
+
+        <div class="hero__rodape">
+          <p class="hero__texto lead" data-surge>Desde 2011, impactamos a vida de crianças por meio da educação, cultura, esporte e empreendedorismo — em São Vicente e Praia Grande.</p>
+          <div class="hero__acoes" data-surge>
+            <a class="botao botao--claro botao--grande" href="#ajudar" data-magnetico data-cursor="doar" data-broto data-ancora>
+              <svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Quero ajudar</span>
+            </a>
+            <a class="link" href="quem-somos.html" data-broto>Conheça a história</a>
+          </div>
+        </div>
+      </div>
+
+      <figure class="hero__foto fita" style="--fita-rot:5deg" data-surge>
+        <div class="foto" data-cursor="ver">
+          <img data-foto="hero-criancas" alt="Três crianças sorrindo na sala de informática da sede" width="640" height="800" fetchpriority="high">
+          <span class="foto__etiqueta"><b>foto provisória</b>hero-criancas.jpg</span>
+        </div>
+      </figure>
+    </section>
+
+    <!-- ============ 02 · RAIZ ============ -->
+    <section class="manifesto capitulo" id="historia" data-etapa="raiz" aria-labelledby="manifesto-titulo">
+      <span class="rasgo" aria-hidden="true"></span>
+      <div class="envelope grade">
+        <h2 class="pilha" id="manifesto-titulo" data-pilha>
+          <span>Educação<span class="ponto">.</span></span>
+          <span>Respeito<span class="ponto">.</span></span>
+          <span>Disciplina<span class="ponto">.</span></span>
+        </h2>
+        <div class="manifesto__coluna" data-surge>
+          <p class="rotulo">02 — Raiz</p>
+          <p class="capitular">Tudo começou em 9 de fevereiro de 2011, na Vila Matias, com gestos simples de solidariedade: Heloisa Morais levava apoio espiritual e doações de alimentos para famílias da comunidade.</p>
+          <p>Ao perceber de perto que as crianças precisavam de mais do que alimento — de oportunidades reais para crescer e aprender —, ela formalizou a ONG e ampliou a atuação para educação, cultura e esporte.</p>
+          <p class="apoio">Desde março de 2021, filhos e marido seguem o legado da fundadora. Hoje, a ONG é presidida por Bianca Morais.</p>
+          <p><a class="link" href="quem-somos.html" data-broto>Leia a história completa</a></p>
+        </div>
+        <blockquote class="citacao-missao" data-marcador>
+          <p>Nossa missão é <span class="marcador">criar oportunidades reais para quem mais precisa.</span></p>
+          <cite>Missão da ONG</cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- ============ 03 · BROTO — impacto ============ -->
+    <section class="impacto capitulo" id="impacto" data-tom="escuro" data-etapa="broto" aria-labelledby="impacto-titulo">
+      <span class="rasgo rasgo--b" aria-hidden="true"></span>
+      <div class="envelope">
+        <div class="impacto__cabeca">
+          <div>
+            <p class="rotulo" style="margin-bottom:1rem">03 — Broto</p>
+            <h2 id="impacto-titulo" data-titulo>O que já <em>brotou</em> em 15 anos.</h2>
+          </div>
+        </div>
+
+        <div class="grade">
+          <div class="numero-card fita" style="--fita-rot:-6deg">
+            <p>
+              <span class="numero-card__valor" aria-hidden="true">
+                <span data-contador="300">300</span>
+                <svg class="traco" viewBox="0 0 200 120" preserveAspectRatio="none" data-desenha><path d="M44 20C112-2 192 22 193 62 194 104 118 118 68 110 18 102 4 70 15 43 23 24 62 9 120 12" pathLength="1"/></svg>
+              </span>
+              <span class="numero-card__texto">
+                <strong>crianças e adolescentes</strong>
+                <span class="sr-only">Cerca de 300 crianças e adolescentes atendidos.</span>
+                <span class="apoio" aria-hidden="true">atendidos pela ONG — cerca de trezentos.</span>
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <ul class="numeros" role="list">
+          <li class="numero">
+            <span class="numero__valor" aria-hidden="true"><small>~</small><span data-contador="250">250</span></span>
+            <span class="numero__rotulo"><span class="sr-only">Cerca de 250 </span>famílias atendidas</span>
+          </li>
+          <li class="numero">
+            <span class="numero__valor" aria-hidden="true"><span data-contador="15">15</span></span>
+            <span class="numero__rotulo"><span class="sr-only">15 </span>anos de trabalho contínuo, desde 2011</span>
+          </li>
+          <li class="numero">
+            <span class="numero__valor" aria-hidden="true"><span data-contador="2">2</span></span>
+            <span class="numero__rotulo"><span class="sr-only">2 </span>cidades: São Vicente e Praia Grande</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ 03 · BROTO — pilares ============ -->
+    <section class="pilares capitulo" data-etapa="broto" aria-labelledby="pilares-titulo">
+      <span class="rasgo" aria-hidden="true"></span>
+      <div class="envelope">
+        <div class="pilares__cabeca">
+          <h2 id="pilares-titulo" data-titulo>Quatro frentes de atuação.</h2>
+          <p class="apoio">Cada frente atende crianças, adolescentes e suas famílias. Toque em uma para ver o que acontece nela.</p>
+        </div>
+        <ul class="pilares__lista" role="list" data-pilares>
+          <li class="pilar aberto">
+            <button class="pilar__botao" type="button" aria-expanded="true" aria-controls="pilar-1" data-cursor="ver">
+              <span class="pilar__n">01</span><span class="pilar__nome">Educação</span><span class="pilar__resumo">reforço escolar e material didático</span>
+            </button>
+            <div class="pilar__painel" id="pilar-1"><div><div class="pilar__conteudo">
+              <div class="foto"><img data-foto="galeria-informatica" alt="Crianças usando notebooks na sala de informática da sede" width="900" height="600"><span class="foto__etiqueta"><b>foto provisória</b>galeria-informatica.jpg</span></div>
+              <p>Reforço escolar e material didático para as crianças cadastradas.</p>
+            </div></div></div>
+          </li>
+          <li class="pilar">
+            <button class="pilar__botao" type="button" aria-expanded="false" aria-controls="pilar-2" data-cursor="ver">
+              <span class="pilar__n">02</span><span class="pilar__nome">Cultura</span><span class="pilar__resumo">música, dança e artes</span>
+            </button>
+            <div class="pilar__painel" id="pilar-2"><div><div class="pilar__conteudo">
+              <div class="foto"><img data-foto="galeria-danca" alt="Crianças da oficina de dança em apresentação no palco, com saias coloridas" width="900" height="600"><span class="foto__etiqueta"><b>foto provisória</b>galeria-danca.jpg</span></div>
+              <p>Oficinas de música, dança e artes.</p>
+            </div></div></div>
+          </li>
+          <li class="pilar">
+            <button class="pilar__botao" type="button" aria-expanded="false" aria-controls="pilar-3" data-cursor="ver">
+              <span class="pilar__n">03</span><span class="pilar__nome">Esporte</span><span class="pilar__resumo">futebol e atividades coletivas</span>
+            </button>
+            <div class="pilar__painel" id="pilar-3"><div><div class="pilar__conteudo">
+              <div class="foto"><img data-foto="galeria-esporte" alt="Grupo de crianças e adolescentes de quimono posando após a aula de karatê" width="900" height="600"><span class="foto__etiqueta"><b>foto provisória</b>galeria-esporte.jpg</span></div>
+              <p>Futebol e atividades coletivas.</p>
+            </div></div></div>
+          </li>
+          <li class="pilar">
+            <button class="pilar__botao" type="button" aria-expanded="false" aria-controls="pilar-4" data-cursor="ver">
+              <span class="pilar__n">04</span><span class="pilar__nome">Empreendedorismo</span><span class="pilar__resumo">cursos para mães e jovens</span>
+            </button>
+            <div class="pilar__painel" id="pilar-4"><div><div class="pilar__conteudo">
+              <div class="foto"><img data-foto="pilar-empreendedorismo" alt="Costureira trabalhando em uma máquina de costura na oficina" width="1400" height="1050"><span class="foto__etiqueta"><b>foto provisória</b>pilar-empreendedorismo.jpg</span></div>
+              <p>Cursos e apoio para mães e jovens gerarem renda.</p>
+            </div></div></div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ 04 · FLORESCER — projetos (rolagem horizontal) ============ -->
+    <section class="projetos capitulo" id="projetos" data-etapa="florescer" aria-labelledby="projetos-titulo">
+      <span class="rasgo rasgo--b" aria-hidden="true"></span>
+      <div class="projetos__pin" data-galeria tabindex="0" aria-label="Projetos — role ou arraste para o lado">
+        <div class="projetos__trilho" data-trilho data-cursor="arrastar">
+          <div class="painel painel--intro">
+            <div>
+              <p class="rotulo" style="margin-bottom:1.25rem">04 — Florescer</p>
+              <h2 id="projetos-titulo" data-titulo>O que já <em>floresceu</em>.</h2>
+            </div>
+            <p class="lead" style="max-width:30ch">Ações que acontecem hoje com as famílias da área continental de São Vicente e de Praia Grande.</p>
+            <p class="painel__dica" aria-hidden="true">role ou arraste <svg viewBox="0 0 46 22"><use href="#i-seta"/></svg></p>
+          </div>
+
+          <article class="painel projeto" aria-labelledby="p1">
+            <span class="projeto__n" aria-hidden="true">01</span>
+            <div class="projeto__foto-a"><div class="foto" data-revela><img data-foto="feirinha-da-crianca" alt="Família recebendo uma cesta na sede, em frente ao painel da ONG" width="800" height="1000"><span class="foto__etiqueta"><b>foto provisória</b>feirinha-da-crianca.jpg</span></div></div>
+            <div class="projeto__foto-b fita"><div class="foto" data-revela><img data-foto="feirinha-2" alt="Mãos de uma criança segurando dois tomates" width="933" height="1400"><span class="foto__etiqueta"><b>foto provisória</b>feirinha-2.jpg</span></div></div>
+            <div class="projeto__texto">
+              <h3 id="p1">Feirinha da Criança</h3>
+              <p>Entrega mensal de cestas, frutas e verduras para famílias em situação de vulnerabilidade.</p>
+              <ul class="projeto__meta" role="list"><li>todo mês</li><li>São Vicente (área continental)</li><li>Praia Grande</li></ul>
+            </div>
+          </article>
+
+          <article class="painel projeto" aria-labelledby="p2">
+            <span class="projeto__n" aria-hidden="true">02</span>
+            <div class="projeto__foto-a"><div class="foto" data-revela><img data-foto="estudando-para-o-amanha" alt="Dois meninos segurando os pacotes de material escolar recebidos" width="800" height="1000"><span class="foto__etiqueta"><b>foto provisória</b>estudando-para-o-amanha.jpg</span></div></div>
+            <div class="projeto__foto-b fita" style="--fita-rot:4deg"><div class="foto" data-revela><img data-foto="estudando-2" alt="Criança escrevendo em um caderno, com estojo, régua e desenhos sobre a mesa" width="1400" height="934"><span class="foto__etiqueta"><b>foto provisória</b>estudando-2.jpg</span></div></div>
+            <div class="projeto__texto">
+              <h3 id="p2">Estudando para o Amanhã</h3>
+              <p>Campanha de arrecadação de kits de material escolar — mochilas, cadernos e uniformes — para as crianças cadastradas.</p>
+              <ul class="projeto__meta" role="list"><li>campanha</li><li>material escolar</li></ul>
+            </div>
+          </article>
+
+          <article class="painel projeto" aria-labelledby="p3">
+            <span class="projeto__n" aria-hidden="true">03</span>
+            <div class="projeto__foto-a"><div class="foto" data-revela><img data-foto="quermesse-beneficente" alt="Turma de dança da ONG em apresentação no palco, com saias cor-de-rosa" width="800" height="1000"><span class="foto__etiqueta"><b>foto provisória</b>quermesse-beneficente.jpg</span></div></div>
+            <div class="projeto__foto-b fita" style="--fita-rot:-3deg"><div class="foto" data-revela><img data-foto="quermesse-2" alt="Mesa de quermesse com pamonha, bolo de milho, pastéis e curau" width="1400" height="889"><span class="foto__etiqueta"><b>foto provisória</b>quermesse-2.jpg</span></div></div>
+            <div class="projeto__texto">
+              <h3 id="p3">1ª Quermesse Beneficente</h3>
+              <p>Evento na sede com comidas típicas, brincadeiras e apresentações das oficinas. A renda é revertida para os projetos.</p>
+              <ul class="projeto__meta" role="list"><li>evento</li><li>na sede</li></ul>
+            </div>
+          </article>
+
+          <div class="painel painel--fim">
+            <a href="projetos.html" data-broto>Ver todos<br>os <span>projetos</span> →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 04 · FLORESCER — vozes ============ -->
+    <section class="vozes capitulo" id="vozes" data-etapa="florescer" aria-labelledby="vozes-titulo">
+      <span class="rasgo" aria-hidden="true"></span>
+      <div class="envelope grade">
+        <div class="vozes__cabeca">
+          <p class="rotulo">Vozes da comunidade</p>
+          <h2 id="vozes-titulo" data-titulo>Quem vive, conta.</h2>
+          <p class="apoio">Depoimentos de mães e avós atendidas pela ONG, nas palavras delas.</p>
+        </div>
+
+        <div class="vozes__cartao fita" data-vozes>
+          <span class="vozes__aspas" aria-hidden="true">“</span>
+
+          <figure class="voz ativa" aria-roledescription="depoimento">
+            <blockquote><p>Eu passei por muitas dificuldades e todas a portas para mim se fecharam. A única porta que se abriu para mim e para minha família foi da ONG. […] foi, sim, a luz do fim do túnel.</p></blockquote>
+            <figcaption><strong>Silene</strong><span>Mãe do Caio e da Bruna Rafaela</span></figcaption>
+          </figure>
+          <figure class="voz" aria-roledescription="depoimento">
+            <blockquote><p>Muitos fala que é pouco, mas para mim ajuda muito fazer uma sopa, para fazer uma verdura para minha filha.</p></blockquote>
+            <figcaption><strong>Márcia</strong><span>Mãe da Ana Victória</span></figcaption>
+          </figure>
+          <figure class="voz" aria-roledescription="depoimento">
+            <blockquote><p>É a segunda casa. Eles adoram ir, eu também gosto muito. Sempre eles ficam tristes quando não consegue ir.</p></blockquote>
+            <figcaption><strong>Maria Aparecida</strong><span>Avó da Julia e do Enzo</span></figcaption>
+          </figure>
+          <figure class="voz" aria-roledescription="depoimento">
+            <blockquote><p>Não só disponibilizando a atividade física, que era o balé que minha filha precisava e eu não tinha condições de pagar, como a feirinha me ajudou muito. […] Hoje eu só tenho gratidão.</p></blockquote>
+            <figcaption><strong>Gabriela</strong><span>Mãe da Ana Clara</span></figcaption>
+          </figure>
+          <figure class="voz" aria-roledescription="depoimento">
+            <blockquote><p>Agora mesmo esse ano eu tava pensando como é que eu ia comprar o material dos meus filhos. Os 4 foram abençoados…</p></blockquote>
+            <figcaption><strong>Rosimeire</strong><span>Mãe da Vitória</span></figcaption>
+          </figure>
+          <figure class="voz" aria-roledescription="depoimento">
+            <blockquote><p>Sempre nos abençoando através das atividades que mantém minhas crianças fazendo algo produtivo para o futuro delas e através das doações, só tenho a agradecer.</p></blockquote>
+            <figcaption><strong>Luciana Santos</strong><span>Mãe do Enzo e da Emily</span></figcaption>
+          </figure>
+        </div>
+
+        <div class="vozes__controles">
+          <button class="vozes__seta" type="button" data-voz="-1" aria-label="Depoimento anterior"><svg style="transform:scaleX(-1)" aria-hidden="true"><use href="#i-seta"/></svg></button>
+          <p class="vozes__contador" aria-live="polite"><b data-voz-atual>1</b> <span>/ 6</span></p>
+          <button class="vozes__seta" type="button" data-voz="1" aria-label="Próximo depoimento"><svg aria-hidden="true"><use href="#i-seta"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 05 · FRUTO — como ajudar ============ -->
+    <section class="ajudar capitulo" id="ajudar" data-etapa="fruto" aria-labelledby="ajudar-titulo">
+      <span class="rasgo rasgo--b" aria-hidden="true"></span>
+      <div class="envelope">
+        <div class="ajudar__cabeca">
+          <p class="rotulo">05 — Fruto</p>
+          <h2 id="ajudar-titulo" data-titulo>Como ajudar <em>a colher.</em></h2>
+        </div>
+
+        <div class="bloco" data-bloco>
+          <p class="bloco__frase">Pix, <em>na hora.</em></p>
+          <div class="bloco__corpo">
+            <div class="pix">
+              <div class="pix__qr"><img src="assets/img/pix-qr-exemplo.svg" alt="QR code Pix de exemplo" width="124" height="124" loading="lazy"></div>
+              <div class="pix__chave">
+                <span class="rotulo" style="color:var(--papel)">Chave Pix</span>
+                <code data-chave-pix>123e4567-e89b-12d3-a456-426614174000</code>
+                <button class="botao botao--claro" type="button" data-copiar data-broto>Copiar chave</button>
+              </div>
+            </div>
+            <a class="botao botao--doar botao--grande" href="doar.html" data-magnetico data-cursor="doar" data-broto>
+              <svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Doar agora</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="bloco" data-bloco>
+          <p class="bloco__frase">Todo mês, <em>a partir de R$&nbsp;10.</em></p>
+          <div class="bloco__corpo">
+            <ul class="niveis" role="list">
+              <li class="nivel"><span class="nivel__nome">Apoiador do Amanhã</span><span class="nivel__valor">R$ 10<small>/mês</small></span></li>
+              <li class="nivel"><span class="nivel__nome">Apoiador Solidário</span><span class="nivel__valor">R$ 25<small>/mês</small></span></li>
+              <li class="nivel"><span class="nivel__nome">Apoiador Transformador</span><span class="nivel__valor">R$ 50<small>/mês</small></span></li>
+            </ul>
+            <p><a class="link" href="doar.html" data-broto>Quero apoiar todo mês</a></p>
+          </div>
+        </div>
+
+        <div class="bloco" data-bloco>
+          <p class="bloco__frase">Na sede, <em>de segunda a sexta.</em></p>
+          <div class="bloco__corpo">
+            <p><strong>Ponto de coleta das 9h às 17h</strong> — Rua Geralda Martins de Oliveira, 355, Vila Matias, São Vicente.</p>
+            <ul class="itens" role="list">
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Alimentos não perecíveis</li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Frutas, legumes e verduras</li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Material escolar e mochilas</li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Roupas e calçados em bom estado</li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Produtos de higiene e limpeza</li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Brinquedos e material esportivo</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bloco" data-bloco>
+          <p class="bloco__frase">Com o seu <em>tempo.</em></p>
+          <div class="bloco__corpo">
+            <p>Seja voluntário nas atividades com as crianças ou traga a sua empresa como parceira.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:center">
+              <a class="botao botao--folha botao--grande" href="voluntariado.html" data-magnetico data-broto>
+                <svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Quero ser voluntário</span>
+              </a>
+              <a class="link" href="contato.html" data-broto>Sou uma empresa</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 05 · FRUTO — dúvidas ============ -->
+    <section class="duvidas capitulo" data-etapa="fruto" aria-labelledby="faq-titulo">
+      <span class="rasgo" aria-hidden="true"></span>
+      <div class="envelope grade">
+        <div class="duvidas__conversa">
+          <div class="conversa" data-conversa aria-label="Exemplo de conversa com a ONG">
+            <div class="conversa__topo">
+              <svg class="marca" viewBox="0 0 200 120" aria-hidden="true"><g class="arvore arvore--1" style="--i:1"><path class="tronco" d="M34.0 116C33.0 104.4 35.5 97.9 34.0 89.9M34.0 89.9C25.0 82.9 21.4 78.3 18.9 72.5M34.0 89.9C41.2 81.8 44.8 77.1 48.4 71.3M34.0 89.9C34.0 81.2 36.0 72.5 35.0 65.5" pathLength="1"/><g class="copa" style="transform-origin:34px 78px"><use class="clara" href="#fda-folha" transform="translate(42.8 76.0) rotate(-16) scale(0.80)"/><use href="#fda-folha" transform="translate(34.4 68.5) rotate(-78) scale(0.67)"/><use href="#fda-folha" transform="translate(46.0 81.6) rotate(26) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(27.7 68.7) rotate(-138) scale(0.69)"/><use href="#fda-folha" transform="translate(34.3 68.4) rotate(-79) scale(0.69)"/><use href="#fda-folha" transform="translate(19.8 81.2) rotate(172) scale(0.60)"/><use class="clara" href="#fda-folha" transform="translate(27.0 83.0) rotate(162) scale(0.77)"/><use href="#fda-folha" transform="translate(23.9 76.3) rotate(-167) scale(0.74)"/><use href="#fda-folha" transform="translate(23.8 76.5) rotate(-169) scale(0.79)"/><use class="clara" href="#fda-folha" transform="translate(31.1 72.6) rotate(-109) scale(0.65)"/><use href="#fda-folha" transform="translate(31.8 84.1) rotate(85) scale(0.73)"/><use href="#fda-folha" transform="translate(23.5 77.4) rotate(-198) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(28.7 84.3) rotate(146) scale(0.70)"/><use href="#fda-folha" transform="translate(29.8 81.9) rotate(116) scale(0.60)"/><use href="#fda-folha" transform="translate(31.4 86.2) rotate(123) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(25.5 72.5) rotate(-137) scale(0.72)"/><use href="#fda-folha" transform="translate(36.5 71.2) rotate(-60) scale(0.65)"/><use href="#fda-folha" transform="translate(21.0 82.7) rotate(148) scale(0.76)"/></g><g class="frutos"><circle class="fruto" cx="25.2" cy="77.1" r="3.6"/><circle class="fruto" cx="43.3" cy="71.3" r="3.6"/><circle class="fruto fruto--pitanga" cx="32.8" cy="70.0" r="3.6"/></g></g><g class="arvore arvore--2" style="--i:2"><path class="tronco" d="M90.0 116C89.0 99.6 91.5 87.1 90.0 79.1M90.0 79.1C78.0 69.3 73.2 62.7 69.8 54.5M90.0 79.1C99.6 67.6 104.4 61.1 109.2 52.9M90.0 79.1C90.0 66.8 92.0 54.5 91.0 44.7" pathLength="1"/><g class="copa" style="transform-origin:90px 62px"><use class="clara" href="#fda-folha" transform="translate(104.7 52.3) rotate(-31) scale(0.92)"/><use href="#fda-folha" transform="translate(90.5 50.6) rotate(-76) scale(0.78)"/><use href="#fda-folha" transform="translate(108.3 67.5) rotate(5) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(103.4 68.7) rotate(50) scale(0.72)"/><use href="#fda-folha" transform="translate(93.1 72.4) rotate(79) scale(0.76)"/><use href="#fda-folha" transform="translate(84.5 57.6) rotate(-166) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(89.1 72.0) rotate(87) scale(0.80)"/><use href="#fda-folha" transform="translate(80.0 54.0) rotate(-118) scale(0.71)"/><use href="#fda-folha" transform="translate(74.5 59.8) rotate(-154) scale(0.87)"/><use class="clara" href="#fda-folha" transform="translate(80.6 54.0) rotate(-145) scale(0.74)"/><use href="#fda-folha" transform="translate(100.2 56.5) rotate(-24) scale(0.85)"/><use href="#fda-folha" transform="translate(87.4 67.2) rotate(125) scale(0.80)"/><use class="clara" href="#fda-folha" transform="translate(103.6 70.7) rotate(28) scale(0.67)"/><use href="#fda-folha" transform="translate(89.4 70.1) rotate(79) scale(0.71)"/><use href="#fda-folha" transform="translate(81.5 68.1) rotate(131) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(88.2 51.2) rotate(-116) scale(0.70)"/><use href="#fda-folha" transform="translate(88.1 72.6) rotate(76) scale(0.72)"/><use href="#fda-folha" transform="translate(100.0 70.3) rotate(21) scale(0.72)"/><use class="clara" href="#fda-folha" transform="translate(93.8 51.2) rotate(-77) scale(0.84)"/><use href="#fda-folha" transform="translate(71.9 65.5) rotate(172) scale(0.81)"/><use href="#fda-folha" transform="translate(104.3 52.8) rotate(-39) scale(0.84)"/><use class="clara" href="#fda-folha" transform="translate(73.1 67.8) rotate(148) scale(0.89)"/><use href="#fda-folha" transform="translate(101.9 56.9) rotate(2) scale(0.76)"/><use href="#fda-folha" transform="translate(86.3 71.6) rotate(112) scale(0.76)"/><use class="clara" href="#fda-folha" transform="translate(80.2 59.0) rotate(-156) scale(0.78)"/><use href="#fda-folha" transform="translate(101.8 60.4) rotate(8) scale(0.74)"/><use href="#fda-folha" transform="translate(103.1 56.7) rotate(-21) scale(0.85)"/><use class="clara" href="#fda-folha" transform="translate(85.7 55.4) rotate(-99) scale(0.89)"/></g><g class="frutos"><circle class="fruto" cx="75.4" cy="62.0" r="4.0"/><circle class="fruto" cx="80.7" cy="51.2" r="4.0"/><circle class="fruto fruto--pitanga" cx="81.7" cy="56.3" r="4.0"/><circle class="fruto" cx="91.7" cy="51.6" r="4.0"/><circle class="fruto" cx="106.8" cy="56.2" r="4.0"/></g></g><g class="arvore arvore--3" style="--i:3"><path class="tronco" d="M156.0 116C155.0 94.0 157.5 74.5 156.0 66.5M156.0 66.5C140.5 53.3 134.3 44.5 130.0 33.5M156.0 66.5C168.4 51.1 174.6 42.3 180.8 31.3M156.0 66.5C156.0 50.0 158.0 33.5 157.0 20.3" pathLength="1"/><g class="copa" style="transform-origin:156px 43px"><use class="clara" href="#fda-folha" transform="translate(131.3 51.7) rotate(149) scale(0.94)"/><use href="#fda-folha" transform="translate(149.9 54.0) rotate(112) scale(0.97)"/><use href="#fda-folha" transform="translate(135.5 34.0) rotate(-173) scale(0.95)"/><use class="clara" href="#fda-folha" transform="translate(167.9 25.9) rotate(-79) scale(0.78)"/><use href="#fda-folha" transform="translate(138.9 48.4) rotate(168) scale(1.00)"/><use href="#fda-folha" transform="translate(166.6 33.0) rotate(-43) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(167.8 34.0) rotate(-51) scale(0.91)"/><use href="#fda-folha" transform="translate(179.4 44.5) rotate(-6) scale(0.96)"/><use href="#fda-folha" transform="translate(149.8 50.0) rotate(110) scale(0.90)"/><use class="clara" href="#fda-folha" transform="translate(165.9 46.9) rotate(4) scale(0.86)"/><use href="#fda-folha" transform="translate(172.9 37.4) rotate(1) scale(0.79)"/><use href="#fda-folha" transform="translate(135.0 45.0) rotate(165) scale(0.77)"/><use class="clara" href="#fda-folha" transform="translate(150.6 62.6) rotate(131) scale(0.96)"/><use href="#fda-folha" transform="translate(179.9 43.1) rotate(-13) scale(0.83)"/><use href="#fda-folha" transform="translate(173.7 28.8) rotate(-51) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(178.3 53.5) rotate(45) scale(0.76)"/><use href="#fda-folha" transform="translate(168.9 40.5) rotate(-25) scale(0.79)"/><use href="#fda-folha" transform="translate(142.8 30.3) rotate(-115) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(150.0 59.5) rotate(103) scale(0.85)"/><use href="#fda-folha" transform="translate(148.0 52.2) rotate(133) scale(0.96)"/><use href="#fda-folha" transform="translate(164.1 48.7) rotate(52) scale(0.78)"/><use class="clara" href="#fda-folha" transform="translate(177.0 53.6) rotate(27) scale(1.01)"/><use href="#fda-folha" transform="translate(161.5 34.3) rotate(-61) scale(0.85)"/><use href="#fda-folha" transform="translate(146.5 45.2) rotate(160) scale(1.03)"/><use class="clara" href="#fda-folha" transform="translate(178.7 48.2) rotate(16) scale(0.89)"/><use href="#fda-folha" transform="translate(176.8 41.4) rotate(-1) scale(0.75)"/><use href="#fda-folha" transform="translate(151.9 33.7) rotate(-89) scale(0.88)"/><use class="clara" href="#fda-folha" transform="translate(140.8 57.9) rotate(146) scale(0.88)"/><use href="#fda-folha" transform="translate(164.1 43.4) rotate(25) scale(0.84)"/><use href="#fda-folha" transform="translate(159.2 38.8) rotate(-62) scale(0.99)"/><use class="clara" href="#fda-folha" transform="translate(151.8 38.5) rotate(-113) scale(0.92)"/><use href="#fda-folha" transform="translate(170.4 54.5) rotate(42) scale(1.03)"/><use href="#fda-folha" transform="translate(175.1 39.3) rotate(10) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(144.2 35.8) rotate(-135) scale(0.81)"/><use href="#fda-folha" transform="translate(163.7 39.7) rotate(-40) scale(0.87)"/><use href="#fda-folha" transform="translate(154.6 38.4) rotate(-91) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(152.9 59.3) rotate(95) scale(0.91)"/><use href="#fda-folha" transform="translate(164.1 37.4) rotate(-47) scale(0.91)"/><use href="#fda-folha" transform="translate(181.4 47.1) rotate(-7) scale(0.86)"/><use class="clara" href="#fda-folha" transform="translate(177.8 33.0) rotate(-40) scale(0.79)"/></g><g class="frutos"><circle class="fruto" cx="131.4" cy="39.9" r="4.4"/><circle class="fruto" cx="177.6" cy="43.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="152.6" cy="55.9" r="4.4"/><circle class="fruto" cx="156.4" cy="57.2" r="4.4"/><circle class="fruto" cx="147.2" cy="34.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="142.8" cy="56.0" r="4.4"/><circle class="fruto" cx="155.5" cy="59.1" r="4.4"/><circle class="fruto" cx="140.1" cy="47.2" r="4.4"/></g></g><path class="chao" d="M6 116.5C40 114.8 70 117.6 104 116.2S170 115 196 116.8" pathLength="1"/></svg>
+              <div>ONG Frutos do Amanhã<small>responde pelo WhatsApp</small></div>
+            </div>
+            <p class="balao balao--pessoa" data-balao>Oi! Posso doar roupas das minhas crianças?</p>
+            <p class="balao balao--ong" data-balao>Pode sim! Aceitamos roupas e calçados em bom estado.</p>
+            <p class="balao balao--pessoa" data-balao>Onde eu entrego?</p>
+            <p class="balao balao--ong" data-balao>No ponto de coleta da sede, na Vila Matias, de segunda a sexta, das 9h às 17h.</p>
+          </div>
+          <a class="botao botao--doar" href="https://wa.me/5513988585602" rel="noopener" target="_blank" data-magnetico data-broto>
+            <svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Falar com a ONG</span>
+          </a>
+        </div>
+
+        <div class="duvidas__faq">
+          <p class="rotulo" style="margin-bottom:1rem">Perguntas frequentes</p>
+          <h2 id="faq-titulo" data-titulo>Antes de ajudar.</h2>
+          <div class="faq" data-faq>
+            <details>
+              <summary><span class="faq__n">01</span>Como faço uma doação por Pix?<svg class="faq__sinal" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3C12.6 9 13.4 17 13 23M3 13.2C9 12.6 17 13.5 23 12.8"/></svg></summary>
+              <div class="faq__resposta"><div><p>Use a chave Pix da ONG ou o QR code da seção acima.</p></div></div>
+            </details>
+            <details>
+              <summary><span class="faq__n">02</span>Posso doar todo mês?<svg class="faq__sinal" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3C12.6 9 13.4 17 13 23M3 13.2C9 12.6 17 13.5 23 12.8"/></svg></summary>
+              <div class="faq__resposta"><div><p>Sim. Existem três níveis de apoio mensal: Apoiador do Amanhã (R$ 10), Apoiador Solidário (R$ 25) e Apoiador Transformador (R$ 50).</p></div></div>
+            </details>
+            <details>
+              <summary><span class="faq__n">03</span>Que itens posso levar?<svg class="faq__sinal" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3C12.6 9 13.4 17 13 23M3 13.2C9 12.6 17 13.5 23 12.8"/></svg></summary>
+              <div class="faq__resposta"><div>
+                <ul><li>Alimentos não perecíveis</li><li>Frutas, legumes e verduras</li><li>Material escolar e mochilas</li><li>Roupas e calçados em bom estado</li><li>Produtos de higiene e limpeza</li><li>Brinquedos e material esportivo</li></ul>
+              </div></div>
+            </details>
+            <details>
+              <summary><span class="faq__n">04</span>Onde e quando entrego?<svg class="faq__sinal" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3C12.6 9 13.4 17 13 23M3 13.2C9 12.6 17 13.5 23 12.8"/></svg></summary>
+              <div class="faq__resposta"><div><p>No ponto de coleta da sede: Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP. De segunda a sexta, das 9h às 17h.</p></div></div>
+            </details>
+            <details>
+              <summary><span class="faq__n">05</span>Como me torno voluntário?<svg class="faq__sinal" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3C12.6 9 13.4 17 13 23M3 13.2C9 12.6 17 13.5 23 12.8"/></svg></summary>
+              <div class="faq__resposta"><div><p>Preencha o formulário de voluntariado na página <a class="link" href="voluntariado.html">Como ajudar</a>.</p></div></div>
+            </details>
+            <details>
+              <summary><span class="faq__n">06</span>A ONG é registrada?<svg class="faq__sinal" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3C12.6 9 13.4 17 13 23M3 13.2C9 12.6 17 13.5 23 12.8"/></svg></summary>
+              <div class="faq__resposta"><div><p>Sim, CNPJ 14.538.126/0001-29. A prestação de contas fica na página <a class="link" href="transparencia.html">Transparência</a>.</p></div></div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ COLHEITA — rodapé ============ -->
+  <footer class="rodape capitulo" data-tom="escuro" data-etapa="colheita">
+    <span class="rasgo rasgo--b" aria-hidden="true"></span>
+    <div class="envelope">
+      <svg class="marca marca--madura rodape__pomar" viewBox="0 0 200 120" aria-hidden="true" data-pomar><g class="arvore arvore--1" style="--i:1"><path class="tronco" d="M34.0 116C33.0 104.4 35.5 97.9 34.0 89.9M34.0 89.9C25.0 82.9 21.4 78.3 18.9 72.5M34.0 89.9C41.2 81.8 44.8 77.1 48.4 71.3M34.0 89.9C34.0 81.2 36.0 72.5 35.0 65.5" pathLength="1"/><g class="copa" style="transform-origin:34px 78px"><use class="clara" href="#fda-folha" transform="translate(42.8 76.0) rotate(-16) scale(0.80)"/><use href="#fda-folha" transform="translate(34.4 68.5) rotate(-78) scale(0.67)"/><use href="#fda-folha" transform="translate(46.0 81.6) rotate(26) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(27.7 68.7) rotate(-138) scale(0.69)"/><use href="#fda-folha" transform="translate(34.3 68.4) rotate(-79) scale(0.69)"/><use href="#fda-folha" transform="translate(19.8 81.2) rotate(172) scale(0.60)"/><use class="clara" href="#fda-folha" transform="translate(27.0 83.0) rotate(162) scale(0.77)"/><use href="#fda-folha" transform="translate(23.9 76.3) rotate(-167) scale(0.74)"/><use href="#fda-folha" transform="translate(23.8 76.5) rotate(-169) scale(0.79)"/><use class="clara" href="#fda-folha" transform="translate(31.1 72.6) rotate(-109) scale(0.65)"/><use href="#fda-folha" transform="translate(31.8 84.1) rotate(85) scale(0.73)"/><use href="#fda-folha" transform="translate(23.5 77.4) rotate(-198) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(28.7 84.3) rotate(146) scale(0.70)"/><use href="#fda-folha" transform="translate(29.8 81.9) rotate(116) scale(0.60)"/><use href="#fda-folha" transform="translate(31.4 86.2) rotate(123) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(25.5 72.5) rotate(-137) scale(0.72)"/><use href="#fda-folha" transform="translate(36.5 71.2) rotate(-60) scale(0.65)"/><use href="#fda-folha" transform="translate(21.0 82.7) rotate(148) scale(0.76)"/></g><g class="frutos"><circle class="fruto" cx="25.2" cy="77.1" r="3.6"/><circle class="fruto" cx="43.3" cy="71.3" r="3.6"/><circle class="fruto fruto--pitanga" cx="32.8" cy="70.0" r="3.6"/></g></g><g class="arvore arvore--2" style="--i:2"><path class="tronco" d="M90.0 116C89.0 99.6 91.5 87.1 90.0 79.1M90.0 79.1C78.0 69.3 73.2 62.7 69.8 54.5M90.0 79.1C99.6 67.6 104.4 61.1 109.2 52.9M90.0 79.1C90.0 66.8 92.0 54.5 91.0 44.7" pathLength="1"/><g class="copa" style="transform-origin:90px 62px"><use class="clara" href="#fda-folha" transform="translate(104.7 52.3) rotate(-31) scale(0.92)"/><use href="#fda-folha" transform="translate(90.5 50.6) rotate(-76) scale(0.78)"/><use href="#fda-folha" transform="translate(108.3 67.5) rotate(5) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(103.4 68.7) rotate(50) scale(0.72)"/><use href="#fda-folha" transform="translate(93.1 72.4) rotate(79) scale(0.76)"/><use href="#fda-folha" transform="translate(84.5 57.6) rotate(-166) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(89.1 72.0) rotate(87) scale(0.80)"/><use href="#fda-folha" transform="translate(80.0 54.0) rotate(-118) scale(0.71)"/><use href="#fda-folha" transform="translate(74.5 59.8) rotate(-154) scale(0.87)"/><use class="clara" href="#fda-folha" transform="translate(80.6 54.0) rotate(-145) scale(0.74)"/><use href="#fda-folha" transform="translate(100.2 56.5) rotate(-24) scale(0.85)"/><use href="#fda-folha" transform="translate(87.4 67.2) rotate(125) scale(0.80)"/><use class="clara" href="#fda-folha" transform="translate(103.6 70.7) rotate(28) scale(0.67)"/><use href="#fda-folha" transform="translate(89.4 70.1) rotate(79) scale(0.71)"/><use href="#fda-folha" transform="translate(81.5 68.1) rotate(131) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(88.2 51.2) rotate(-116) scale(0.70)"/><use href="#fda-folha" transform="translate(88.1 72.6) rotate(76) scale(0.72)"/><use href="#fda-folha" transform="translate(100.0 70.3) rotate(21) scale(0.72)"/><use class="clara" href="#fda-folha" transform="translate(93.8 51.2) rotate(-77) scale(0.84)"/><use href="#fda-folha" transform="translate(71.9 65.5) rotate(172) scale(0.81)"/><use href="#fda-folha" transform="translate(104.3 52.8) rotate(-39) scale(0.84)"/><use class="clara" href="#fda-folha" transform="translate(73.1 67.8) rotate(148) scale(0.89)"/><use href="#fda-folha" transform="translate(101.9 56.9) rotate(2) scale(0.76)"/><use href="#fda-folha" transform="translate(86.3 71.6) rotate(112) scale(0.76)"/><use class="clara" href="#fda-folha" transform="translate(80.2 59.0) rotate(-156) scale(0.78)"/><use href="#fda-folha" transform="translate(101.8 60.4) rotate(8) scale(0.74)"/><use href="#fda-folha" transform="translate(103.1 56.7) rotate(-21) scale(0.85)"/><use class="clara" href="#fda-folha" transform="translate(85.7 55.4) rotate(-99) scale(0.89)"/></g><g class="frutos"><circle class="fruto" cx="75.4" cy="62.0" r="4.0"/><circle class="fruto" cx="80.7" cy="51.2" r="4.0"/><circle class="fruto fruto--pitanga" cx="81.7" cy="56.3" r="4.0"/><circle class="fruto" cx="91.7" cy="51.6" r="4.0"/><circle class="fruto" cx="106.8" cy="56.2" r="4.0"/></g></g><g class="arvore arvore--3" style="--i:3"><path class="tronco" d="M156.0 116C155.0 94.0 157.5 74.5 156.0 66.5M156.0 66.5C140.5 53.3 134.3 44.5 130.0 33.5M156.0 66.5C168.4 51.1 174.6 42.3 180.8 31.3M156.0 66.5C156.0 50.0 158.0 33.5 157.0 20.3" pathLength="1"/><g class="copa" style="transform-origin:156px 43px"><use class="clara" href="#fda-folha" transform="translate(131.3 51.7) rotate(149) scale(0.94)"/><use href="#fda-folha" transform="translate(149.9 54.0) rotate(112) scale(0.97)"/><use href="#fda-folha" transform="translate(135.5 34.0) rotate(-173) scale(0.95)"/><use class="clara" href="#fda-folha" transform="translate(167.9 25.9) rotate(-79) scale(0.78)"/><use href="#fda-folha" transform="translate(138.9 48.4) rotate(168) scale(1.00)"/><use href="#fda-folha" transform="translate(166.6 33.0) rotate(-43) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(167.8 34.0) rotate(-51) scale(0.91)"/><use href="#fda-folha" transform="translate(179.4 44.5) rotate(-6) scale(0.96)"/><use href="#fda-folha" transform="translate(149.8 50.0) rotate(110) scale(0.90)"/><use class="clara" href="#fda-folha" transform="translate(165.9 46.9) rotate(4) scale(0.86)"/><use href="#fda-folha" transform="translate(172.9 37.4) rotate(1) scale(0.79)"/><use href="#fda-folha" transform="translate(135.0 45.0) rotate(165) scale(0.77)"/><use class="clara" href="#fda-folha" transform="translate(150.6 62.6) rotate(131) scale(0.96)"/><use href="#fda-folha" transform="translate(179.9 43.1) rotate(-13) scale(0.83)"/><use href="#fda-folha" transform="translate(173.7 28.8) rotate(-51) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(178.3 53.5) rotate(45) scale(0.76)"/><use href="#fda-folha" transform="translate(168.9 40.5) rotate(-25) scale(0.79)"/><use href="#fda-folha" transform="translate(142.8 30.3) rotate(-115) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(150.0 59.5) rotate(103) scale(0.85)"/><use href="#fda-folha" transform="translate(148.0 52.2) rotate(133) scale(0.96)"/><use href="#fda-folha" transform="translate(164.1 48.7) rotate(52) scale(0.78)"/><use class="clara" href="#fda-folha" transform="translate(177.0 53.6) rotate(27) scale(1.01)"/><use href="#fda-folha" transform="translate(161.5 34.3) rotate(-61) scale(0.85)"/><use href="#fda-folha" transform="translate(146.5 45.2) rotate(160) scale(1.03)"/><use class="clara" href="#fda-folha" transform="translate(178.7 48.2) rotate(16) scale(0.89)"/><use href="#fda-folha" transform="translate(176.8 41.4) rotate(-1) scale(0.75)"/><use href="#fda-folha" transform="translate(151.9 33.7) rotate(-89) scale(0.88)"/><use class="clara" href="#fda-folha" transform="translate(140.8 57.9) rotate(146) scale(0.88)"/><use href="#fda-folha" transform="translate(164.1 43.4) rotate(25) scale(0.84)"/><use href="#fda-folha" transform="translate(159.2 38.8) rotate(-62) scale(0.99)"/><use class="clara" href="#fda-folha" transform="translate(151.8 38.5) rotate(-113) scale(0.92)"/><use href="#fda-folha" transform="translate(170.4 54.5) rotate(42) scale(1.03)"/><use href="#fda-folha" transform="translate(175.1 39.3) rotate(10) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(144.2 35.8) rotate(-135) scale(0.81)"/><use href="#fda-folha" transform="translate(163.7 39.7) rotate(-40) scale(0.87)"/><use href="#fda-folha" transform="translate(154.6 38.4) rotate(-91) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(152.9 59.3) rotate(95) scale(0.91)"/><use href="#fda-folha" transform="translate(164.1 37.4) rotate(-47) scale(0.91)"/><use href="#fda-folha" transform="translate(181.4 47.1) rotate(-7) scale(0.86)"/><use class="clara" href="#fda-folha" transform="translate(177.8 33.0) rotate(-40) scale(0.79)"/></g><g class="frutos"><circle class="fruto" cx="131.4" cy="39.9" r="4.4"/><circle class="fruto" cx="177.6" cy="43.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="152.6" cy="55.9" r="4.4"/><circle class="fruto" cx="156.4" cy="57.2" r="4.4"/><circle class="fruto" cx="147.2" cy="34.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="142.8" cy="56.0" r="4.4"/><circle class="fruto" cx="155.5" cy="59.1" r="4.4"/><circle class="fruto" cx="140.1" cy="47.2" r="4.4"/></g></g><path class="chao" d="M6 116.5C40 114.8 70 117.6 104 116.2S170 115 196 116.8" pathLength="1"/></svg>
+      <p class="rodape__cidades" aria-label="Atuamos em São Vicente e Praia Grande">
+        <span>São Vicente</span>
+        <span><em>&amp;</em> Praia Grande</span>
+      </p>
+
+      <div class="grade rodape__grade">
+        <div class="rodape__endereco">
+          <h2>Sede e ponto de coleta</h2>
+          <address>Rua Geralda Martins de Oliveira, 355<br>Vila Matias, São Vicente/SP<br>CEP 11345-230</address>
+          <p style="margin-top:.8rem;font-size:.92rem;color:rgb(243 235 221 / .75)">Coleta de doações: segunda a sexta, das 9h às 17h.</p>
+        </div>
+        <div>
+          <h2>Páginas</h2>
+          <ul>
+            <li><a href="quem-somos.html">Sobre</a></li>
+            <li><a href="projetos.html">Projetos</a></li>
+            <li><a href="como-ajudar.html">Como ajudar</a></li>
+            <li><a href="transparencia.html">Transparência</a></li>
+            <li><a href="noticias.html">Notícias</a></li>
+            <li><a href="contato.html">Contato</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Redes e contato</h2>
+          <ul>
+            <li><a href="https://www.instagram.com/ongfrutosdoamanha/" rel="noopener" target="_blank">Instagram @ongfrutosdoamanha</a></li>
+            <li><a href="https://www.facebook.com/OngFrutosDoAmanha" rel="noopener" target="_blank">Facebook da ONG</a></li>
+            <li><a href="https://wa.me/5513988585602" rel="noopener" target="_blank">WhatsApp (13) 98858-5602</a></li>
+            <li><a href="mailto:ongfrutosdoamanha2011@gmail.com">ongfrutosdoamanha2011@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rodape__base">
+        <span>ONG Frutos do Amanhã — Projetos Sociais · CNPJ 14.538.126/0001-29</span>
+        <span>Educação, Respeito e Disciplina.</span>
+        <span><a href="mapa-do-site.html">Mapa do site</a> · <a href="privacidade.html">Privacidade</a> · <a href="termos.html">Termos</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Camadas de interação (criadas vazias; o JS preenche) -->
+  <div class="cursor" aria-hidden="true" data-cursor-el><span class="cursor__bola"></span><span class="cursor__texto"></span></div>
+  <div class="brotos" aria-hidden="true" data-brotos></div>
+  <div class="cortina" aria-hidden="true" data-cortina>
+    <svg viewBox="0 0 1000 1500" preserveAspectRatio="none"><path d="M0 120C60 92 118 138 190 104S320 60 392 98 520 140 604 96 742 58 820 102 944 128 1000 90V1400C940 1428 870 1384 800 1414S668 1450 590 1412 452 1370 380 1410 236 1446 160 1408 40 1394 0 1418Z"/></svg>
+    <svg class="marca" viewBox="0 0 200 120"><g class="arvore arvore--1" style="--i:1"><path class="tronco" d="M34.0 116C33.0 104.4 35.5 97.9 34.0 89.9M34.0 89.9C25.0 82.9 21.4 78.3 18.9 72.5M34.0 89.9C41.2 81.8 44.8 77.1 48.4 71.3M34.0 89.9C34.0 81.2 36.0 72.5 35.0 65.5" pathLength="1"/><g class="copa" style="transform-origin:34px 78px"><use class="clara" href="#fda-folha" transform="translate(42.8 76.0) rotate(-16) scale(0.80)"/><use href="#fda-folha" transform="translate(34.4 68.5) rotate(-78) scale(0.67)"/><use href="#fda-folha" transform="translate(46.0 81.6) rotate(26) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(27.7 68.7) rotate(-138) scale(0.69)"/><use href="#fda-folha" transform="translate(34.3 68.4) rotate(-79) scale(0.69)"/><use href="#fda-folha" transform="translate(19.8 81.2) rotate(172) scale(0.60)"/><use class="clara" href="#fda-folha" transform="translate(27.0 83.0) rotate(162) scale(0.77)"/><use href="#fda-folha" transform="translate(23.9 76.3) rotate(-167) scale(0.74)"/><use href="#fda-folha" transform="translate(23.8 76.5) rotate(-169) scale(0.79)"/><use class="clara" href="#fda-folha" transform="translate(31.1 72.6) rotate(-109) scale(0.65)"/><use href="#fda-folha" transform="translate(31.8 84.1) rotate(85) scale(0.73)"/><use href="#fda-folha" transform="translate(23.5 77.4) rotate(-198) scale(0.69)"/><use class="clara" href="#fda-folha" transform="translate(28.7 84.3) rotate(146) scale(0.70)"/><use href="#fda-folha" transform="translate(29.8 81.9) rotate(116) scale(0.60)"/><use href="#fda-folha" transform="translate(31.4 86.2) rotate(123) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(25.5 72.5) rotate(-137) scale(0.72)"/><use href="#fda-folha" transform="translate(36.5 71.2) rotate(-60) scale(0.65)"/><use href="#fda-folha" transform="translate(21.0 82.7) rotate(148) scale(0.76)"/></g><g class="frutos"><circle class="fruto" cx="25.2" cy="77.1" r="3.6"/><circle class="fruto" cx="43.3" cy="71.3" r="3.6"/><circle class="fruto fruto--pitanga" cx="32.8" cy="70.0" r="3.6"/></g></g><g class="arvore arvore--2" style="--i:2"><path class="tronco" d="M90.0 116C89.0 99.6 91.5 87.1 90.0 79.1M90.0 79.1C78.0 69.3 73.2 62.7 69.8 54.5M90.0 79.1C99.6 67.6 104.4 61.1 109.2 52.9M90.0 79.1C90.0 66.8 92.0 54.5 91.0 44.7" pathLength="1"/><g class="copa" style="transform-origin:90px 62px"><use class="clara" href="#fda-folha" transform="translate(104.7 52.3) rotate(-31) scale(0.92)"/><use href="#fda-folha" transform="translate(90.5 50.6) rotate(-76) scale(0.78)"/><use href="#fda-folha" transform="translate(108.3 67.5) rotate(5) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(103.4 68.7) rotate(50) scale(0.72)"/><use href="#fda-folha" transform="translate(93.1 72.4) rotate(79) scale(0.76)"/><use href="#fda-folha" transform="translate(84.5 57.6) rotate(-166) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(89.1 72.0) rotate(87) scale(0.80)"/><use href="#fda-folha" transform="translate(80.0 54.0) rotate(-118) scale(0.71)"/><use href="#fda-folha" transform="translate(74.5 59.8) rotate(-154) scale(0.87)"/><use class="clara" href="#fda-folha" transform="translate(80.6 54.0) rotate(-145) scale(0.74)"/><use href="#fda-folha" transform="translate(100.2 56.5) rotate(-24) scale(0.85)"/><use href="#fda-folha" transform="translate(87.4 67.2) rotate(125) scale(0.80)"/><use class="clara" href="#fda-folha" transform="translate(103.6 70.7) rotate(28) scale(0.67)"/><use href="#fda-folha" transform="translate(89.4 70.1) rotate(79) scale(0.71)"/><use href="#fda-folha" transform="translate(81.5 68.1) rotate(131) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(88.2 51.2) rotate(-116) scale(0.70)"/><use href="#fda-folha" transform="translate(88.1 72.6) rotate(76) scale(0.72)"/><use href="#fda-folha" transform="translate(100.0 70.3) rotate(21) scale(0.72)"/><use class="clara" href="#fda-folha" transform="translate(93.8 51.2) rotate(-77) scale(0.84)"/><use href="#fda-folha" transform="translate(71.9 65.5) rotate(172) scale(0.81)"/><use href="#fda-folha" transform="translate(104.3 52.8) rotate(-39) scale(0.84)"/><use class="clara" href="#fda-folha" transform="translate(73.1 67.8) rotate(148) scale(0.89)"/><use href="#fda-folha" transform="translate(101.9 56.9) rotate(2) scale(0.76)"/><use href="#fda-folha" transform="translate(86.3 71.6) rotate(112) scale(0.76)"/><use class="clara" href="#fda-folha" transform="translate(80.2 59.0) rotate(-156) scale(0.78)"/><use href="#fda-folha" transform="translate(101.8 60.4) rotate(8) scale(0.74)"/><use href="#fda-folha" transform="translate(103.1 56.7) rotate(-21) scale(0.85)"/><use class="clara" href="#fda-folha" transform="translate(85.7 55.4) rotate(-99) scale(0.89)"/></g><g class="frutos"><circle class="fruto" cx="75.4" cy="62.0" r="4.0"/><circle class="fruto" cx="80.7" cy="51.2" r="4.0"/><circle class="fruto fruto--pitanga" cx="81.7" cy="56.3" r="4.0"/><circle class="fruto" cx="91.7" cy="51.6" r="4.0"/><circle class="fruto" cx="106.8" cy="56.2" r="4.0"/></g></g><g class="arvore arvore--3" style="--i:3"><path class="tronco" d="M156.0 116C155.0 94.0 157.5 74.5 156.0 66.5M156.0 66.5C140.5 53.3 134.3 44.5 130.0 33.5M156.0 66.5C168.4 51.1 174.6 42.3 180.8 31.3M156.0 66.5C156.0 50.0 158.0 33.5 157.0 20.3" pathLength="1"/><g class="copa" style="transform-origin:156px 43px"><use class="clara" href="#fda-folha" transform="translate(131.3 51.7) rotate(149) scale(0.94)"/><use href="#fda-folha" transform="translate(149.9 54.0) rotate(112) scale(0.97)"/><use href="#fda-folha" transform="translate(135.5 34.0) rotate(-173) scale(0.95)"/><use class="clara" href="#fda-folha" transform="translate(167.9 25.9) rotate(-79) scale(0.78)"/><use href="#fda-folha" transform="translate(138.9 48.4) rotate(168) scale(1.00)"/><use href="#fda-folha" transform="translate(166.6 33.0) rotate(-43) scale(0.92)"/><use class="clara" href="#fda-folha" transform="translate(167.8 34.0) rotate(-51) scale(0.91)"/><use href="#fda-folha" transform="translate(179.4 44.5) rotate(-6) scale(0.96)"/><use href="#fda-folha" transform="translate(149.8 50.0) rotate(110) scale(0.90)"/><use class="clara" href="#fda-folha" transform="translate(165.9 46.9) rotate(4) scale(0.86)"/><use href="#fda-folha" transform="translate(172.9 37.4) rotate(1) scale(0.79)"/><use href="#fda-folha" transform="translate(135.0 45.0) rotate(165) scale(0.77)"/><use class="clara" href="#fda-folha" transform="translate(150.6 62.6) rotate(131) scale(0.96)"/><use href="#fda-folha" transform="translate(179.9 43.1) rotate(-13) scale(0.83)"/><use href="#fda-folha" transform="translate(173.7 28.8) rotate(-51) scale(0.75)"/><use class="clara" href="#fda-folha" transform="translate(178.3 53.5) rotate(45) scale(0.76)"/><use href="#fda-folha" transform="translate(168.9 40.5) rotate(-25) scale(0.79)"/><use href="#fda-folha" transform="translate(142.8 30.3) rotate(-115) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(150.0 59.5) rotate(103) scale(0.85)"/><use href="#fda-folha" transform="translate(148.0 52.2) rotate(133) scale(0.96)"/><use href="#fda-folha" transform="translate(164.1 48.7) rotate(52) scale(0.78)"/><use class="clara" href="#fda-folha" transform="translate(177.0 53.6) rotate(27) scale(1.01)"/><use href="#fda-folha" transform="translate(161.5 34.3) rotate(-61) scale(0.85)"/><use href="#fda-folha" transform="translate(146.5 45.2) rotate(160) scale(1.03)"/><use class="clara" href="#fda-folha" transform="translate(178.7 48.2) rotate(16) scale(0.89)"/><use href="#fda-folha" transform="translate(176.8 41.4) rotate(-1) scale(0.75)"/><use href="#fda-folha" transform="translate(151.9 33.7) rotate(-89) scale(0.88)"/><use class="clara" href="#fda-folha" transform="translate(140.8 57.9) rotate(146) scale(0.88)"/><use href="#fda-folha" transform="translate(164.1 43.4) rotate(25) scale(0.84)"/><use href="#fda-folha" transform="translate(159.2 38.8) rotate(-62) scale(0.99)"/><use class="clara" href="#fda-folha" transform="translate(151.8 38.5) rotate(-113) scale(0.92)"/><use href="#fda-folha" transform="translate(170.4 54.5) rotate(42) scale(1.03)"/><use href="#fda-folha" transform="translate(175.1 39.3) rotate(10) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(144.2 35.8) rotate(-135) scale(0.81)"/><use href="#fda-folha" transform="translate(163.7 39.7) rotate(-40) scale(0.87)"/><use href="#fda-folha" transform="translate(154.6 38.4) rotate(-91) scale(0.83)"/><use class="clara" href="#fda-folha" transform="translate(152.9 59.3) rotate(95) scale(0.91)"/><use href="#fda-folha" transform="translate(164.1 37.4) rotate(-47) scale(0.91)"/><use href="#fda-folha" transform="translate(181.4 47.1) rotate(-7) scale(0.86)"/><use class="clara" href="#fda-folha" transform="translate(177.8 33.0) rotate(-40) scale(0.79)"/></g><g class="frutos"><circle class="fruto" cx="131.4" cy="39.9" r="4.4"/><circle class="fruto" cx="177.6" cy="43.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="152.6" cy="55.9" r="4.4"/><circle class="fruto" cx="156.4" cy="57.2" r="4.4"/><circle class="fruto" cx="147.2" cy="34.3" r="4.4"/><circle class="fruto fruto--pitanga" cx="142.8" cy="56.0" r="4.4"/><circle class="fruto" cx="155.5" cy="59.1" r="4.4"/><circle class="fruto" cx="140.1" cy="47.2" r="4.4"/></g></g><path class="chao" d="M6 116.5C40 114.8 70 117.6 104 116.2S170 115 196 116.8" pathLength="1"/></svg>
+  </div>
+</body>
+</html>
