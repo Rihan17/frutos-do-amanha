@@ -1,0 +1,63 @@
+/* ==========================================================
+   Frutos do Amanhã — tokens de design
+   Tudo que é cor, tipo, espaço e movimento mora aqui.
+   ========================================================== */
+:root {
+  /* ---- Cor: base terrosa ---- */
+  --terra: #2B1D14;         /* fundos profundos, texto principal */
+  --terra-2: #3A2A1E;       /* terra um tom acima (cards sobre terra) */
+  --papel: #F3EBDD;         /* fundo principal */
+  --papel-2: #E8DCC6;       /* papel envelhecido (molduras, placeholders) */
+  --folha: #2F4A2A;         /* verde profundo */
+  --folha-clara: #4E6B3F;   /* folha iluminada (só ilustração) */
+  --casca: #6B5443;         /* texto de apoio, traços — 6:1 no papel */
+
+  /* ---- Cor: acentos de fruto maduro (brotam ao rolar) ---- */
+  --caqui: #E8672C;         /* decorativo ou texto >= 48px no papel; ok sobre terra */
+  --caqui-tinta: #A34110;   /* caqui para texto/link no papel — 5.3:1 */
+  --pitanga: #C8323A;       /* CTA doar, fruto final */
+  --pitanga-tinta: #B82D35; /* hover/foco, texto pitanga pequeno — 5.1:1 */
+  --mel: #E9B44C;           /* marca-texto, foco sobre fundos escuros */
+
+  /* ---- Tipografia ---- */
+  --f-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --f-texto: "Satoshi", "Segoe UI", system-ui, sans-serif;
+
+  --t-display: clamp(4.25rem, 15vw, 15rem);
+  --t-h1: clamp(3rem, 8.4vw, 8rem);
+  --t-h2: clamp(2.25rem, 5.2vw, 4.75rem);
+  --t-h3: clamp(1.5rem, 2.4vw, 2.1rem);
+  --t-lead: clamp(1.15rem, 1.6vw, 1.45rem);
+  --t-corpo: clamp(1.0625rem, 0.35vw + 0.98rem, 1.1875rem);
+  --t-rotulo: 0.75rem;
+
+  /* ---- Espaço (escala 4pt + fluida) ---- */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-5: 1.5rem;
+  --e-6: 2rem;
+  --e-7: 3rem;
+  --e-8: clamp(3.5rem, 7vw, 6rem);
+  --e-9: clamp(5rem, 12vw, 11rem);   /* respiro entre capítulos */
+  --margem: clamp(1rem, 5.5vw, 6rem); /* gutter lateral */
+  --coluna-texto: 38ch;
+
+  /* ---- Movimento ---- */
+  --ease-brota: cubic-bezier(.16, 1, .3, 1);   /* revelações, títulos */
+  --ease-seiva: cubic-bezier(.65, 0, .35, 1);  /* scroll, cortina */
+  --ease-mola: cubic-bezier(.34, 1.56, .64, 1);/* microinterações */
+  --d-micro: .35s;
+  --d-revela: .8s;
+  --d-capitulo: 1.2s;
+
+  /* ---- Camadas ---- */
+  --z-raiz: 1;
+  --z-conteudo: 2;
+  --z-header: 50;
+  --z-menu: 60;
+  --z-cursor: 90;
+  --z-cortina: 95;
+  --z-loader: 100;
+}

@@ -1,0 +1,235 @@
+/* ==========================================================
+   Base: reset, papel, tipografia, utilitários
+   ========================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+[hidden] { display: none !important; }
+img, svg, video { display: block; max-width: 100%; }
+img { height: auto; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; }
+a { color: inherit; }
+ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
+
+body {
+  background: var(--papel);
+  color: var(--terra);
+  font-family: var(--f-texto);
+  font-size: var(--t-corpo);
+  line-height: 1.55;
+  font-weight: 450;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Grão de papel: ruído fixo, desenhado uma vez só (sem custo por frame) */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  opacity: .16;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .17 0 0 0 0 .11 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection { background: var(--mel); color: var(--terra); }
+
+/* ---------- Tipografia ---------- */
+h1, h2, h3, .display {
+  font-family: var(--f-display);
+  font-weight: 560;
+  font-variation-settings: "SOFT" 60, "WONK" 0, "opsz" 144;
+  line-height: .92;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+h1 { font-size: var(--t-h1); }
+h2 { font-size: var(--t-h2); }
+h3 { font-size: var(--t-h3); line-height: 1.05; letter-spacing: -.02em; font-variation-settings: "SOFT" 80, "opsz" 48; }
+p { text-wrap: pretty; max-width: 62ch; }
+em, .italico { font-style: italic; }
+strong { font-weight: 700; }
+
+.rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: .75em;
+  font-family: var(--f-texto);
+  font-size: var(--t-rotulo);
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.rotulo::before {
+  content: "";
+  width: 2.2em;
+  height: 1.5px;
+  background: currentColor;
+  opacity: .7;
+}
+.lead { font-size: var(--t-lead); line-height: 1.45; font-weight: 500; }
+.apoio { color: var(--casca); }
+
+/* Links de texto: sublinhado desenhado que "cresce" */
+.link {
+  position: relative;
+  text-decoration: none;
+  font-weight: 700;
+  color: var(--caqui-tinta);
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1.5px no-repeat;
+  padding-bottom: .1em;
+  transition: background-size var(--d-micro) var(--ease-brota);
+}
+.link:hover { background-size: 0 1.5px; background-position: 100% 100%; }
+
+/* ---------- Acessibilidade ---------- */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+.pular-conteudo {
+  position: fixed;
+  top: .75rem; left: .75rem;
+  z-index: 200;
+  padding: .75rem 1rem;
+  background: var(--mel);
+  color: var(--terra);
+  font-weight: 700;
+  transform: translateY(-160%);
+  transition: transform var(--d-micro) var(--ease-brota);
+}
+.pular-conteudo:focus { transform: none; }
+:focus-visible {
+  outline: 3px solid var(--caqui-tinta);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+[data-tom="escuro"] :focus-visible { outline-color: var(--mel); }
+
+/* ---------- Layout ---------- */
+.envelope {
+  width: 100%;
+  padding-inline: var(--margem);
+  margin-inline: auto;
+  max-width: 1680px;
+}
+.grade {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(.75rem, 1.6vw, 1.75rem);
+}
+.capitulo { position: relative; }
+.capitulo > * { position: relative; z-index: var(--z-conteudo); }
+[data-tom="escuro"] { color: var(--papel); }
+
+/* Borda de papel rasgado entre capítulos: a cor vem de --cor */
+.rasgo {
+  position: absolute !important;
+  left: 0; right: 0;
+  top: 1px;
+  height: clamp(22px, 3vw, 44px);
+  transform: translateY(-100%);
+  background: var(--cor, var(--papel));
+  -webkit-mask: url("../img/rasgo.svg") 0 0 / 100% 100% no-repeat;
+          mask: url("../img/rasgo.svg") 0 0 / 100% 100% no-repeat;
+  pointer-events: none;
+  z-index: 3 !important;
+}
+.rasgo--b { -webkit-mask-image: url("../img/rasgo-2.svg"); mask-image: url("../img/rasgo-2.svg"); transform: translateY(-100%) scaleX(-1); }
+
+/* ---------- Fotos (com moldura provisória desenhada) ---------- */
+.foto {
+  position: relative;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(-38deg, transparent 0 9px, rgb(107 84 67 / .16) 9px 10px),
+    var(--papel-2);
+  aspect-ratio: var(--proporcao, 4 / 5);
+  isolation: isolate;
+}
+.foto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .6s var(--ease-brota);
+}
+.foto.carregou img { opacity: 1; }
+/* Etiqueta da moldura provisória — some quando a foto real carrega */
+.foto__etiqueta {
+  position: absolute;
+  left: 50%; top: 50%;
+  translate: -50% -50%;
+  rotate: -2deg;
+  width: max-content;
+  max-width: 82%;
+  padding: .5rem .8rem .55rem;
+  background: var(--papel);
+  color: var(--casca);
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: 0 1px 0 rgb(43 29 20 / .12);
+}
+.foto__etiqueta b {
+  display: block;
+  font-size: .64rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--caqui-tinta);
+}
+.foto.carregou .foto__etiqueta { display: none; }
+
+/* Fita crepe desenhada */
+.fita::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  top: -14px;
+  left: 50%;
+  width: 96px;
+  height: 28px;
+  translate: -50% 0;
+  rotate: var(--fita-rot, -4deg);
+  background: rgb(233 180 76 / .55);
+  clip-path: polygon(3% 8%, 12% 0, 22% 9%, 35% 2%, 50% 8%, 64% 0, 78% 7%, 90% 1%, 100% 10%, 97% 92%, 86% 100%, 72% 91%, 58% 99%, 42% 92%, 28% 100%, 15% 93%, 0 100%);
+}
+
+/* Legenda editorial */
+.legenda {
+  margin-top: .6rem;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--casca);
+}
+[data-tom="escuro"] .legenda { color: rgb(243 235 221 / .72); }
+
+/* Traços desenhados à mão (sublinhados, círculos, setas) */
+.traco {
+  position: absolute;
+  pointer-events: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+/* Sem JS: nada escondido. Com JS, o loader existe. */
+.loader { display: none; }
+.js .loader { display: flex; }
