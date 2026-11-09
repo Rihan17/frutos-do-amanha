@@ -127,8 +127,8 @@ mas não enviam nada. Para ligar ao back-end, use os scripts do site atual
 
 ## Pendências de conteúdo — [CONTEÚDO REAL AQUI]
 
-O marcador ainda aparece 5 vezes, em 4 páginas: o fluxo de doação (`doar.html`,
-`doar-sucesso.html` e `doar-pendente.html`) e a meta tag de compartilhamento da home.
+O marcador ainda aparece 3 vezes, em 3 páginas: os dois retornos de pagamento
+(`doar-sucesso.html` e `doar-pendente.html`) e a meta tag de compartilhamento da home.
 
 - Chave Pix real e QR code correspondente (hoje a chave é `123e4567-…`, fictícia)
 - Números reais da prestação de contas (os de `transparencia.html` são exemplo)
