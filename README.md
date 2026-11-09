@@ -125,10 +125,9 @@ mas não enviam nada. Para ligar ao back-end, use os scripts do site atual
 - o painel → dados reais (hoje são de exemplo em todas as dez telas)
 - chave Pix e QR code → hoje são fictícios
 
-## Pendências de conteúdo — [CONTEÚDO REAL AQUI]
+## Pendências de conteúdo
 
-O marcador ainda aparece 3 vezes, em 3 páginas: os dois retornos de pagamento
-(`doar-sucesso.html` e `doar-pendente.html`) e a meta tag de compartilhamento da home.
+Nada na tela sinaliza mais o que é exemplo: esta lista é o único registro.
 
 - Chave Pix real e QR code correspondente (hoje a chave é `123e4567-…`, fictícia)
 - Números reais da prestação de contas (os de `transparencia.html` são exemplo)
