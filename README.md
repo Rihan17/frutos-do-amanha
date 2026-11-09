@@ -56,9 +56,9 @@ As telas com mais de um estado aceitam `?estado=` no endereço:
 | `admin-noticias.html` | Notícias publicadas |
 | `admin-usuarios.html` | Administradores com acesso |
 
-O painel não é anunciado nas páginas públicas: saiu do rodapé e do mapa do site.
-Chega-se pelo endereço direto, `admin.html`. O único link que ainda aponta para ele
-está em `redefinir-senha.html`, no fim do fluxo de troca de senha.
+O painel não é anunciado em lugar nenhum do site público: não há link para ele no
+rodapé, no mapa do site nem em nenhuma outra página. Chega-se pelo endereço direto,
+`admin.html`.
 
 ## Fotos
 
@@ -127,7 +127,8 @@ mas não enviam nada. Para ligar ao back-end, use os scripts do site atual
 
 ## Pendências de conteúdo — [CONTEÚDO REAL AQUI]
 
-O marcador ainda aparece 12 vezes, em 11 páginas.
+O marcador ainda aparece 5 vezes, em 4 páginas: o fluxo de doação (`doar.html`,
+`doar-sucesso.html` e `doar-pendente.html`) e a meta tag de compartilhamento da home.
 
 - Chave Pix real e QR code correspondente (hoje a chave é `123e4567-…`, fictícia)
 - Números reais da prestação de contas (os de `transparencia.html` são exemplo)
