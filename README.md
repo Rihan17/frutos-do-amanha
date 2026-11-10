@@ -95,15 +95,22 @@ Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo e
 - `efeitos.js` — o que é igual em todas as páginas
 - `paginas.js` — linha do tempo, contadores, barras, formulários e estados de tela
 
-## Bibliotecas (via CDN, com `defer`)
+## Bibliotecas (cópias locais em `assets/js/vendor/`, com `defer`)
 
-| Biblioteca | Para quê |
-| --- | --- |
-| GSAP + ScrollTrigger | raiz desenhada no scroll, galeria horizontal, contadores, intro |
-| GSAP SplitText | títulos revelados linha a linha com máscara |
-| Lenis | rolagem suave (desligada no toque e com "reduzir movimento") |
+| Biblioteca | Versão | Para quê |
+| --- | --- | --- |
+| GSAP + ScrollTrigger | 3.15.0 | raiz desenhada no scroll, galeria horizontal, contadores, intro |
+| GSAP SplitText | 3.15.0 | títulos revelados linha a linha com máscara |
+| Lenis | 1.3.26 | rolagem suave (desligada no toque e com "reduzir movimento") |
 
-Fontes: Fraunces (Google Fonts) e Satoshi (Fontshare).
+As bibliotecas ficam dentro do próprio site, e não num CDN, porque redes de faculdade e
+de empresa costumam bloquear CDNs, e sem o GSAP todas as animações ficam desligadas.
+Os arquivos são os mesmos do jsDelivr, conferidos pelo hash. Para atualizar uma versão,
+baixe o arquivo novo para `assets/js/vendor/` e mantenha o mesmo nome.
+O GSAP tem licença própria (<https://gsap.com/standard-license>); o Lenis é MIT.
+
+Fontes: Fraunces (Google Fonts) e Satoshi (Fontshare) **ainda vêm de fora**. Se a rede
+bloquear esses endereços, o site cai para Georgia e Segoe UI.
 
 ## Acessibilidade e movimento
 
