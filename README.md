@@ -4,13 +4,6 @@ Site completo no visual novo: **34 telas**, com o conteúdo real já no lugar. C
 site público, as mesmas páginas de `ong-frutos-do-amanha.onrender.com`, mais as dez
 telas do painel administrativo.
 
-## Como rodar
-
-Não tem build. Abra a **raiz do repositório** num servidor local:
-
-- VS Code → extensão **Live Server** → botão direito em `index.html` → *Open with Live Server*
-- ou no terminal, na raiz do repositório: `npx serve .` (ou `python -m http.server`)
-
 ## As telas
 
 | Arquivo | O que é |
@@ -37,10 +30,6 @@ Não tem build. Abra a **raiz do repositório** num servidor local:
 | `mapa-do-site.html` | Todas as páginas |
 | `privacidade.html` · `termos.html` | Documentos legais, com sumário lateral |
 
-As telas com mais de um estado aceitam `?estado=` no endereço:
-`confirmar-email.html?estado=confirmado`, `?estado=expirado`,
-`redefinir-senha.html?estado=expirado`.
-
 ### O painel
 
 | Arquivo | O que é |
@@ -55,10 +44,6 @@ As telas com mais de um estado aceitam `?estado=` no endereço:
 | `admin-projetos.html` | Projetos e atividades |
 | `admin-noticias.html` | Notícias publicadas |
 | `admin-usuarios.html` | Administradores com acesso |
-
-O painel não é anunciado em lugar nenhum do site público: não há link para ele no
-rodapé, no mapa do site nem em nenhuma outra página. Chega-se pelo endereço direto,
-`admin.html`.
 
 ## Fotos
 
@@ -125,13 +110,3 @@ mas não enviam nada. Para ligar ao back-end, use os scripts do site atual
 - o painel → dados reais (hoje são de exemplo em todas as dez telas)
 - chave Pix e QR code → hoje são fictícios
 
-## Pendências de conteúdo
-
-Nada na tela sinaliza mais o que é exemplo: esta lista é o único registro.
-
-- Chave Pix real e QR code correspondente (hoje a chave é `123e4567-…`, fictícia)
-- Números reais da prestação de contas (os de `transparencia.html` são exemplo)
-- Relatórios em PDF
-- Imagem de compartilhamento `assets/img/og-home.jpg` (1200×630): as meta tags de todas
-  as páginas já apontam para ela, mas o arquivo ainda não existe
-- Confirmar se os números de impacto são ~300/~250 ou +144/+88
