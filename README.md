@@ -4,8 +4,8 @@ Site e API da ONG Frutos do Amanhã, de São Vicente/SP, num repositório só. O
 Spring Boot serve as páginas e a API no mesmo endereço, como já acontecia no projeto
 original; o que mudou é que o site servido agora é o visual novo.
 
-- **frontend/** — 34 páginas do visual novo, mais 3 do visual anterior que seguem em uso
-  (`gestao.html`, `esqueci-senha.html` e `projeto.html`).
+- **frontend/** — 45 páginas, todas no visual novo: 24 públicas, 10 do painel da
+  equipe, o login, a recuperação de senha e as telas de retorno.
 - **backend/** — API REST em Java 17 com Spring Boot e MongoDB, trazida do repositório
   `Kdu13/ong-frutos-do-amanha`.
 
@@ -44,9 +44,12 @@ A publicação no Render usa o `Dockerfile`, que copia `frontend/` para dentro d
 | `redefinir-senha.html` | `POST /auth/redefinir-senha` | usa o `?token=` do e-mail |
 | `doar.html`, `como-ajudar.html`, `index.html` | `GET /projetos`, `GET /publico/ong` | lista de destinos e chave Pix de verdade |
 | `gestao.html` | `POST /auth/login` | entrada da equipe no painel |
+| `esqueci-senha.html` | `POST /auth/esqueci-senha` | pede o link de recuperação |
+| `admin*.html` | `/adm/**` e `/projetos` | o painel inteiro |
 
-A ligação mora em `frontend/assets/js/ligacao.js`. Ela cuida dos formulários marcados
-com `data-api` no HTML; os demais continuam sendo maquete, validada pelo `paginas.js`.
+Os formulários públicos ficam em `frontend/assets/js/ligacao.js` e o painel em
+`painel.js`. Os dois cuidam só do que está marcado com `data-api` ou `data-painel` no
+HTML; o resto continua sendo maquete, validada pelo `paginas.js`.
 
 ## As telas
 
@@ -102,13 +105,6 @@ banco.
 | `admin-usuarios.html` | `/adm/usuarios` | criar acesso, promover, rebaixar |
 | `admin-noticias.html` | — | — |
 
-O painel anterior continua inteiro em `legado-admin*.html`, com a ligação em
-`integracao.js`, porque ainda faz o que o novo não faz: editar os dados da ONG, editar
-e encerrar voluntário, apagar solicitação, editar e apagar projeto, editar e desativar
-beneficiário. Toda tela do painel novo tem, no fim do menu, um atalho **Painel
-anterior** para chegar lá. Quando essas edições forem portadas, as dez telas de legado
-podem sair.
-
 Nada no site público aponta para nenhum dos dois: chega-se pelo endereço direto.
 
 Duas ressalvas do painel novo. **Notícias** não tem API: são páginas HTML do próprio
@@ -147,11 +143,9 @@ Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo e
 │   ├── *.html                   24 páginas públicas do visual novo
 │   ├── gestao.html              login da equipe, visual novo (também em /gestao)
 │   ├── admin*.html              painel da equipe, visual novo, ligado por painel.js
-│   ├── legado-admin*.html       painel anterior, ligado por integracao.js
-│   ├── esqueci-senha.html       recuperação de senha (visual anterior)
-│   ├── projeto.html             projeto por slug, vindo da API (visual anterior)
+│   ├── esqueci-senha.html       pede o link de recuperação de senha
 │   └── assets/
-│       ├── css/  tokens · base · components · paginas · home · style (do visual anterior)
+│       ├── css/  tokens · base · components · paginas · home
 │       ├── js/   nucleo · efeitos · paginas · home · api · ligacao · vendor/
 │       └── img/  as 17 fotos e os SVGs da interface
 ├── Dockerfile                   build único: Maven + o site dentro do jar
@@ -162,15 +156,13 @@ Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo e
 - `tokens.css` — cores, fontes, espaçamentos e curvas de animação, tudo em `:root`
 - `components.css` — cabeçalho, menu, botões, cursor, cortina, bloco Pix, FAQ, rodapé
 - `paginas.css` — só as páginas internas; `home.css` só a Home
-- `style.css` — o visual anterior, usado apenas por `gestao`, `esqueci-senha` e `projeto`
 - `nucleo.js` — configuração, rolagem suave e carregamento das fotos
 - `efeitos.js` — o que é igual em todas as páginas
 - `paginas.js` — linha do tempo, contadores, barras, formulários e estados de tela
 - `api.js` / `api-config.js` — cliente HTTP e descoberta do endereço da API
 - `ligacao.js` — os formulários públicos que falam com a API
 - `painel.js` — o login da equipe e as dez telas do painel no visual novo
-- `integracao.js` / `formularios.js` / `main.js` — o painel anterior e as três páginas
-  que sobraram do visual antigo
+- `api.js` / `api-config.js` — cliente HTTP e descoberta do endereço da API
 
 ## Bibliotecas (cópias locais em `assets/js/vendor/`, com `defer`)
 
@@ -201,11 +193,15 @@ bloquear esses endereços, o site cai para Georgia e Segoe UI.
 
 Os formulários públicos já enviam de verdade. O que falta:
 
-- **As edições do painel.** O painel novo lê tudo e já aprova, recusa, promove,
-  rebaixa, registra doação, publica projeto e cria acesso. Falta portar o que só existe
-  no legado: editar os dados da ONG, editar e encerrar voluntário, apagar solicitação,
-  editar e apagar projeto, editar e desativar beneficiário. Até lá, as dez telas
-  `legado-admin*.html` precisam continuar no repositório.
+- **Edições que ficaram sem tela.** O painel anterior foi removido, e com ele sumiram
+  da interface: editar os dados da ONG, editar e encerrar voluntário, apagar
+  solicitação, editar e apagar projeto, editar e desativar beneficiário. Os endpoints
+  continuam na API (`PUT /adm/ong`, `PUT`/`DELETE` em `/adm/voluntarios/{id}`,
+  `/adm/solicitacoes/{id}`, `/adm/projetos/{id}` e `/adm/beneficiarios/{id}`); falta a
+  tela. Enquanto isso, essas operações só por chamada direta à API.
+- **Página de projeto por slug.** O `projeto.html`, que montava a página de qualquer
+  projeto a partir da API, saiu junto. Os dois projetos de hoje têm página própria
+  escrita à mão, mas um projeto novo criado no painel fica sem página pública.
 - **Páginas que não existem devolvem 500, não 404.** O `GlobalExceptionHandler` tem um
   `@ExceptionHandler(Exception.class)` que engole o `NoResourceFoundException` do
   Spring, então o `404.html` nunca aparece. É de antes desta junção.

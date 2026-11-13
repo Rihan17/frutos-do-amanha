@@ -185,6 +185,48 @@
   }
 
   /* ==========================================================
+     Recuperar a senha do painel
+     ========================================================== */
+  function recuperarSenha() {
+    var form = $('[data-api="esqueci-senha"]');
+    if (!form) return;
+    form.setAttribute('novalidate', '');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var campo = $('#email', form);
+      if (!campo.checkValidity()) { campo.focus(); campo.reportValidity && campo.reportValidity(); return; }
+      var caixa = $('[data-form-aviso]', form);
+      var botao = $('button[type="submit"]', form);
+      var texto = $('.botao__texto', botao) || botao;
+      var original = texto.textContent;
+      texto.textContent = 'Enviando…';
+      botao.disabled = true;
+      api.request('/auth/esqueci-senha', {
+        method: 'POST', public: true, body: { email: campo.value.trim() }
+      }).then(function (resposta) {
+        form.reset();
+        if (caixa) {
+          caixa.className = 'aviso aviso--sucesso';
+          caixa.hidden = false;
+          /* A API responde sempre a mesma coisa, exista a conta ou não, para
+             não revelar quem tem acesso. A mensagem dela é a que vale. */
+          $('[data-form-aviso-texto]', caixa).textContent =
+            (resposta && resposta.mensagem) || 'Se existir uma conta com esse e-mail, o link foi enviado.';
+        }
+      }).catch(function (erro) {
+        if (caixa) {
+          caixa.className = 'aviso aviso--erro';
+          caixa.hidden = false;
+          $('[data-form-aviso-texto]', caixa).textContent = erro.message || 'Não foi possível enviar o link.';
+        }
+      }).then(function () {
+        texto.textContent = original;
+        botao.disabled = false;
+      });
+    });
+  }
+
+  /* ==========================================================
      Telas do painel
      ========================================================== */
   function sair() {
@@ -534,6 +576,7 @@
 
   /* ---------- Início ---------- */
   if (tela === 'login') { login(); return; }
+  if (tela === 'esqueci-senha') { recuperarSenha(); return; }
 
   if (!carregar[tela]) return;
 
