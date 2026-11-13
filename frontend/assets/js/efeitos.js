@@ -16,7 +16,6 @@
     const topo = $('[data-topo]');
     if (!topo) return;
     const capitulos = $$('.capitulo');
-    const ancoras = $$('.topo__ancoras a');
     let ultimoY = window.scrollY;
     let pendente = false;
 
@@ -38,16 +37,11 @@
         else if (subindo || y < 400) topo.classList.remove('escondido');
       }
       ultimoY = y;
-
-      // Âncora ativa
-      if (ancoras.length) {
-        let ativa = null;
-        ancoras.forEach((a) => {
-          const alvo = document.querySelector(a.getAttribute('href'));
-          if (alvo && alvo.getBoundingClientRect().top < innerHeight * 0.45) ativa = a;
-        });
-        ancoras.forEach((a) => a.setAttribute('aria-current', a === ativa ? 'true' : 'false'));
-      }
+      /* Aqui existia um bloco que acendia a âncora da seção em que a pessoa
+         estava, de quando os links do cabeçalho eram âncoras (#manifesto) da
+         mesma página. Agora eles apontam para outras páginas, e o bloco só
+         sobrescrevia com aria-current="false" o aria-current="page" que cada
+         página escreve no seu próprio item. */
     }
     window.addEventListener('scroll', () => {
       if (!pendente) { pendente = true; requestAnimationFrame(atualizar); }

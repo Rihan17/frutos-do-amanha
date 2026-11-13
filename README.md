@@ -105,7 +105,14 @@ banco.
 | `admin-usuarios.html` | `/adm/usuarios` | criar acesso, promover, rebaixar |
 | `admin-noticias.html` | — | — |
 
-Nada no site público aponta para nenhum dos dois: chega-se pelo endereço direto.
+O rodapé de todas as páginas tem **Painel da equipe**, ao lado de Mapa do site,
+Privacidade e Termos. Ele leva ao login, não ao painel: quem não estiver autenticado
+não passa dali, e as telas do painel devolvem para o login sem token.
+
+A barra do cabeçalho é a mesma nas 36 páginas — Quem somos, Projetos, Como ajudar,
+Voluntariado e Solicitar Vaga — e cada página acende o seu item com
+`aria-current="page"`. Transparência saiu da barra e continua no menu completo, na
+lista do rodapé e nos links do texto.
 
 Duas ressalvas do painel novo. **Notícias** não tem API: são páginas HTML do próprio
 site, e a tela diz isso em vez de fingir uma lista. E os formulários de **criança** e
