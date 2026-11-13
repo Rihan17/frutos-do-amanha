@@ -124,22 +124,44 @@
       if (!window.confirm(pergunta)) return;
       var corpo;
       if (acao === 'recusar') {
-        var motivo = window.prompt('Motivo da recusa (a família recebe este texto):', '');
+        var motivo = window.prompt('Motivo da recusa (fica registrado no cadastro):', '');
         if (motivo === null) return;
-        corpo = { justificativa: motivo };
+        if (!motivo.trim()) {
+          avisar('A recusa precisa de um motivo. Nada foi alterado.', 'erro');
+          return;
+        }
+        /* O nome do campo é o do RecusaRequest no backend; "justificativa"
+           sozinho volta 400 com "A justificativa da recusa é obrigatória". */
+        corpo = { justificativaRecusa: motivo.trim() };
       }
+      if (acao === 'promover') {
+        /* Promover exige o cargo (CargoRequest). Rebaixar, não: vai sem corpo. */
+        var cargo = window.prompt('Função desta pessoa na ONG:', botao.getAttribute('data-cargo') || '');
+        if (cargo === null) return;
+        if (!cargo.trim()) {
+          avisar('Informe a função para dar o acesso. Nada foi alterado.', 'erro');
+          return;
+        }
+        corpo = { cargo: cargo.trim() };
+      }
+      var rotulo = botao.textContent;
       botao.textContent = 'Enviando…';
       api.request(rota, { method: 'PUT', body: corpo })
         .then(function () { avisar('Pronto. A lista foi atualizada.'); return recarregar(); })
-        .catch(function (erro) { avisar(erro.message || 'Não foi possível concluir.', 'erro'); });
+        .catch(function (erro) {
+          /* Sem recarregar a lista, o botão continua na tela: devolve o rótulo
+             dele para a ação poder ser tentada de novo. */
+          botao.textContent = rotulo;
+          avisar(erro.message || 'Não foi possível concluir.', 'erro');
+        });
     });
   }
   function acoes(itens) {
     return '<span class="acoes">' + itens.join('') + '</span>';
   }
-  function botaoAcao(rotulo, acao, rota, pergunta) {
+  function botaoAcao(rotulo, acao, rota, pergunta, extra) {
     return '<a class="link" href="#" data-acao="' + acao + '" data-rota="' + esc(rota) +
-      '" data-pergunta="' + esc(pergunta) + '">' + esc(rotulo) + '</a>';
+      '" data-pergunta="' + esc(pergunta) + '"' + (extra || '') + '>' + esc(rotulo) + '</a>';
   }
 
   /* ==========================================================
@@ -421,7 +443,9 @@
           var acao = u.principal ? '<span class="apoio">conta principal</span>'
             : (u.tipo === 'ADMIN'
               ? botaoAcao('Rebaixar', 'rebaixar', '/adm/usuarios/' + u.id + '/rebaixar', 'Tirar o acesso de administrador de ' + u.nome + '?')
-              : botaoAcao('Promover', 'promover', '/adm/usuarios/' + u.id + '/promover', 'Dar acesso de administrador a ' + u.nome + '?'));
+              : botaoAcao('Promover', 'promover', '/adm/usuarios/' + u.id + '/promover',
+                  'Dar acesso de administrador a ' + u.nome + '?',
+                  ' data-cargo="' + esc(u.cargo || '') + '"'));
           return linha([esc(u.nome), esc(u.email), esc(u.cargo || '—'),
             esc(u.tipo === 'ADMIN' ? 'Administrador' : 'Comum'), data(u.dataCadastro),
             etiqueta(u.ativo ? 'ATIVO' : 'INATIVO'), acoes([acao])]);
