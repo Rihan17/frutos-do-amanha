@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projetos — Painel ONG Frutos do Amanhã</title>
+<meta name="description" content="Painel administrativo da ONG Frutos do Amanhã.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+<body class="admin">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="admin-topo">
+  <div class="admin-topo-inner">
+    <a class="brand" href="legado-admin.html">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        <strong>Frutos do Amanhã</strong>
+        <small>Painel administrativo</small>
+      </span>
+    </a>
+    <button class="nav-toggle admin-toggle" type="button" aria-expanded="false" aria-controls="admin-menu">Menu</button>
+    <div class="admin-usuario">
+      <span class="admin-nome">Heloisa Morais</span>
+      <a class="admin-sair" href="index.html">Sair</a>
+    </div>
+  </div>
+</header>
+
+<div class="admin-layout">
+
+  <nav class="admin-menu" id="admin-menu" aria-label="Menu do painel">
+    <a class="admin-item" href="legado-admin.html">Visão geral</a>
+
+    <p class="admin-grupo" id="g-pessoas">Pessoas</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-pessoas">
+      <a class="admin-item" href="legado-admin-doadores.html">Doadores</a>
+      <a class="admin-item" href="legado-admin-voluntarios.html">Voluntários</a>
+      <a class="admin-item" href="legado-admin-solicitacoes.html">Solicitações</a>
+      <a class="admin-item" href="legado-admin-criancas.html">Beneficiários</a>
+      <a class="admin-item" href="legado-admin-responsaveis.html">Responsáveis</a>
+    </div>
+
+    <p class="admin-grupo" id="g-financeiro">Financeiro</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-financeiro">
+      <a class="admin-item" href="legado-admin-doacoes.html">Doações</a>
+    </div>
+
+    <p class="admin-grupo" id="g-conteudo">Conteúdo</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-conteudo">
+      <a class="admin-item" href="legado-admin-projetos.html" aria-current="page">Projetos</a>
+      <a class="admin-item" href="legado-admin-projetos.html#dados-ong">Dados da ONG</a>
+      <a class="admin-item" href="legado-admin-noticias.html">Notícias</a>
+    </div>
+
+    <p class="admin-grupo" id="g-admin">Administração</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-admin">
+      <a class="admin-item" href="legado-admin-usuarios.html">Administradores</a>
+    </div>
+  </nav>
+
+  <main class="admin-conteudo" id="conteudo">
+
+    <div class="admin-cabecalho">
+      <div>
+        <h1>Projetos</h1>
+        <p class="admin-lead">O que aparece na página de projetos e nos destaques da home.</p>
+      </div>
+      <button class="btn btn-doar" type="button" id="abrir-projeto" aria-expanded="false" aria-controls="form-projeto">
+        Novo projeto
+      </button>
+    </div>
+
+    <p class="nota-dev">Projetos e informações institucionais são salvos no banco e publicados pela API.</p>
+
+    <section class="form-card bloco-conta" id="form-projeto" hidden>
+      <h2>Novo projeto</h2>
+
+      <form id="form-editor-projeto" novalidate>
+
+        <div class="campo">
+          <label for="p-titulo">Nome do projeto <span class="obrig" aria-hidden="true">*</span></label>
+          <input type="text" id="p-titulo" name="p-titulo" maxlength="80" required aria-describedby="erro-p-titulo">
+          <p class="erro-campo" id="erro-p-titulo" role="alert"></p>
+        </div>
+
+        <div class="campo-duplo">
+          <div class="campo">
+            <label for="p-tipo">Etiqueta</label>
+            <input type="text" id="p-tipo" name="p-tipo" maxlength="60"
+                   placeholder="Ex: segurança alimentar · mensal" aria-describedby="ajuda-p-tipo">
+            <p class="ajuda" id="ajuda-p-tipo">Texto pequeno que aparece acima do nome no card.</p>
+          </div>
+          <div class="campo">
+            <label for="p-ordem">Ordem de exibição</label>
+            <input type="number" id="p-ordem" name="p-ordem" min="1" max="20" value="1">
+            <p class="ajuda">1 aparece primeiro na listagem.</p>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="p-resumo">Resumo <span class="obrig" aria-hidden="true">*</span></label>
+          <textarea id="p-resumo" name="p-resumo" maxlength="240" required aria-describedby="ajuda-p-resumo erro-p-resumo"></textarea>
+          <p class="ajuda" id="ajuda-p-resumo">Aparece no card da listagem e na home.</p>
+          <p class="erro-campo" id="erro-p-resumo" role="alert"></p>
+        </div>
+
+        <div class="campo">
+          <label for="p-descricao">Como funciona <span class="obrig" aria-hidden="true">*</span></label>
+          <textarea id="p-descricao" name="p-descricao" class="textarea-alto" required aria-describedby="ajuda-p-descricao erro-p-descricao"></textarea>
+          <p class="ajuda" id="ajuda-p-descricao">Texto da página do projeto. Separe os parágrafos com uma linha em branco.</p>
+          <p class="erro-campo" id="erro-p-descricao" role="alert"></p>
+        </div>
+
+        <div class="campo-duplo">
+          <div class="campo">
+            <label for="p-foto">Foto</label>
+            <input type="file" id="p-foto" name="p-foto" accept="image/*" aria-describedby="ajuda-p-foto">
+            <p class="ajuda" id="ajuda-p-foto">Até 2 MB, de preferência na proporção 3:2.</p>
+          </div>
+          <div class="campo">
+            <label for="p-alt">Descrição da foto</label>
+            <input type="text" id="p-alt" name="p-alt" maxlength="140">
+          </div>
+        </div>
+
+        <div class="campo campo-aceite">
+          <label class="aceite" for="p-ativo">
+            <input type="checkbox" id="p-ativo" name="p-ativo" checked>
+            <span>Mostrar este projeto no site.</span>
+          </label>
+          <p class="ajuda">Desmarque para guardar um projeto encerrado sem apagar o conteúdo.</p>
+        </div>
+
+        <div class="btn-row btn-row-form">
+          <button class="btn btn-doar" type="submit">Salvar projeto</button>
+          <button class="btn btn-copa" type="button" id="cancelar-projeto">Cancelar</button>
+        </div>
+        <p class="form-status" role="status" aria-live="polite" id="status-projeto"></p>
+      </form>
+    </section>
+
+    <section class="admin-secao">
+      <h2>Projetos cadastrados</h2>
+
+      <div class="tabela-rolagem">
+        <table class="tabela" id="tabela-projetos">
+          <caption class="muted">Na ordem em que aparecem no site.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Ordem</th>
+              <th scope="col">Projeto</th>
+              <th scope="col">Etiqueta</th>
+              <th scope="col">Situação</th>
+              <th scope="col"><span class="oculto-visual">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5">Carregando projetos…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="form-status" role="status" aria-live="polite" id="status-lista-projeto"></p>
+    </section>
+
+  
+    <section class="admin-secao" id="dados-ong">
+      <h2>Informações da ONG</h2>
+      <p class="admin-lead">Esses dados são exibidos nos canais de contato, no rodapé e na página de doações.</p>
+      <form class="form-card bloco-conta" id="form-ong-info">
+        <div class="campo-duplo"><div class="campo"><label for="ong-email">E-mail</label><input id="ong-email" name="email" type="email"></div><div class="campo"><label for="ong-telefone">Telefone (com código do país)</label><input id="ong-telefone" name="telefone" type="text"></div></div>
+        <div class="campo-duplo"><div class="campo"><label for="ong-whatsapp">WhatsApp (com código do país)</label><input id="ong-whatsapp" name="whatsapp" type="text"></div><div class="campo"><label for="ong-pix">Chave PIX</label><input id="ong-pix" name="chavePix" type="text"></div></div>
+        <div class="campo-duplo"><div class="campo"><label for="ong-instagram-url">URL do Instagram</label><input id="ong-instagram-url" name="instagramUrl" type="url"></div><div class="campo"><label for="ong-instagram-nome">Nome do Instagram</label><input id="ong-instagram-nome" name="instagramNome" type="text"></div></div>
+        <div class="campo-duplo"><div class="campo"><label for="ong-facebook-url">URL do Facebook</label><input id="ong-facebook-url" name="facebookUrl" type="url"></div><div class="campo"><label for="ong-facebook-nome">Nome do Facebook</label><input id="ong-facebook-nome" name="facebookNome" type="text"></div></div>
+        <div class="campo"><label for="ong-endereco">Endereço</label><input id="ong-endereco" name="endereco" type="text"></div>
+        <div class="campo-duplo"><div class="campo"><label for="ong-localidade">Bairro, cidade e estado</label><input id="ong-localidade" name="localidade" type="text"></div><div class="campo"><label for="ong-cep">CEP</label><input id="ong-cep" name="cep" type="text"></div></div>
+        <div class="campo-duplo"><div class="campo"><label for="ong-horario-semana">Segunda a sexta</label><input id="ong-horario-semana" name="horarioSemana" type="text"></div><div class="campo"><label for="ong-horario-sabado">Sábado</label><input id="ong-horario-sabado" name="horarioSabado" type="text"></div></div>
+        <div class="campo"><label for="ong-horario-domingo">Domingo e feriados</label><input id="ong-horario-domingo" name="horarioDomingo" type="text"></div>
+        <div class="campo-duplo"><div class="campo"><label for="ong-mapa-url">Link do mapa</label><input id="ong-mapa-url" name="mapaUrl" type="url"></div><div class="campo"><label for="ong-mapa-embed">Link incorporado do mapa</label><input id="ong-mapa-embed" name="mapaEmbedUrl" type="url"></div></div>
+        <p class="form-status" id="status-ong" role="status" aria-live="polite"></p>
+        <div class="btn-row btn-row-form"><button class="btn btn-doar" type="submit">Salvar informações</button></div>
+      </form>
+    </section>
+</main>
+</div>
+
+<footer class="admin-rodape">
+  <p>ONG Frutos do Amanhã · Painel administrativo</p>
+  <nav class="footer-legal" aria-label="Links do painel">
+    <a href="index.html">Ver o site público</a>
+    <a href="mapa-do-site.html">Mapa do site</a>
+  </nav>
+</footer>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/api-config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/integracao.js"></script>
+<script src="assets/js/formularios.js"></script>
+<script src="assets/js/site-dados.js"></script>
+</body>
+</html>

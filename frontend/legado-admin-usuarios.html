@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administradores — Painel ONG Frutos do Amanhã</title>
+<meta name="description" content="Painel administrativo da ONG Frutos do Amanhã.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+<body class="admin">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="admin-topo">
+  <div class="admin-topo-inner">
+    <a class="brand" href="legado-admin.html">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        <strong>Frutos do Amanhã</strong>
+        <small>Painel administrativo</small>
+      </span>
+    </a>
+    <button class="nav-toggle admin-toggle" type="button" aria-expanded="false" aria-controls="admin-menu">Menu</button>
+    <div class="admin-usuario">
+      <span class="admin-nome">Heloisa Morais</span>
+      <a class="admin-sair" href="index.html">Sair</a>
+    </div>
+  </div>
+</header>
+
+<div class="admin-layout">
+
+  <nav class="admin-menu" id="admin-menu" aria-label="Menu do painel">
+    <a class="admin-item" href="legado-admin.html">Visão geral</a>
+
+    <p class="admin-grupo" id="g-pessoas">Pessoas</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-pessoas">
+      <a class="admin-item" href="legado-admin-doadores.html">Doadores</a>
+      <a class="admin-item" href="legado-admin-voluntarios.html">Voluntários</a>
+      <a class="admin-item" href="legado-admin-solicitacoes.html">Solicitações</a>
+      <a class="admin-item" href="legado-admin-criancas.html">Beneficiários</a>
+      <a class="admin-item" href="legado-admin-responsaveis.html">Responsáveis</a>
+    </div>
+
+    <p class="admin-grupo" id="g-financeiro">Financeiro</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-financeiro">
+      <a class="admin-item" href="legado-admin-doacoes.html">Doações</a>
+    </div>
+
+    <p class="admin-grupo" id="g-conteudo">Conteúdo</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-conteudo">
+      <a class="admin-item" href="legado-admin-projetos.html">Projetos</a>
+      <a class="admin-item" href="legado-admin-projetos.html#dados-ong">Dados da ONG</a>
+      <a class="admin-item" href="legado-admin-noticias.html">Notícias</a>
+    </div>
+
+    <p class="admin-grupo" id="g-admin">Administração</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-admin">
+      <a class="admin-item" href="legado-admin-usuarios.html" aria-current="page">Administradores</a>
+    </div>
+  </nav>
+
+  <main class="admin-conteudo" id="conteudo">
+
+    <div class="admin-cabecalho">
+      <div>
+        <h1>Administradores</h1>
+        <p class="admin-lead">Acessos ao painel administrativo. Somente o ADM principal pode criar ou remover acessos.</p>
+      </div>
+      <button class="btn btn-doar" type="button" id="abrir-admin" aria-expanded="false" aria-controls="form-admin">
+        Novo administrador
+      </button>
+    </div>
+
+    <p class="nota-dev">O administrador principal cria acessos e define a senha inicial. Cada administrador deve manter sua senha em sigilo.</p>
+
+    <div class="aviso aviso-restrito">
+      <h3>Cada pessoa com o próprio acesso</h3>
+      <p>Senha compartilhada impede saber quem fez cada alteração. Se alguém sair da equipe, o acesso dessa pessoa deve ser desativado no mesmo dia.</p>
+    </div>
+
+    <section class="form-card bloco-conta" id="form-admin" hidden>
+      <h2>Novo administrador</h2>
+      <p class="form-intro">Somente o administrador principal pode criar o acesso. Informe uma senha inicial segura e compartilhe-a diretamente com a pessoa.</p>
+
+      <form id="form-novo-admin" novalidate>
+
+        <div class="campo">
+          <label for="a-nome">Nome completo <span class="obrig" aria-hidden="true">*</span></label>
+          <input type="text" id="a-nome" name="a-nome" required aria-describedby="erro-a-nome">
+          <p class="erro-campo" id="erro-a-nome" role="alert"></p>
+        </div>
+
+        <div class="campo-duplo">
+          <div class="campo">
+            <label for="a-email">E-mail <span class="obrig" aria-hidden="true">*</span></label>
+            <input type="email" id="a-email" name="a-email" required aria-describedby="ajuda-a-email erro-a-email">
+            <p class="ajuda" id="ajuda-a-email">Este e-mail será usado para entrar no painel.</p>
+            <p class="erro-campo" id="erro-a-email" role="alert"></p>
+          </div>
+          <div class="campo">
+            <label for="a-cargo">Função na ONG <span class="obrig" aria-hidden="true">*</span></label>
+            <input type="text" id="a-cargo" name="a-cargo" placeholder="Ex: coordenação pedagógica"
+                   required aria-describedby="erro-a-cargo">
+            <p class="erro-campo" id="erro-a-cargo" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="a-telefone">Telefone <span class="obrig" aria-hidden="true">*</span></label>
+          <input type="tel" id="a-telefone" name="telefone" required autocomplete="tel">
+        </div>
+
+        <div class="campo">
+          <label for="a-senha">Senha inicial <span class="obrig" aria-hidden="true">*</span></label>
+          <input type="password" id="a-senha" name="senha" minlength="8" autocomplete="new-password" required aria-describedby="ajuda-a-senha erro-a-senha">
+          <p class="ajuda" id="ajuda-a-senha">Mínimo de 8 caracteres. O sistema armazena somente a senha protegida.</p>
+          <p class="erro-campo" id="erro-a-senha" role="alert"></p>
+        </div>
+
+        <div class="btn-row btn-row-form">
+          <button class="btn btn-doar" type="submit">Criar administrador</button>
+          <button class="btn btn-copa" type="button" id="cancelar-admin">Cancelar</button>
+        </div>
+        <p class="form-status" role="status" aria-live="polite" id="status-admin"></p>
+      </form>
+    </section>
+
+    <section class="admin-secao">
+      <h2>Acessos ativos</h2>
+
+      <div class="tabela-rolagem">
+        <table class="tabela" id="tabela-admins">
+          <caption class="muted">Pessoas com acesso ao painel.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Nome</th>
+              <th scope="col">E-mail</th>
+              <th scope="col">Função</th>
+              <th scope="col">Acesso</th>
+              <th scope="col">Último login</th>
+              <th scope="col">Situação</th>
+              <th scope="col"><span class="oculto-visual">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="7">Carregando administradores…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="form-status" role="status" aria-live="polite" id="status-lista-admin"></p>
+    </section>
+
+    <section class="admin-secao">
+      <h2>Gerenciamento de acessos</h2>
+      <p>Administradores autorizados podem operar o painel. Criar novos acessos, definir a senha inicial e remover o perfil administrativo são ações exclusivas do ADM principal.</p>
+    </section>
+
+  </main>
+</div>
+
+<footer class="admin-rodape">
+  <p>ONG Frutos do Amanhã · Painel administrativo</p>
+  <nav class="footer-legal" aria-label="Links do painel">
+    <a href="index.html">Ver o site público</a>
+    <a href="mapa-do-site.html">Mapa do site</a>
+  </nav>
+</footer>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/api-config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/integracao.js"></script>
+<script src="assets/js/formularios.js"></script>
+<script src="assets/js/site-dados.js"></script>
+</body>
+</html>

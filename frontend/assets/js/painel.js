@@ -171,7 +171,7 @@
         body: { email: $('#email', form).value.trim(), senha: $('#senha', form).value }
       }).then(function (resposta) {
         api.salvarSessao(resposta, !!($('#lembrar', form) || {}).checked);
-        location.assign("maquete-admin.html");
+        location.assign("admin.html");
       }).catch(function (erro) {
         if (caixa) {
           caixa.className = 'aviso aviso--erro';

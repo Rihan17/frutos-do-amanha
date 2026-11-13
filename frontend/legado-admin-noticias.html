@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notícias — Painel ONG Frutos do Amanhã</title>
+<meta name="description" content="Painel administrativo da ONG Frutos do Amanhã.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+<body class="admin">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="admin-topo">
+  <div class="admin-topo-inner">
+    <a class="brand" href="legado-admin.html">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        <strong>Frutos do Amanhã</strong>
+        <small>Painel administrativo</small>
+      </span>
+    </a>
+    <button class="nav-toggle admin-toggle" type="button" aria-expanded="false" aria-controls="admin-menu">Menu</button>
+    <div class="admin-usuario">
+      <span class="admin-nome">Heloisa Morais</span>
+      <a class="admin-sair" href="index.html">Sair</a>
+    </div>
+  </div>
+</header>
+
+<div class="admin-layout">
+
+  <nav class="admin-menu" id="admin-menu" aria-label="Menu do painel">
+    <a class="admin-item" href="legado-admin.html">Visão geral</a>
+
+    <p class="admin-grupo" id="g-pessoas">Pessoas</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-pessoas">
+      <a class="admin-item" href="legado-admin-doadores.html">Doadores</a>
+      <a class="admin-item" href="legado-admin-voluntarios.html">Voluntários</a>
+      <a class="admin-item" href="legado-admin-solicitacoes.html">Solicitações</a>
+      <a class="admin-item" href="legado-admin-criancas.html">Beneficiários</a>
+      <a class="admin-item" href="legado-admin-responsaveis.html">Responsáveis</a>
+    </div>
+
+    <p class="admin-grupo" id="g-financeiro">Financeiro</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-financeiro">
+      <a class="admin-item" href="legado-admin-doacoes.html">Doações</a>
+    </div>
+
+    <p class="admin-grupo" id="g-conteudo">Conteúdo</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-conteudo">
+      <a class="admin-item" href="legado-admin-projetos.html">Projetos</a>
+      <a class="admin-item" href="legado-admin-projetos.html#dados-ong">Dados da ONG</a>
+      <a class="admin-item" href="legado-admin-noticias.html" aria-current="page">Notícias</a>
+    </div>
+
+    <p class="admin-grupo" id="g-admin">Administração</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-admin">
+      <a class="admin-item" href="legado-admin-usuarios.html">Administradores</a>
+    </div>
+  </nav>
+
+  <main class="admin-conteudo" id="conteudo">
+
+    <div class="admin-cabecalho">
+      <div>
+        <h1>Notícias</h1>
+        <p class="admin-lead">O que você publica aqui aparece na página de notícias e na home do site.</p>
+      </div>
+      <button class="btn btn-doar" type="button" id="abrir-noticia" aria-expanded="false" aria-controls="form-noticia">
+        Nova notícia
+      </button>
+    </div>
+
+    <p class="nota-dev">A API ainda não oferece gerenciamento de notícias. O conteúdo desta área permanece estático no site.</p>
+
+    <section class="form-card bloco-conta" id="form-noticia" hidden>
+      <h2 id="titulo-editor">Nova notícia</h2>
+      <p class="form-intro">Escreva como você contaria para um vizinho. Textos curtos funcionam melhor.</p>
+
+      <form id="form-editor-noticia" novalidate>
+
+        <div class="campo">
+          <label for="n-titulo">Título <span class="obrig" aria-hidden="true">*</span></label>
+          <input type="text" id="n-titulo" name="n-titulo" maxlength="120" required aria-describedby="erro-n-titulo">
+          <p class="erro-campo" id="erro-n-titulo" role="alert"></p>
+        </div>
+
+        <div class="campo">
+          <label for="n-endereco">Endereço da página</label>
+          <input type="text" id="n-endereco" name="n-endereco" readonly aria-describedby="ajuda-n-endereco"
+                 value="noticia-...">
+          <p class="ajuda" id="ajuda-n-endereco">Criado a partir do título. É o link que as pessoas vão compartilhar.</p>
+        </div>
+
+        <div class="campo-duplo">
+          <div class="campo">
+            <label for="n-data">Data da publicação <span class="obrig" aria-hidden="true">*</span></label>
+            <input type="date" id="n-data" name="n-data" required aria-describedby="erro-n-data">
+            <p class="erro-campo" id="erro-n-data" role="alert"></p>
+          </div>
+          <div class="campo">
+            <label for="n-tipo">Tipo</label>
+            <select id="n-tipo" name="n-tipo">
+              <option>Evento</option>
+              <option>Feirinha da Criança</option>
+              <option>Campanha</option>
+              <option>Aviso</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="n-resumo">Resumo <span class="obrig" aria-hidden="true">*</span></label>
+          <textarea id="n-resumo" name="n-resumo" maxlength="240" required
+                    aria-describedby="ajuda-n-resumo erro-n-resumo"></textarea>
+          <p class="ajuda" id="ajuda-n-resumo">Aparece na listagem e no Google. <span id="conta-resumo">0 de 240 caracteres</span>.</p>
+          <p class="erro-campo" id="erro-n-resumo" role="alert"></p>
+        </div>
+
+        <div class="campo">
+          <label for="n-texto">Texto da notícia <span class="obrig" aria-hidden="true">*</span></label>
+          <textarea id="n-texto" name="n-texto" class="textarea-alto" required aria-describedby="ajuda-n-texto erro-n-texto"></textarea>
+          <p class="ajuda" id="ajuda-n-texto">Separe os parágrafos com uma linha em branco.</p>
+          <p class="erro-campo" id="erro-n-texto" role="alert"></p>
+        </div>
+
+        <div class="campo-duplo">
+          <div class="campo">
+            <label for="n-foto">Foto</label>
+            <input type="file" id="n-foto" name="n-foto" accept="image/*" aria-describedby="ajuda-n-foto">
+            <p class="ajuda" id="ajuda-n-foto">Até 2 MB. Só publique fotos de crianças com autorização de imagem.</p>
+          </div>
+          <div class="campo">
+            <label for="n-alt">Descrição da foto</label>
+            <input type="text" id="n-alt" name="n-alt" maxlength="140" aria-describedby="ajuda-n-alt">
+            <p class="ajuda" id="ajuda-n-alt">Para quem não enxerga a imagem. Ex: "voluntários montando cestas".</p>
+          </div>
+        </div>
+
+        <div class="btn-row btn-row-form">
+          <button class="btn btn-doar" type="submit" id="publicar-noticia">Publicar</button>
+          <button class="btn btn-copa" type="button" id="salvar-rascunho">Salvar rascunho</button>
+          <button class="btn btn-copa" type="button" id="cancelar-noticia">Cancelar</button>
+        </div>
+        <p class="form-status" role="status" aria-live="polite" id="status-noticia"></p>
+      </form>
+    </section>
+
+    <section class="admin-secao">
+      <h2>Publicadas e rascunhos</h2>
+
+      <div class="tabela-rolagem">
+        <table class="tabela" id="tabela-noticias">
+          <caption class="muted">Notícias da mais recente para a mais antiga.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Data</th>
+              <th scope="col">Título</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Situação</th>
+              <th scope="col"><span class="oculto-visual">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">—</th>
+              <td>Campanha de agasalho 2026</td>
+              <td>Campanha</td>
+              <td><span class="selo selo-neutro">Rascunho</span></td>
+              <td class="acoes-celula">
+                <button class="btn-link editar-noticia" type="button">Editar</button>
+                <button class="btn-link excluir-noticia" type="button">Excluir</button>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">23/08/2026</th>
+              <td>1ª Quermesse Beneficente reúne o bairro na sede</td>
+              <td>Evento</td>
+              <td><span class="selo selo-ok">Publicada</span></td>
+              <td class="acoes-celula">
+                <a href="noticia-quermesse-beneficente.html" target="_blank" rel="noopener">Ver</a>
+                <button class="btn-link editar-noticia" type="button">Editar</button>
+                <button class="btn-link despublicar-noticia" type="button">Despublicar</button>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">12/07/2026</th>
+              <td>Entrega de julho atende 250 famílias em dois dias</td>
+              <td>Feirinha da Criança</td>
+              <td><span class="selo selo-ok">Publicada</span></td>
+              <td class="acoes-celula">
+                <a href="noticia-entrega-julho.html" target="_blank" rel="noopener">Ver</a>
+                <button class="btn-link editar-noticia" type="button">Editar</button>
+                <button class="btn-link despublicar-noticia" type="button">Despublicar</button>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">02/06/2026</th>
+              <td>Estudando para o Amanhã abre lista de material</td>
+              <td>Campanha</td>
+              <td><span class="selo selo-ok">Publicada</span></td>
+              <td class="acoes-celula">
+                <a href="noticia-lista-material.html" target="_blank" rel="noopener">Ver</a>
+                <button class="btn-link editar-noticia" type="button">Editar</button>
+                <button class="btn-link despublicar-noticia" type="button">Despublicar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="form-status" role="status" aria-live="polite" id="status-lista-noticia"></p>
+    </section>
+
+  </main>
+</div>
+
+<footer class="admin-rodape">
+  <p>ONG Frutos do Amanhã · Painel administrativo</p>
+  <nav class="footer-legal" aria-label="Links do painel">
+    <a href="index.html">Ver o site público</a>
+    <a href="mapa-do-site.html">Mapa do site</a>
+  </nav>
+</footer>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/api-config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/integracao.js"></script>
+<script src="assets/js/formularios.js"></script>
+<script src="assets/js/site-dados.js"></script>
+</body>
+</html>

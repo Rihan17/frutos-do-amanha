@@ -84,29 +84,30 @@ A equipe entra por `gestao.html` (também em `/gestao`). Essa tela está **no vi
 novo** e usa `POST /auth/login`; o token fica em `sessionStorage`, ou em
 `localStorage` se a pessoa marcar "continuar conectado".
 
-Hoje existem dois painéis, os dois ligados à API:
-
-**No visual novo**, em `maquete-admin*.html`, com a ligação em `painel.js`. É para onde
-o login leva. Cada tela traz `data-painel` no `<body>`, e o arquivo descobre qual é,
-exige o token e troca o conteúdo de exemplo pelo que veio do banco.
+O painel do dia a dia é o **do visual novo**, em `admin*.html`, com a ligação em
+`painel.js`. É para onde o login leva. Cada tela traz `data-painel` no `<body>`, e o
+arquivo descobre qual é, exige o token e troca o conteúdo de exemplo pelo que veio do
+banco.
 
 | Tela | Lê | Faz |
 | --- | --- | --- |
-| `maquete-admin.html` | tudo, para os 11 números e as últimas doações | — |
-| `maquete-admin-solicitacoes.html` | `/adm/solicitacoes` | aprovar e recusar |
-| `maquete-admin-voluntarios.html` | `/adm/voluntarios` | aprovar e recusar |
-| `maquete-admin-criancas.html` | `/adm/beneficiarios` | — |
-| `maquete-admin-responsaveis.html` | `/adm/beneficiarios`, agrupado por responsável | — |
-| `maquete-admin-doadores.html` | `/adm/doacoes`, somado por pessoa | — |
-| `maquete-admin-doacoes.html` | `/adm/doacoes` | registrar doação recebida à mão |
-| `maquete-admin-projetos.html` | `/adm/projetos` | publicar projeto |
-| `maquete-admin-usuarios.html` | `/adm/usuarios` | criar acesso, promover, rebaixar |
-| `maquete-admin-noticias.html` | — | — |
+| `admin.html` | tudo, para os 11 números e as últimas doações | — |
+| `admin-solicitacoes.html` | `/adm/solicitacoes` | aprovar e recusar |
+| `admin-voluntarios.html` | `/adm/voluntarios` | aprovar e recusar |
+| `admin-criancas.html` | `/adm/beneficiarios` | — |
+| `admin-responsaveis.html` | `/adm/beneficiarios`, agrupado por responsável | — |
+| `admin-doadores.html` | `/adm/doacoes`, somado por pessoa | — |
+| `admin-doacoes.html` | `/adm/doacoes` | registrar doação recebida à mão |
+| `admin-projetos.html` | `/adm/projetos` | publicar projeto |
+| `admin-usuarios.html` | `/adm/usuarios` | criar acesso, promover, rebaixar |
+| `admin-noticias.html` | — | — |
 
-**No visual anterior**, em `admin*.html`, com a ligação em `integracao.js`. Vieram do
-projeto original e continuam valendo porque ainda fazem o que o painel novo não faz:
-editar os dados da ONG, editar e encerrar voluntário, apagar solicitação, editar e
-apagar projeto, editar e desativar beneficiário.
+O painel anterior continua inteiro em `legado-admin*.html`, com a ligação em
+`integracao.js`, porque ainda faz o que o novo não faz: editar os dados da ONG, editar
+e encerrar voluntário, apagar solicitação, editar e apagar projeto, editar e desativar
+beneficiário. Toda tela do painel novo tem, no fim do menu, um atalho **Painel
+anterior** para chegar lá. Quando essas edições forem portadas, as dez telas de legado
+podem sair.
 
 Nada no site público aponta para nenhum dos dois: chega-se pelo endereço direto.
 
@@ -144,9 +145,9 @@ Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo e
 │       └── security/            JWT e quem pode o quê
 ├── frontend/
 │   ├── *.html                   24 páginas públicas do visual novo
-│   ├── admin*.html              painel da equipe, ligado à API (visual anterior)
-│   ├── maquete-admin*.html      o mesmo painel no visual novo, só desenho
-│   ├── gestao.html              login e painel da equipe (visual anterior)
+│   ├── gestao.html              login da equipe, visual novo (também em /gestao)
+│   ├── admin*.html              painel da equipe, visual novo, ligado por painel.js
+│   ├── legado-admin*.html       painel anterior, ligado por integracao.js
 │   ├── esqueci-senha.html       recuperação de senha (visual anterior)
 │   ├── projeto.html             projeto por slug, vindo da API (visual anterior)
 │   └── assets/
@@ -166,7 +167,10 @@ Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo e
 - `efeitos.js` — o que é igual em todas as páginas
 - `paginas.js` — linha do tempo, contadores, barras, formulários e estados de tela
 - `api.js` / `api-config.js` — cliente HTTP e descoberta do endereço da API
-- `ligacao.js` — os formulários que falam com a API
+- `ligacao.js` — os formulários públicos que falam com a API
+- `painel.js` — o login da equipe e as dez telas do painel no visual novo
+- `integracao.js` / `formularios.js` / `main.js` — o painel anterior e as três páginas
+  que sobraram do visual antigo
 
 ## Bibliotecas (cópias locais em `assets/js/vendor/`, com `defer`)
 
@@ -197,11 +201,11 @@ bloquear esses endereços, o site cai para Georgia e Segoe UI.
 
 Os formulários públicos já enviam de verdade. O que falta:
 
-- **Os dois painéis.** O do visual novo lê tudo e já aprova, recusa, promove, rebaixa,
-  registra doação, publica projeto e cria acesso. O do visual anterior continua
-  necessário para o que falta: editar os dados da ONG, editar e encerrar voluntário,
-  apagar solicitação, editar e apagar projeto, editar e desativar beneficiário. Enquanto
-  isso não for portado, os dois convivem.
+- **As edições do painel.** O painel novo lê tudo e já aprova, recusa, promove,
+  rebaixa, registra doação, publica projeto e cria acesso. Falta portar o que só existe
+  no legado: editar os dados da ONG, editar e encerrar voluntário, apagar solicitação,
+  editar e apagar projeto, editar e desativar beneficiário. Até lá, as dez telas
+  `legado-admin*.html` precisam continuar no repositório.
 - **Páginas que não existem devolvem 500, não 404.** O `GlobalExceptionHandler` tem um
   `@ExceptionHandler(Exception.class)` que engole o `NoResourceFoundException` do
   Spring, então o `404.html` nunca aparece. É de antes desta junção.

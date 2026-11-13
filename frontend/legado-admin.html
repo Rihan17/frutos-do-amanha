@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel — ONG Frutos do Amanhã</title>
+<meta name="description" content="Painel administrativo da ONG Frutos do Amanhã.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+<body class="admin">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="admin-topo">
+  <div class="admin-topo-inner">
+    <a class="brand" href="legado-admin.html">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        <strong>Frutos do Amanhã</strong>
+        <small>Painel administrativo</small>
+      </span>
+    </a>
+    <button class="nav-toggle admin-toggle" type="button" aria-expanded="false" aria-controls="admin-menu">Menu</button>
+    <div class="admin-usuario">
+      <span class="admin-nome">Heloisa Morais</span>
+      <a class="admin-sair" href="index.html">Sair</a>
+    </div>
+  </div>
+</header>
+
+<div class="admin-layout">
+
+  <nav class="admin-menu" id="admin-menu" aria-label="Menu do painel">
+    <a class="admin-item" href="legado-admin.html" aria-current="page">Visão geral</a>
+
+    <p class="admin-grupo" id="g-pessoas">Pessoas</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-pessoas">
+      <a class="admin-item" href="legado-admin-doadores.html">Doadores</a>
+      <a class="admin-item" href="legado-admin-voluntarios.html">Voluntários</a>
+      <a class="admin-item" href="legado-admin-solicitacoes.html">Solicitações</a>
+      <a class="admin-item" href="legado-admin-criancas.html">Beneficiários</a>
+      <a class="admin-item" href="legado-admin-responsaveis.html">Responsáveis</a>
+    </div>
+
+    <p class="admin-grupo" id="g-financeiro">Financeiro</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-financeiro">
+      <a class="admin-item" href="legado-admin-doacoes.html">Doações</a>
+    </div>
+
+    <p class="admin-grupo" id="g-conteudo">Conteúdo</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-conteudo">
+      <a class="admin-item" href="legado-admin-projetos.html">Projetos</a>
+      <a class="admin-item" href="legado-admin-projetos.html#dados-ong">Dados da ONG</a>
+      <a class="admin-item" href="legado-admin-noticias.html">Notícias</a>
+    </div>
+
+    <p class="admin-grupo" id="g-admin">Administração</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-admin">
+      <a class="admin-item" href="legado-admin-usuarios.html">Administradores</a>
+    </div>
+  </nav>
+
+  <main class="admin-conteudo" id="conteudo">
+
+    <div class="admin-cabecalho">
+      <div>
+        <h1>Visão geral</h1>
+        <p class="admin-lead" id="dashboard-sauda">Visão geral dos dados da ONG.</p>
+      </div>
+      <a class="btn btn-doar" href="legado-admin-doacoes.html">Ver doações</a>
+    </div>
+
+    <p class="nota-dev">Carregando os dados do painel…</p>
+
+    <section class="admin-secao admin-secao-primeira">
+      <h2>Precisa de atenção</h2>
+      <div class="cards cards-3">
+        <article class="card card-texto card-pendencia">
+          <p class="pendencia-num" id="dashboard-solicitacoes-pendentes">—</p>
+          <h3>Solicitações de vaga</h3>
+          <p id="dashboard-solicitacoes-desc">Solicitações que aguardam análise.</p>
+          <p class="link-mais"><a href="legado-admin-solicitacoes.html">Analisar solicitações</a></p>
+        </article>
+        <article class="card card-texto card-pendencia">
+          <p class="pendencia-num" id="dashboard-voluntarios-pendentes">—</p>
+          <h3>Candidaturas de voluntário</h3>
+          <p id="dashboard-voluntarios-desc">Candidaturas que aguardam análise.</p>
+          <p class="link-mais"><a href="legado-admin-voluntarios.html">Analisar candidaturas</a></p>
+        </article>
+        <article class="card card-texto card-pendencia">
+          <p class="pendencia-num" id="dashboard-beneficiarios-ativos">—</p>
+          <h3>Beneficiários ativos</h3>
+          <p>Cadastros ativos acompanhados pela ONG.</p>
+          <p class="link-mais"><a href="legado-admin-criancas.html">Ver beneficiários</a></p>
+        </article>
+      </div>
+    </section>
+
+    <section class="admin-secao">
+      <h2 id="dashboard-periodo">Doações no mês</h2>
+      <div class="numeros numeros-conta">
+        <div class="numero"><span class="stat-num" id="dashboard-recebido">—</span><span class="numero-label">Recebido no mês</span></div>
+        <div class="numero"><span class="stat-num" id="dashboard-doacoes-pagas">—</span><span class="numero-label">Doações concluídas</span></div>
+        <div class="numero"><span class="stat-num" id="dashboard-pendente">—</span><span class="numero-label">Aguardando pagamento</span></div>
+        <div class="numero"><span class="stat-num" id="dashboard-planos-ativos">—</span><span class="numero-label">Doações mensais ativas</span></div>
+      </div>
+    </section>
+
+    <section class="admin-secao">
+      <h2>Doações dos últimos seis meses</h2>
+      <div class="grafico">
+        <div class="grafico-barras grafico-barras-dinamico" id="grafico-dashboard" role="img" aria-label="Doações confirmadas nos últimos seis meses"></div>
+        <p class="grafico-nota" id="grafico-dashboard-nota">Carregando dados de doações…</p>
+      </div>
+
+      <div class="tabela-rolagem oculto-visual">
+        <table class="tabela">
+          <caption>Total recebido por mês, em reais.</caption>
+          <thead><tr><th scope="col">Mês</th><th scope="col">Total</th></tr></thead>
+          <tbody id="dashboard-tabela-meses"><tr><td colspan="2">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-secao">
+      <h2>Últimas doações</h2>
+      <div class="tabela-rolagem">
+        <table class="tabela">
+          <caption class="muted">As cinco mais recentes.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Data</th>
+              <th scope="col">Doador</th>
+              <th scope="col">Valor</th>
+              <th scope="col">Origem</th>
+              <th scope="col">Situação</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-ultimas-doacoes"><tr><td colspan="5">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="link-mais"><a href="legado-admin-doacoes.html">Ver todas as doações</a></p>
+    </section>
+
+    <section class="admin-secao">
+      <h2>Atendimento</h2>
+      <div class="numeros numeros-conta">
+        <div class="numero"><span class="stat-num" id="dashboard-beneficiarios">—</span><span class="numero-label">Beneficiários ativos</span></div>
+        <div class="numero"><span class="stat-num" id="dashboard-responsaveis">—</span><span class="numero-label">Responsáveis cadastrados</span></div>
+        <div class="numero"><span class="stat-num" id="dashboard-voluntarios-ativos">—</span><span class="numero-label">Voluntários aprovados</span></div>
+        <div class="numero"><span class="stat-num" id="dashboard-contas">—</span><span class="numero-label">Contas comuns ativas</span></div>
+      </div>
+    </section>
+
+    <section class="admin-secao">
+      <h2>Conteúdo do site</h2>
+      <div class="cards cards-3">
+        <article class="card card-texto">
+          <h3>Projetos publicados</h3>
+          <p id="dashboard-projetos-resumo">Carregando projetos cadastrados.</p>
+          <p class="link-mais"><a href="legado-admin-projetos.html">Consultar projetos</a></p>
+        </article>
+        <article class="card card-texto">
+          <h3>Responsáveis e beneficiários</h3>
+          <p>Consulte os cadastros e vínculos das famílias atendidas.</p>
+          <p class="link-mais"><a href="legado-admin-responsaveis.html">Ver responsáveis</a></p>
+        </article>
+        <article class="card card-texto">
+          <h3>Ver o site</h3>
+          <p>Confira como as páginas públicas estão para quem chega de fora.</p>
+          <p class="link-mais"><a href="index.html">Abrir o site</a></p>
+        </article>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="admin-rodape">
+  <p>ONG Frutos do Amanhã · Painel administrativo</p>
+  <nav class="footer-legal" aria-label="Links do painel">
+    <a href="index.html">Ver o site público</a>
+    <a href="mapa-do-site.html">Mapa do site</a>
+  </nav>
+</footer>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/api-config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/integracao.js"></script>
+<script src="assets/js/site-dados.js"></script>
+</body>
+</html>

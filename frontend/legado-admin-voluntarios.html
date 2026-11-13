@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voluntários — Painel ONG Frutos do Amanhã</title>
+<meta name="description" content="Painel administrativo da ONG Frutos do Amanhã.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+<body class="admin">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="admin-topo">
+  <div class="admin-topo-inner">
+    <a class="brand" href="legado-admin.html">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        <strong>Frutos do Amanhã</strong>
+        <small>Painel administrativo</small>
+      </span>
+    </a>
+    <button class="nav-toggle admin-toggle" type="button" aria-expanded="false" aria-controls="admin-menu">Menu</button>
+    <div class="admin-usuario">
+      <span class="admin-nome">Heloisa Morais</span>
+      <a class="admin-sair" href="index.html">Sair</a>
+    </div>
+  </div>
+</header>
+
+<div class="admin-layout">
+
+  <nav class="admin-menu" id="admin-menu" aria-label="Menu do painel">
+    <a class="admin-item" href="legado-admin.html">Visão geral</a>
+
+    <p class="admin-grupo" id="g-pessoas">Pessoas</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-pessoas">
+      <a class="admin-item" href="legado-admin-doadores.html">Doadores</a>
+      <a class="admin-item" href="legado-admin-voluntarios.html" aria-current="page">Voluntários</a>
+      <a class="admin-item" href="legado-admin-solicitacoes.html">Solicitações</a>
+      <a class="admin-item" href="legado-admin-criancas.html">Beneficiários</a>
+      <a class="admin-item" href="legado-admin-responsaveis.html">Responsáveis</a>
+    </div>
+
+    <p class="admin-grupo" id="g-financeiro">Financeiro</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-financeiro">
+      <a class="admin-item" href="legado-admin-doacoes.html">Doações</a>
+    </div>
+
+    <p class="admin-grupo" id="g-conteudo">Conteúdo</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-conteudo">
+      <a class="admin-item" href="legado-admin-projetos.html">Projetos</a>
+      <a class="admin-item" href="legado-admin-projetos.html#dados-ong">Dados da ONG</a>
+      <a class="admin-item" href="legado-admin-noticias.html">Notícias</a>
+    </div>
+
+    <p class="admin-grupo" id="g-admin">Administração</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-admin">
+      <a class="admin-item" href="legado-admin-usuarios.html">Administradores</a>
+    </div>
+  </nav>
+
+  <main class="admin-conteudo" id="conteudo">
+
+    <div class="admin-cabecalho">
+      <div>
+        <h1>Voluntários</h1>
+        <p class="admin-lead">Candidaturas enviadas pelo formulário público, sem exigir uma conta no site.</p>
+      </div>
+      <a class="btn btn-copa" href="legado-admin-doadores.html">Ver doadores</a>
+    </div>
+
+    <p class="nota-dev">As candidaturas e decisões são carregadas e salvas pela API.</p>
+
+    <div class="numeros numeros-conta">
+      <div class="numero"><span class="stat-num" id="voluntarios-pendentes">—</span><span class="numero-label">Aguardando análise</span></div>
+      <div class="numero"><span class="stat-num" id="voluntarios-aprovados">—</span><span class="numero-label">Aprovados</span></div>
+      <div class="numero"><span class="stat-num" id="voluntarios-recusados">—</span><span class="numero-label">Recusados</span></div>
+      <div class="numero"><span class="stat-num" id="voluntarios-encerrados">—</span><span class="numero-label">Encerrados</span></div>
+    </div>
+
+    <section class="admin-secao">
+      <h2>Lista de candidaturas</h2>
+
+      <div class="barra-filtros">
+        <div class="filtros" role="group" aria-label="Filtrar por situação">
+          <label class="chip"><input type="radio" name="filtro-vol" value="pendente" checked><span>Em análise</span></label>
+          <label class="chip"><input type="radio" name="filtro-vol" value="aprovada"><span>Aprovadas</span></label>
+          <label class="chip"><input type="radio" name="filtro-vol" value="recusada"><span>Recusadas</span></label>
+          <label class="chip"><input type="radio" name="filtro-vol" value="todas"><span>Todas</span></label>
+        </div>
+        <div class="campo campo-busca">
+          <label for="busca-vol">Buscar</label>
+          <input type="search" id="busca-vol" placeholder="Nome do voluntário">
+        </div>
+      </div>
+
+      <div class="tabela-rolagem">
+        <table class="tabela" id="tabela-voluntarios">
+          <caption class="muted">Candidaturas da mais antiga para a mais recente.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Enviada em</th>
+              <th scope="col">Nome</th>
+              <th scope="col">Áreas</th>
+              <th scope="col">Disponibilidade</th>
+              <th scope="col">Situação</th>
+              <th scope="col"><span class="oculto-visual">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6">Carregando voluntários…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="vazio" id="vol-vazio" hidden>Nenhuma candidatura com esses filtros.</p>
+      <p class="muted" id="contagem-vol">Carregando candidaturas…</p>
+    </section>
+
+    <section class="form-card bloco-conta painel-detalhe" id="detalhe-voluntario" hidden
+             tabindex="-1" aria-labelledby="vol-titulo">
+      <div class="detalhe-topo">
+        <h2 id="vol-titulo">Candidatura</h2>
+        <button class="btn-link" type="button" id="fechar-vol">Fechar</button>
+      </div>
+
+      <dl class="resumo">
+        <div><dt>Enviada em</dt><dd id="v-enviada">—</dd></div>
+        <div><dt>Contato</dt><dd id="v-contato">—</dd></div>
+        <div><dt>Áreas</dt><dd id="v-areas">—</dd></div>
+        <div><dt>Disponibilidade</dt><dd id="v-disponibilidade">—</dd></div>
+        <div><dt>Como doador</dt><dd id="v-doacoes">—</dd></div>
+        <div><dt>Situação</dt><dd id="v-estado">—</dd></div>
+      </dl>
+
+      <h3 class="sub-titulo">O que a pessoa escreveu</h3>
+      <p class="body-text" id="v-mensagem">—</p>
+
+      <div class="campo" id="campo-vol">
+        <label for="obs-vol">Observação da análise</label>
+        <textarea id="obs-vol" name="obs-vol" maxlength="400"
+                  placeholder="Ex: turma de reforço às terças e quintas, começa dia 20"></textarea>
+        <p class="ajuda">Na recusa, explique o motivo. Isso ajuda quem for falar com a pessoa depois.</p>
+      </div>
+
+      <div class="btn-row btn-row-form" id="acoes-vol">
+        <button class="btn btn-doar" type="button" id="aprovar-vol">Aprovar candidatura</button>
+        <button class="btn btn-risco" type="button" id="recusar-vol">Recusar</button>
+      </div>
+      <p class="form-status" role="status" aria-live="polite" id="status-vol"></p>
+    </section>
+
+  </main>
+</div>
+
+<footer class="admin-rodape">
+  <p>ONG Frutos do Amanhã · Painel administrativo</p>
+  <nav class="footer-legal" aria-label="Links do painel">
+    <a href="index.html">Ver o site público</a>
+    <a href="mapa-do-site.html">Mapa do site</a>
+  </nav>
+</footer>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/api-config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/integracao.js"></script>
+<script src="assets/js/formularios.js"></script>
+<script src="assets/js/site-dados.js"></script>
+</body>
+</html>

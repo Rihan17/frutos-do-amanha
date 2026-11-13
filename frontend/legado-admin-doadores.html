@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doadores — Painel ONG Frutos do Amanhã</title>
+<meta name="description" content="Painel administrativo da ONG Frutos do Amanhã.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+<body class="admin">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="admin-topo">
+  <div class="admin-topo-inner">
+    <a class="brand" href="legado-admin.html">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        <strong>Frutos do Amanhã</strong>
+        <small>Painel administrativo</small>
+      </span>
+    </a>
+    <button class="nav-toggle admin-toggle" type="button" aria-expanded="false" aria-controls="admin-menu">Menu</button>
+    <div class="admin-usuario">
+      <span class="admin-nome">Heloisa Morais</span>
+      <a class="admin-sair" href="index.html">Sair</a>
+    </div>
+  </div>
+</header>
+
+<div class="admin-layout">
+
+  <nav class="admin-menu" id="admin-menu" aria-label="Menu do painel">
+    <a class="admin-item" href="legado-admin.html">Visão geral</a>
+
+    <p class="admin-grupo" id="g-pessoas">Pessoas</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-pessoas">
+      <a class="admin-item" href="legado-admin-doadores.html" aria-current="page">Doadores</a>
+      <a class="admin-item" href="legado-admin-voluntarios.html">Voluntários</a>
+      <a class="admin-item" href="legado-admin-solicitacoes.html">Solicitações</a>
+      <a class="admin-item" href="legado-admin-criancas.html">Beneficiários</a>
+      <a class="admin-item" href="legado-admin-responsaveis.html">Responsáveis</a>
+    </div>
+
+    <p class="admin-grupo" id="g-financeiro">Financeiro</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-financeiro">
+      <a class="admin-item" href="legado-admin-doacoes.html">Doações</a>
+    </div>
+
+    <p class="admin-grupo" id="g-conteudo">Conteúdo</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-conteudo">
+      <a class="admin-item" href="legado-admin-projetos.html">Projetos</a>
+      <a class="admin-item" href="legado-admin-projetos.html#dados-ong">Dados da ONG</a>
+      <a class="admin-item" href="legado-admin-noticias.html">Notícias</a>
+    </div>
+
+    <p class="admin-grupo" id="g-admin">Administração</p>
+    <div class="admin-lista" role="group" aria-labelledby="g-admin">
+      <a class="admin-item" href="legado-admin-usuarios.html">Administradores</a>
+    </div>
+  </nav>
+
+  <main class="admin-conteudo" id="conteudo">
+
+    <div class="admin-cabecalho">
+      <div>
+        <h1>Doadores</h1>
+        <p class="admin-lead">Contas existentes e doações sem cadastro identificadas pela equipe.</p>
+      </div>
+      <a class="btn btn-doar" href="legado-admin-doacoes.html">Ver doações</a>
+    </div>
+
+    <p class="nota-dev">Os dados desta lista são agregados a partir dos usuários, doações e planos cadastrados na API.</p>
+
+    <div class="numeros numeros-conta">
+      <div class="numero"><span class="stat-num" id="doadores-total-contas">—</span><span class="numero-label">Contas comuns</span></div>
+      <div class="numero"><span class="stat-num" id="doadores-com-doacao">—</span><span class="numero-label">Já doaram</span></div>
+      <div class="numero"><span class="stat-num" id="doadores-plano-ativo">—</span><span class="numero-label">Com plano mensal ativo</span></div>
+      <div class="numero"><span class="stat-num" id="doadores-inativos">—</span><span class="numero-label">Contas inativas</span></div>
+    </div>
+
+    <section class="admin-secao">
+      <h2>Lista de doadores</h2>
+
+      <div class="barra-filtros">
+        <div class="filtros" role="group" aria-label="Filtrar lista">
+          <label class="chip"><input type="radio" name="filtro-doador" value="todos" checked><span>Todos</span></label>
+          <label class="chip"><input type="radio" name="filtro-doador" value="doou"><span>Já doaram</span></label>
+          <label class="chip"><input type="radio" name="filtro-doador" value="mensal"><span>Doação mensal</span></label>
+          <label class="chip"><input type="radio" name="filtro-doador" value="inativo"><span>Inativados</span></label>
+        </div>
+        <div class="campo campo-busca">
+          <label for="busca-doador">Buscar</label>
+          <input type="search" id="busca-doador" placeholder="Nome ou e-mail">
+        </div>
+      </div>
+
+      <div class="tabela-rolagem">
+        <table class="tabela" id="tabela-doadores">
+          <caption class="muted">Doadores em ordem alfabética.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Nome</th>
+              <th scope="col">Contato</th>
+              <th scope="col">Doações</th>
+              <th scope="col">Total</th>
+              <th scope="col">Situação</th>
+              <th scope="col"><span class="oculto-visual">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6">Carregando doadores…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="vazio" id="doadores-vazio" hidden>Nenhum doador com esses filtros.</p>
+
+      <div class="acoes-lista">
+        <p class="muted" id="contagem-doadores">Carregando doadores…</p>
+        <button class="btn btn-copa" type="button" id="exportar-doadores">Salvar relatório em PDF</button>
+      </div>
+      <p class="form-status" role="status" aria-live="polite" id="status-exportar-doadores"></p>
+    </section>
+
+    <section class="form-card bloco-conta painel-detalhe" id="detalhe-doador" hidden
+             tabindex="-1" aria-labelledby="detalhe-nome">
+      <div class="detalhe-topo">
+        <h2 id="detalhe-nome">Nome do doador</h2>
+        <button class="btn-link" type="button" id="fechar-detalhe">Fechar</button>
+      </div>
+
+      <dl class="resumo">
+        <div><dt>E-mail</dt><dd id="d-email">—</dd></div>
+        <div><dt>Telefone</dt><dd id="d-telefone">—</dd></div>
+        <div><dt>CPF</dt><dd id="d-cpf">Não disponibilizado pelo painel</dd></div>
+        <div><dt>Conta criada em</dt><dd id="d-desde">—</dd></div>
+        <div><dt>Doações concluídas</dt><dd id="d-doacoes">—</dd></div>
+        <div><dt>Total doado</dt><dd id="d-total">—</dd></div>
+        <div><dt>Doação mensal</dt><dd id="d-mensal">—</dd></div>
+        <div><dt>Voluntariado</dt><dd id="d-voluntariado">—</dd></div>
+        <div><dt>Situação da conta</dt><dd id="d-situacao">—</dd></div>
+      </dl>
+
+      <p class="ajuda">O painel não expõe CPF nem credenciais de acesso.</p>
+
+      <div class="btn-row btn-row-form">
+        <a class="btn btn-copa" id="ver-doacoes-doador" href="legado-admin-doacoes.html">Ver doações desta pessoa</a>
+      </div>
+      <p class="form-status" role="status" aria-live="polite" id="status-doador"></p>
+    </section>
+
+  </main>
+</div>
+
+<footer class="admin-rodape">
+  <p>ONG Frutos do Amanhã · Painel administrativo</p>
+  <nav class="footer-legal" aria-label="Links do painel">
+    <a href="index.html">Ver o site público</a>
+    <a href="mapa-do-site.html">Mapa do site</a>
+  </nav>
+</footer>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/api-config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/integracao.js"></script>
+<script src="assets/js/formularios.js"></script>
+<script src="assets/js/site-dados.js"></script>
+</body>
+</html>
