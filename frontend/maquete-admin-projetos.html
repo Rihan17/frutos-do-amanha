@@ -43,9 +43,10 @@
   <script defer src="assets/js/paginas.js"></script>
   <script defer src="assets/js/api-config.js"></script>
   <script defer src="assets/js/api.js"></script>
+  <script defer src="assets/js/painel.js"></script>
   <script defer src="assets/js/ligacao.js"></script>
 </head>
-<body data-pagina="admin">
+<body data-pagina="admin" data-painel="projetos">
   <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -114,6 +115,7 @@
           <div class="capa__acoes" style="margin:0">
             <a class="botao botao--folha" href="maquete-admin.html" data-magnetico data-broto><span class="botao__texto">Visão geral</span></a>
             <a class="link" href="index.html" data-broto>Abrir o site</a>
+            <button class="link" type="button" data-sair style="color:var(--pitanga-tinta)">Sair</button>
           </div>
         </div>
 
@@ -140,7 +142,7 @@
           <p data-form-aviso-texto></p>
         </div>
 
-        <form class="form" style="margin-bottom:var(--e-8)" data-form="Projeto preenchido corretamente. Esta tela ainda não publica — falta ligar ao back-end.">
+        <form class="form" style="margin-bottom:var(--e-8)">
           <fieldset>
             <legend>Identificação</legend>
             <div class="campo"><label for="pro-nome">Nome do projeto <em>*</em></label><input type="text" id="pro-nome" name="pro-nome" required></div>

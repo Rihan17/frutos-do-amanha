@@ -80,29 +80,40 @@ As telas com mais de um estado aceitam `?estado=` no endereço:
 
 ### O painel
 
-A equipe entra por `gestao.html` (também em `/gestao`), que é a tela de login. Depois do
-login o navegador vai para `admin.html`. Essas dez telas vieram do projeto original e
-puxam os dados da API pelo `integracao.js`:
+A equipe entra por `gestao.html` (também em `/gestao`). Essa tela está **no visual
+novo** e usa `POST /auth/login`; o token fica em `sessionStorage`, ou em
+`localStorage` se a pessoa marcar "continuar conectado".
 
-| Arquivo | O que é |
-| --- | --- |
-| `admin.html` | Visão geral — gráfico de doações e últimas entradas |
-| `admin-solicitacoes.html` | Solicitações de vaga das famílias |
-| `admin-voluntarios.html` | Candidaturas de voluntariado |
-| `admin-criancas.html` | Crianças atendidas |
-| `admin-responsaveis.html` | Responsáveis legais |
-| `admin-doadores.html` | Doadores |
-| `admin-doacoes.html` | Doações recebidas |
-| `admin-projetos.html` | Projetos, atividades e dados da ONG |
-| `admin-noticias.html` | Notícias publicadas |
-| `admin-usuarios.html` | Administradores com acesso |
+Hoje existem dois painéis, os dois ligados à API:
 
-As dez telas do painel **no visual novo** existem como `maquete-admin*.html`. São
-desenho, com dados escritos no HTML, e não falam com a API. Ficam guardadas para a
-etapa em que o painel for refeito.
+**No visual novo**, em `maquete-admin*.html`, com a ligação em `painel.js`. É para onde
+o login leva. Cada tela traz `data-painel` no `<body>`, e o arquivo descobre qual é,
+exige o token e troca o conteúdo de exemplo pelo que veio do banco.
 
-Nada no site público aponta para o painel, nem para o funcional nem para a maquete:
-chega-se pelo endereço direto.
+| Tela | Lê | Faz |
+| --- | --- | --- |
+| `maquete-admin.html` | tudo, para os 11 números e as últimas doações | — |
+| `maquete-admin-solicitacoes.html` | `/adm/solicitacoes` | aprovar e recusar |
+| `maquete-admin-voluntarios.html` | `/adm/voluntarios` | aprovar e recusar |
+| `maquete-admin-criancas.html` | `/adm/beneficiarios` | — |
+| `maquete-admin-responsaveis.html` | `/adm/beneficiarios`, agrupado por responsável | — |
+| `maquete-admin-doadores.html` | `/adm/doacoes`, somado por pessoa | — |
+| `maquete-admin-doacoes.html` | `/adm/doacoes` | registrar doação recebida à mão |
+| `maquete-admin-projetos.html` | `/adm/projetos` | publicar projeto |
+| `maquete-admin-usuarios.html` | `/adm/usuarios` | criar acesso, promover, rebaixar |
+| `maquete-admin-noticias.html` | — | — |
+
+**No visual anterior**, em `admin*.html`, com a ligação em `integracao.js`. Vieram do
+projeto original e continuam valendo porque ainda fazem o que o painel novo não faz:
+editar os dados da ONG, editar e encerrar voluntário, apagar solicitação, editar e
+apagar projeto, editar e desativar beneficiário.
+
+Nada no site público aponta para nenhum dos dois: chega-se pelo endereço direto.
+
+Duas ressalvas do painel novo. **Notícias** não tem API: são páginas HTML do próprio
+site, e a tela diz isso em vez de fingir uma lista. E os formulários de **criança** e
+**responsável** seguem como maquete, porque a API não tem como criá-los direto — uma
+criança nasce ao aprovar uma solicitação de vaga.
 
 ## Fotos
 
@@ -186,9 +197,11 @@ bloquear esses endereços, o site cai para Georgia e Segoe UI.
 
 Os formulários públicos já enviam de verdade. O que falta:
 
-- **O painel no visual novo.** As dez telas funcionais (`admin*.html`) são as do
-  projeto original; as do visual novo estão como `maquete-admin*.html` e não puxam
-  nada da API. Refazer o painel no visual novo é a maior pendência.
+- **Os dois painéis.** O do visual novo lê tudo e já aprova, recusa, promove, rebaixa,
+  registra doação, publica projeto e cria acesso. O do visual anterior continua
+  necessário para o que falta: editar os dados da ONG, editar e encerrar voluntário,
+  apagar solicitação, editar e apagar projeto, editar e desativar beneficiário. Enquanto
+  isso não for portado, os dois convivem.
 - **Páginas que não existem devolvem 500, não 404.** O `GlobalExceptionHandler` tem um
   `@ExceptionHandler(Exception.class)` que engole o `NoResourceFoundException` do
   Spring, então o `404.html` nunca aparece. É de antes desta junção.

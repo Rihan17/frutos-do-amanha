@@ -43,9 +43,10 @@
   <script defer src="assets/js/paginas.js"></script>
   <script defer src="assets/js/api-config.js"></script>
   <script defer src="assets/js/api.js"></script>
+  <script defer src="assets/js/painel.js"></script>
   <script defer src="assets/js/ligacao.js"></script>
 </head>
-<body data-pagina="admin">
+<body data-pagina="admin" data-painel="usuarios">
   <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -114,6 +115,7 @@
           <div class="capa__acoes" style="margin:0">
             <a class="botao botao--folha" href="maquete-admin.html" data-magnetico data-broto><span class="botao__texto">Visão geral</span></a>
             <a class="link" href="index.html" data-broto>Abrir o site</a>
+            <button class="link" type="button" data-sair style="color:var(--pitanga-tinta)">Sair</button>
           </div>
         </div>
 
@@ -144,25 +146,27 @@
           <p data-form-aviso-texto></p>
         </div>
 
-        <form class="form" style="margin-bottom:var(--e-8)" data-form="Convite preenchido corretamente. Esta tela ainda não envia o convite — falta ligar ao back-end.">
+        <form class="form" style="margin-bottom:var(--e-8)">
           <fieldset>
             <legend>Dados do acesso</legend>
             <div class="campo"><label for="adm-nome">Nome completo <em>*</em></label><input type="text" id="adm-nome" name="adm-nome" autocomplete="name" required></div>
             <div class="dupla-coluna">
-              <div class="campo"><label for="adm-email">E-mail <em>*</em></label><input type="email" id="adm-email" name="adm-email" autocomplete="email" required><small>O convite chega neste endereço.</small></div>
+              <div class="campo"><label for="adm-email">E-mail <em>*</em></label><input type="email" id="adm-email" name="adm-email" autocomplete="email" required><small>É com ele que a pessoa entra no painel.</small></div>
               <div class="campo"><label for="adm-funcao">Função na ONG <em>*</em></label><input type="text" id="adm-funcao" name="adm-funcao" required placeholder="Coordenação pedagógica"></div>
             </div>
-            <div class="campo">
-              <label for="adm-nivel">Nível de acesso <em>*</em></label>
-              <select id="adm-nivel" name="adm-nivel" required>
-                <option value="">Selecione</option>
-                <option>Completo</option>
-                <option>Operacional</option>
-              </select>
-              <small>Operacional faz tudo, menos criar e desativar administradores.</small>
+            <div class="dupla-coluna">
+              <div class="campo"><label for="adm-telefone">Telefone <em>*</em></label><input type="tel" id="adm-telefone" name="adm-telefone" autocomplete="tel" required placeholder="(13) 90000-0000"></div>
+              <div class="campo">
+                <label for="adm-senha">Senha inicial <em>*</em></label>
+                <div style="display:grid;grid-template-columns:1fr auto;gap:.5rem;align-items:center">
+                  <input type="password" id="adm-senha" name="adm-senha" minlength="8" autocomplete="new-password" required>
+                  <button class="link" type="button" data-ver-senha="adm-senha" aria-pressed="false">Mostrar</button>
+                </div>
+                <small>Pelo menos 8 caracteres. Combine com a pessoa e peça que ela troque no primeiro acesso.</small>
+              </div>
             </div>
           </fieldset>
-          <button class="botao botao--folha" type="submit" data-magnetico data-broto><svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Enviar convite</span></button>
+          <button class="botao botao--folha" type="submit" data-magnetico data-broto><svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Criar acesso</span></button>
         </form>
 
         <section id="lista-acessos" aria-labelledby="t-lista-acessos" style="margin-bottom:var(--e-8)">

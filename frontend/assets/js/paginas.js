@@ -105,6 +105,10 @@
 
   /* ---------- Contadores das internas ---------- */
   function contadores() {
+    /* Nas telas do painel quem escreve os números é o painel.js, com o que veio
+       da API. A animação do contador roda sozinha ao entrar na tela e sobrescrevia
+       esses valores de volta para os de exemplo. */
+    if (document.body.hasAttribute('data-painel')) return;
     aoEntrar('[data-conta]', (el) => {
       const alvo = parseFloat(el.dataset.conta);
       const casas = (el.dataset.casas | 0);
