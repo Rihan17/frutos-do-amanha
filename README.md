@@ -80,22 +80,29 @@ As telas com mais de um estado aceitam `?estado=` no endereço:
 
 ### O painel
 
+A equipe entra por `gestao.html` (também em `/gestao`), que é a tela de login. Depois do
+login o navegador vai para `admin.html`. Essas dez telas vieram do projeto original e
+puxam os dados da API pelo `integracao.js`:
+
 | Arquivo | O que é |
 | --- | --- |
-| `admin.html` | Visão geral — placares, pendências e atalhos |
+| `admin.html` | Visão geral — gráfico de doações e últimas entradas |
 | `admin-solicitacoes.html` | Solicitações de vaga das famílias |
 | `admin-voluntarios.html` | Candidaturas de voluntariado |
 | `admin-criancas.html` | Crianças atendidas |
 | `admin-responsaveis.html` | Responsáveis legais |
 | `admin-doadores.html` | Doadores |
 | `admin-doacoes.html` | Doações recebidas |
-| `admin-projetos.html` | Projetos e atividades |
+| `admin-projetos.html` | Projetos, atividades e dados da ONG |
 | `admin-noticias.html` | Notícias publicadas |
 | `admin-usuarios.html` | Administradores com acesso |
 
-O painel não é anunciado em lugar nenhum do site público: não há link para ele no
-rodapé, no mapa do site nem em nenhuma outra página. Chega-se pelo endereço direto,
-`admin.html`.
+As dez telas do painel **no visual novo** existem como `maquete-admin*.html`. São
+desenho, com dados escritos no HTML, e não falam com a API. Ficam guardadas para a
+etapa em que o painel for refeito.
+
+Nada no site público aponta para o painel, nem para o funcional nem para a maquete:
+chega-se pelo endereço direto.
 
 ## Fotos
 
@@ -125,7 +132,9 @@ Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo e
 │       ├── model/ repository/   documentos e acesso ao Mongo
 │       └── security/            JWT e quem pode o quê
 ├── frontend/
-│   ├── *.html                   34 páginas do visual novo
+│   ├── *.html                   24 páginas públicas do visual novo
+│   ├── admin*.html              painel da equipe, ligado à API (visual anterior)
+│   ├── maquete-admin*.html      o mesmo painel no visual novo, só desenho
 │   ├── gestao.html              login e painel da equipe (visual anterior)
 │   ├── esqueci-senha.html       recuperação de senha (visual anterior)
 │   ├── projeto.html             projeto por slug, vindo da API (visual anterior)
@@ -177,9 +186,12 @@ bloquear esses endereços, o site cai para Georgia e Segoe UI.
 
 Os formulários públicos já enviam de verdade. O que falta:
 
-- **As dez telas do painel novo** (`admin*.html`) continuam maquete, com dados de
-  exemplo no HTML. Quem trabalha de verdade é o `gestao.html`, no visual anterior, que
-  é também por onde a equipe entra. O painel novo não tem link em lugar nenhum do site.
+- **O painel no visual novo.** As dez telas funcionais (`admin*.html`) são as do
+  projeto original; as do visual novo estão como `maquete-admin*.html` e não puxam
+  nada da API. Refazer o painel no visual novo é a maior pendência.
+- **Páginas que não existem devolvem 500, não 404.** O `GlobalExceptionHandler` tem um
+  `@ExceptionHandler(Exception.class)` que engole o `NoResourceFoundException` do
+  Spring, então o `404.html` nunca aparece. É de antes desta junção.
 - **Doação mensal.** A API cobra assinatura por `POST /planos`, que exige uma conta de
   doador, e o site não tem mais cadastro. Escolher "Todo mês" hoje mostra um recado
   pedindo para combinar pelo WhatsApp. Ou se cria outro caminho na API, ou a opção sai
