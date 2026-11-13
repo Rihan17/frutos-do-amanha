@@ -1,8 +1,13 @@
-# Frutos do Amanhã — "da semente ao fruto"
+# ONG Frutos do Amanhã
 
-Site completo no visual novo: **34 telas**, com o conteúdo real já no lugar. Cobre o
-site público, as mesmas páginas de `ong-frutos-do-amanha.onrender.com`, mais as dez
-telas do painel administrativo.
+Site e API da ONG Frutos do Amanhã, de São Vicente/SP, num repositório só. O backend
+Spring Boot serve as páginas e a API no mesmo endereço, como já acontecia no projeto
+original; o que mudou é que o site servido agora é o visual novo.
+
+- **frontend/** — 45 páginas, todas no visual novo: 24 públicas, 10 do painel da
+  equipe, o login, a recuperação de senha e as telas de retorno.
+- **backend/** — API REST em Java 17 com Spring Boot e MongoDB, trazida do repositório
+  `Kdu13/ong-frutos-do-amanha`.
 
 ## As telas
 
@@ -32,18 +37,6 @@ telas do painel administrativo.
 
 ### O painel
 
-| Arquivo | O que é |
-| --- | --- |
-| `admin.html` | Visão geral — placares, pendências e atalhos |
-| `admin-solicitacoes.html` | Solicitações de vaga das famílias |
-| `admin-voluntarios.html` | Candidaturas de voluntariado |
-| `admin-criancas.html` | Crianças atendidas |
-| `admin-responsaveis.html` | Responsáveis legais |
-| `admin-doadores.html` | Doadores |
-| `admin-doacoes.html` | Doações recebidas |
-| `admin-projetos.html` | Projetos e atividades |
-| `admin-noticias.html` | Notícias publicadas |
-| `admin-usuarios.html` | Administradores com acesso |
 
 ## Fotos
 
@@ -66,11 +59,24 @@ Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo e
 
 ```
 .
-├── *.html                       34 páginas
-└── assets/
-    ├── css/  tokens.css · base.css · components.css · paginas.css · home.css
-    ├── js/   nucleo.js · efeitos.js · paginas.js · home.js
-    └── img/  as 17 fotos · logo.svg · favicon.svg · rasgo*.svg · pix-qr-exemplo.svg
+├── backend/                     API Spring Boot (Java 17) + MongoDB
+│   └── src/main/java/br/org/ong/
+│       ├── controller/          endpoints REST
+│       ├── service/             regras
+│       ├── model/ repository/   documentos e acesso ao Mongo
+│       └── security/            JWT e quem pode o quê
+├── frontend/
+│   ├── *.html                   24 páginas públicas do visual novo
+│   ├── gestao.html              login da equipe, visual novo (também em /gestao)
+│   ├── admin*.html              painel da equipe, visual novo, ligado por painel.js
+│   ├── esqueci-senha.html       pede o link de recuperação de senha
+│   └── assets/
+│       ├── css/  tokens · base · components · paginas · home
+│       ├── js/   nucleo · efeitos · paginas · home · api · ligacao · vendor/
+│       └── img/  as 17 fotos e os SVGs da interface
+├── Dockerfile                   build único: Maven + o site dentro do jar
+├── render.yaml
+└── DEPLOYMENT.md
 ```
 
 - `tokens.css` — cores, fontes, espaçamentos e curvas de animação, tudo em `:root`
@@ -79,6 +85,10 @@ Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo e
 - `nucleo.js` — configuração, rolagem suave e carregamento das fotos
 - `efeitos.js` — o que é igual em todas as páginas
 - `paginas.js` — linha do tempo, contadores, barras, formulários e estados de tela
+- `api.js` / `api-config.js` — cliente HTTP e descoberta do endereço da API
+- `ligacao.js` — os formulários públicos que falam com a API
+- `painel.js` — o login da equipe e as dez telas do painel no visual novo
+- `api.js` / `api-config.js` — cliente HTTP e descoberta do endereço da API
 
 ## Bibliotecas (cópias locais em `assets/js/vendor/`, com `defer`)
 
@@ -107,13 +117,30 @@ bloquear esses endereços, o site cai para Georgia e Segoe UI.
 
 ## O que ainda não está ligado
 
-Esta etapa é **só visual**. Os formulários validam no navegador e mostram uma confirmação,
-mas não enviam nada. Para ligar ao back-end, use os scripts do site atual
-(`api-config.js`, `api.js`, `integracao.js`, `site-dados.js`) nos pontos marcados:
+Os formulários públicos já enviam de verdade. O que falta:
 
-- `doar.html` → checkout do Mercado Pago
-- `voluntariado.html` → endpoint de candidatura
-- `solicitar-vaga.html` → endpoint de solicitação
-- o painel → dados reais (hoje são de exemplo em todas as dez telas)
-- chave Pix e QR code → hoje são fictícios
+- **Edições que ficaram sem tela.** O painel anterior foi removido, e com ele sumiram
+  da interface: editar os dados da ONG, editar e encerrar voluntário, apagar
+  solicitação, editar e apagar projeto, editar e desativar beneficiário. Os endpoints
+  continuam na API (`PUT /adm/ong`, `PUT`/`DELETE` em `/adm/voluntarios/{id}`,
+  `/adm/solicitacoes/{id}`, `/adm/projetos/{id}` e `/adm/beneficiarios/{id}`); falta a
+  tela. Enquanto isso, essas operações só por chamada direta à API.
+- **Página de projeto por slug.** O `projeto.html`, que montava a página de qualquer
+  projeto a partir da API, saiu junto. Os dois projetos de hoje têm página própria
+  escrita à mão, mas um projeto novo criado no painel fica sem página pública.
+- **Páginas que não existem devolvem 500, não 404.** O `GlobalExceptionHandler` tem um
+  `@ExceptionHandler(Exception.class)` que engole o `NoResourceFoundException` do
+  Spring, então o `404.html` nunca aparece. É de antes desta junção.
+- **Doação mensal.** A API cobra assinatura por `POST /planos`, que exige uma conta de
+  doador, e o site não tem mais cadastro. Escolher "Todo mês" hoje mostra um recado
+  pedindo para combinar pelo WhatsApp. Ou se cria outro caminho na API, ou a opção sai
+  do formulário.
+- **Retornos do pagamento.** O Mercado Pago volta para `doar-sucesso.html?doacao=<id>`,
+  e as três telas ainda mostram um resumo de exemplo em vez de buscar a doação.
+- **Notícias e projetos nas páginas públicas** seguem escritos no HTML. A API tem
+  `GET /projetos`, e só o `select` de destino da doação usa isso hoje.
+- **Área de conta do doador** (login, cadastro, histórico) foi retirada: as páginas não
+  vieram, e no backend elas continuam bloqueadas na `SecurityConfiguration`. O endpoint
+  `POST /auth/cadastro` que o site anterior chamava nunca existiu no controller.
+
 

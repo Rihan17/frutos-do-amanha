@@ -1,0 +1,8 @@
+.git
+.github
+.vscode
+**/target
+**/.env
+**/application-local.properties
+**/*.iml
+.DS_Store
