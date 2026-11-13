@@ -23,9 +23,15 @@ services:
         sync: false
       - key: MERCADOPAGO_WEBHOOK_SECRET
         sync: false
+      # As tres abaixo sao o endereco publico do servico. O Render so decide
+      # esse endereco ao criar o servico, e ele nao e necessariamente o nome
+      # acima: se o nome ja estiver em uso, ele acrescenta um sufixo. Por isso
+      # ficam como sync: false, para voce colar a URL de verdade no primeiro
+      # deploy. Com um valor errado aqui, o retorno do Mercado Pago cai em
+      # outro dominio e o CORS barra o proprio site.
       - key: APP_FRONTEND_BASE_URL
-        value: https://ong-frutos-do-amanha.onrender.com
+        sync: false
       - key: APP_BACKEND_PUBLIC_URL
-        value: https://ong-frutos-do-amanha.onrender.com
+        sync: false
       - key: APP_CORS_ALLOWED_ORIGINS
-        value: https://ong-frutos-do-amanha.onrender.com
+        sync: false

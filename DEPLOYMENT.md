@@ -14,7 +14,7 @@ O plano gratuito do Render é adequado para demonstração, mas suspende o servi
 4. Copie uma URI em **Connect → Drivers** para esse novo usuário. Use-a somente nas variáveis de ambiente, nunca em arquivos do site, no GitHub ou em mensagens.
 5. Depois de confirmar que o site local continua usando a credencial rotacionada e que a demonstração usa o usuário novo, remova usuários antigos que não serão mais usados.
 
-Para trocar também a senha do seu administrador atual, atualize `MONGODB_URI` no terminal local com a senha rotacionada, reinicie a API, entre no site e abra `conta.html`. O formulário **Trocar senha** valida a senha atual, grava a nova senha com BCrypt e encerra a sessão para você entrar novamente. O admin da demonstração será outra conta, criada pelas variáveis secretas do Render.
+A senha do administrador não tem mais tela para ser trocada: a área de conta saiu do projeto e o painel novo ainda não tem esse formulário. O endpoint continua existindo (`PUT /auth/alterar-senha`, com o token no cabeçalho). O caminho que funciona pela interface é o de recuperação: `gestao.html` → **Receber um link por e-mail** → o link abre `redefinir-senha.html?token=...`. Ele depende de SMTP configurado, que o plano gratuito do Render não permite (veja a última seção). O admin da demonstração é outra conta, criada pelas variáveis secretas do Render.
 
 ## Publicar
 
