@@ -1,0 +1,1 @@
+package br.org.ong.model.embedded; import java.time.*; import org.springframework.data.mongodb.core.mapping.Field; import org.springframework.data.mongodb.core.mapping.FieldType;  public record DadosBeneficiarioSolicitacao(String nome, LocalDate dataNascimento, String genero) {}

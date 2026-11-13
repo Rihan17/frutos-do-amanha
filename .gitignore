@@ -1,0 +1,9 @@
+target/
+.env
+**/.env
+application-local.properties
+.idea/
+.vscode/
+*.iml
+.DS_Store
+frontend/archive/

@@ -1,15 +1,52 @@
-# Frutos do Amanhã — "da semente ao fruto"
+# ONG Frutos do Amanhã
 
-Site completo no visual novo: **34 telas**, com o conteúdo real já no lugar. Cobre o
-site público, as mesmas páginas de `ong-frutos-do-amanha.onrender.com`, mais as dez
-telas do painel administrativo.
+Site e API da ONG Frutos do Amanhã, de São Vicente/SP, num repositório só. O backend
+Spring Boot serve as páginas e a API no mesmo endereço, como já acontecia no projeto
+original; o que mudou é que o site servido agora é o visual novo.
+
+- **frontend/** — 34 páginas do visual novo, mais 3 do visual anterior que seguem em uso
+  (`gestao.html`, `esqueci-senha.html` e `projeto.html`).
+- **backend/** — API REST em Java 17 com Spring Boot e MongoDB, trazida do repositório
+  `Kdu13/ong-frutos-do-amanha`.
 
 ## Como rodar
 
-Não tem build. Abra a **raiz do repositório** num servidor local:
+Precisa de Java 17 ou mais novo, Maven (o `mvnw` do próprio projeto serve) e um MongoDB
+acessível. Sem banco o backend **não sobe**: ele cria os índices na partida.
 
-- VS Code → extensão **Live Server** → botão direito em `index.html` → *Open with Live Server*
-- ou no terminal, na raiz do repositório: `npx serve .` (ou `python -m http.server`)
+```bash
+# 1. um MongoDB local
+docker run -d --name ong-mongo -p 27017:27017 mongo:7
+
+# 2. a API, servindo o site da pasta frontend/
+cd backend
+MONGODB_URI="mongodb://localhost:27017/ong" JWT_SECRET="troque-por-um-segredo-longo-de-verdade" ONG_ADMIN_EMAIL="voce@example.com" ONG_ADMIN_PASSWORD="umaSenhaForte" ./mvnw spring-boot:run -Dspring-boot.run.arguments=--spring.web.resources.static-locations=file:../frontend/
+```
+
+O site fica em <http://localhost:8080> e o painel da equipe em
+<http://localhost:8080/gestao>. As variáveis estão todas em `.env.example`.
+
+Para mexer só no visual, sem subir a API, basta servir a pasta `frontend/`
+(`npx serve frontend`): as páginas abrem normalmente e o que depende da API mostra o
+conteúdo de exemplo que está no HTML.
+
+A publicação no Render usa o `Dockerfile`, que copia `frontend/` para dentro de
+`backend/src/main/resources/static/` e sobe um serviço só. Veja
+[`DEPLOYMENT.md`](DEPLOYMENT.md).
+
+## O que fala com a API
+
+| Tela | Endpoint | O que faz |
+| --- | --- | --- |
+| `doar.html` | `POST /doacoes/publico` | cria a doação e leva ao Mercado Pago |
+| `voluntariado.html` | `POST /voluntarios/publico` | registra a candidatura |
+| `solicitar-vaga.html` | `POST /solicitacoes` | registra o pedido e devolve o protocolo |
+| `redefinir-senha.html` | `POST /auth/redefinir-senha` | usa o `?token=` do e-mail |
+| `doar.html`, `como-ajudar.html`, `index.html` | `GET /projetos`, `GET /publico/ong` | lista de destinos e chave Pix de verdade |
+| `gestao.html` | `POST /auth/login` | entrada da equipe no painel |
+
+A ligação mora em `frontend/assets/js/ligacao.js`. Ela cuida dos formulários marcados
+com `data-api` no HTML; os demais continuam sendo maquete, validada pelo `paginas.js`.
 
 ## As telas
 
@@ -81,19 +118,35 @@ Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo e
 
 ```
 .
-├── *.html                       34 páginas
-└── assets/
-    ├── css/  tokens.css · base.css · components.css · paginas.css · home.css
-    ├── js/   nucleo.js · efeitos.js · paginas.js · home.js
-    └── img/  as 17 fotos · logo.svg · favicon.svg · rasgo*.svg · pix-qr-exemplo.svg
+├── backend/                     API Spring Boot (Java 17) + MongoDB
+│   └── src/main/java/br/org/ong/
+│       ├── controller/          endpoints REST
+│       ├── service/             regras
+│       ├── model/ repository/   documentos e acesso ao Mongo
+│       └── security/            JWT e quem pode o quê
+├── frontend/
+│   ├── *.html                   34 páginas do visual novo
+│   ├── gestao.html              login e painel da equipe (visual anterior)
+│   ├── esqueci-senha.html       recuperação de senha (visual anterior)
+│   ├── projeto.html             projeto por slug, vindo da API (visual anterior)
+│   └── assets/
+│       ├── css/  tokens · base · components · paginas · home · style (do visual anterior)
+│       ├── js/   nucleo · efeitos · paginas · home · api · ligacao · vendor/
+│       └── img/  as 17 fotos e os SVGs da interface
+├── Dockerfile                   build único: Maven + o site dentro do jar
+├── render.yaml
+└── DEPLOYMENT.md
 ```
 
 - `tokens.css` — cores, fontes, espaçamentos e curvas de animação, tudo em `:root`
 - `components.css` — cabeçalho, menu, botões, cursor, cortina, bloco Pix, FAQ, rodapé
 - `paginas.css` — só as páginas internas; `home.css` só a Home
+- `style.css` — o visual anterior, usado apenas por `gestao`, `esqueci-senha` e `projeto`
 - `nucleo.js` — configuração, rolagem suave e carregamento das fotos
 - `efeitos.js` — o que é igual em todas as páginas
 - `paginas.js` — linha do tempo, contadores, barras, formulários e estados de tela
+- `api.js` / `api-config.js` — cliente HTTP e descoberta do endereço da API
+- `ligacao.js` — os formulários que falam com a API
 
 ## Bibliotecas (cópias locais em `assets/js/vendor/`, com `defer`)
 
@@ -122,23 +175,31 @@ bloquear esses endereços, o site cai para Georgia e Segoe UI.
 
 ## O que ainda não está ligado
 
-Esta etapa é **só visual**. Os formulários validam no navegador e mostram uma confirmação,
-mas não enviam nada. Para ligar ao back-end, use os scripts do site atual
-(`api-config.js`, `api.js`, `integracao.js`, `site-dados.js`) nos pontos marcados:
+Os formulários públicos já enviam de verdade. O que falta:
 
-- `doar.html` → checkout do Mercado Pago
-- `voluntariado.html` → endpoint de candidatura
-- `solicitar-vaga.html` → endpoint de solicitação
-- o painel → dados reais (hoje são de exemplo em todas as dez telas)
-- chave Pix e QR code → hoje são fictícios
+- **As dez telas do painel novo** (`admin*.html`) continuam maquete, com dados de
+  exemplo no HTML. Quem trabalha de verdade é o `gestao.html`, no visual anterior, que
+  é também por onde a equipe entra. O painel novo não tem link em lugar nenhum do site.
+- **Doação mensal.** A API cobra assinatura por `POST /planos`, que exige uma conta de
+  doador, e o site não tem mais cadastro. Escolher "Todo mês" hoje mostra um recado
+  pedindo para combinar pelo WhatsApp. Ou se cria outro caminho na API, ou a opção sai
+  do formulário.
+- **Retornos do pagamento.** O Mercado Pago volta para `doar-sucesso.html?doacao=<id>`,
+  e as três telas ainda mostram um resumo de exemplo em vez de buscar a doação.
+- **Notícias e projetos nas páginas públicas** seguem escritos no HTML. A API tem
+  `GET /projetos`, e só o `select` de destino da doação usa isso hoje.
+- **Área de conta do doador** (login, cadastro, histórico) foi retirada: as páginas não
+  vieram, e no backend elas continuam bloqueadas na `SecurityConfiguration`. O endpoint
+  `POST /auth/cadastro` que o site anterior chamava nunca existiu no controller.
 
 ## Pendências de conteúdo
 
-Nada na tela sinaliza mais o que é exemplo: esta lista é o único registro.
-
-- Chave Pix real e QR code correspondente (hoje a chave é `123e4567-…`, fictícia)
 - Números reais da prestação de contas (os de `transparencia.html` são exemplo)
 - Relatórios em PDF
 - Imagem de compartilhamento `assets/img/og-home.jpg` (1200×630): as meta tags de todas
   as páginas já apontam para ela, mas o arquivo ainda não existe
 - Confirmar se os números de impacto são ~300/~250 ou +144/+88
+
+A chave Pix saiu desta lista: `como-ajudar.html` e a home agora buscam a chave e o QR
+code em `GET /publico/ong`. O que está no HTML é só o exemplo que aparece se a API não
+responder.

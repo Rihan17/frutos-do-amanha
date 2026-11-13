@@ -1,0 +1,3 @@
+package br.org.ong.dto.response;
+import br.org.ong.model.Voluntario; import br.org.ong.model.embedded.Analise; import java.time.Instant;
+public record VoluntarioResponse(String id,String usuarioId,String projetoId,String status,Instant dataInscricao,Instant dataSaida,String observacao,String justificativaRecusa,Analise analise,String nomeContato,String emailContato,String telefoneContato) { public static VoluntarioResponse from(Voluntario v){return new VoluntarioResponse(v.getId(),v.getUsuarioId(),v.getProjetoId(),v.getStatus().name(),v.getDataInscricao(),v.getDataSaida(),v.getObservacao(),v.getJustificativaRecusa(),v.getAnalise(),v.getNomeContato(),v.getEmailContato(),v.getTelefoneContato());} }

@@ -1,0 +1,1 @@
+package br.org.ong.model.embedded; import java.time.*; import org.springframework.data.mongodb.core.mapping.Field; import org.springframework.data.mongodb.core.mapping.FieldType;  public record Analise(@Field(targetType = FieldType.OBJECT_ID) String usuarioId, Instant data) {}
