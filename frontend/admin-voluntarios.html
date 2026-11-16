@@ -98,7 +98,7 @@
       </ul>
     </nav>
     <div class="menu__rodape">
-      <span>Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</span>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Geralda+Martins+de+Oliveira%2C+355+-+Vila+Matias%2C+S%C3%A3o+Vicente+-+SP" rel="noopener" target="_blank">Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</a>
       <a href="https://wa.me/5513988585602" rel="noopener" target="_blank">WhatsApp (13) 98858-5602</a>
       <a href="https://instagram.com/ongfrutosdoamanha" rel="noopener" target="_blank">@ongfrutosdoamanha</a>
     </div>
@@ -142,10 +142,10 @@
           <article class="ficha"><span class="ficha__valor" data-conta="5">5</span><h2>Recusadas no ano</h2><p>Sem disponibilidade compatível com as atividades.</p></article>
         </div>
 
-        <div class="painel-filtros">
-          <div class="campo"><label for="busca-vol">Buscar por nome</label><input type="search" id="busca-vol" name="busca-vol" placeholder="Digite para filtrar"></div>
-          <div class="campo"><label for="area-vol">Área</label><select id="area-vol" name="area-vol"><option>Todas</option><option>Reforço escolar</option><option>Oficinas culturais</option><option>Esporte</option><option>Entregas e eventos</option></select></div>
-          <div class="campo"><label for="sit-vol">Situação</label><select id="sit-vol" name="sit-vol"><option>Todas</option><option>Em análise</option><option>Aprovada</option><option>Recusada</option></select></div>
+        <div class="painel-filtros" data-filtros>
+          <div class="campo"><label for="busca-vol">Buscar por nome</label><input type="search" id="busca-vol" name="busca-vol" placeholder="Digite para filtrar" data-filtro-busca></div>
+          <div class="campo"><label for="area-vol">Área</label><select id="area-vol" name="area-vol" data-filtro-coluna="2" data-filtro-auto data-filtro-rotulo="Todas"><option value="">Todas</option></select></div>
+          <div class="campo"><label for="sit-vol">Situação</label><select id="sit-vol" name="sit-vol" data-filtro-coluna="4" data-filtro-auto data-filtro-rotulo="Todas"><option value="">Todas</option></select></div>
         </div>
 
         <section id="lista-candidaturas" aria-labelledby="t-lista-candidaturas" style="margin-bottom:var(--e-8)">

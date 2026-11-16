@@ -98,7 +98,7 @@
       </ul>
     </nav>
     <div class="menu__rodape">
-      <span>Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</span>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Geralda+Martins+de+Oliveira%2C+355+-+Vila+Matias%2C+S%C3%A3o+Vicente+-+SP" rel="noopener" target="_blank">Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</a>
       <a href="https://wa.me/5513988585602" rel="noopener" target="_blank">WhatsApp (13) 98858-5602</a>
       <a href="https://instagram.com/ongfrutosdoamanha" rel="noopener" target="_blank">@ongfrutosdoamanha</a>
     </div>
@@ -147,12 +147,12 @@
           <p data-form-aviso-texto></p>
         </div>
 
-        <form class="form" style="margin-bottom:var(--e-8)" data-form="Cadastro preenchido corretamente. Esta tela ainda não grava os dados — falta ligar ao back-end.">
+        <form class="form" style="margin-bottom:var(--e-8)">
           <fieldset>
             <legend>Quem é a pessoa</legend>
             <div class="campo"><label for="res-nome">Nome completo <em>*</em></label><input type="text" id="res-nome" name="res-nome" autocomplete="name" required></div>
             <div class="dupla-coluna">
-              <div class="campo"><label for="res-cpf">CPF <em>*</em></label><input type="text" id="res-cpf" name="res-cpf" inputmode="numeric" placeholder="000.000.000-00" required></div>
+              <div class="campo"><label for="res-cpf">CPF <em>*</em></label><input type="text" id="res-cpf" name="res-cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" data-mascara="cpf" required></div>
               <div class="campo">
                 <label for="res-parentesco">Parentesco <em>*</em></label>
                 <select id="res-parentesco" name="res-parentesco" required>
@@ -169,18 +169,38 @@
           <fieldset>
             <legend>Contato e endereço</legend>
             <div class="dupla-coluna">
-              <div class="campo"><label for="res-telefone">Telefone <em>*</em></label><input type="tel" id="res-telefone" name="res-telefone" autocomplete="tel" required></div>
+              <div class="campo"><label for="res-telefone">Telefone <em>*</em></label><input type="tel" id="res-telefone" name="res-telefone" autocomplete="tel" required maxlength="15" inputmode="numeric" placeholder="(13) 98858-5602" data-mascara="telefone"></div>
               <div class="campo"><label for="res-email">E-mail</label><input type="email" id="res-email" name="res-email" autocomplete="email"></div>
             </div>
-            <div class="campo"><label for="res-endereco">Endereço <em>*</em></label><input type="text" id="res-endereco" name="res-endereco" autocomplete="street-address" required></div>
+            <!-- Mesmo esquema do pedido de vaga: o CEP preenche rua, bairro,
+                 cidade e estado pelo ViaCEP, e todos seguem editáveis. -->
+            <div class="dupla-coluna">
+              <div class="campo">
+                <label for="res-cep">CEP</label>
+                <input type="text" id="res-cep" name="res-cep" inputmode="numeric" maxlength="9" placeholder="00000-000" autocomplete="postal-code" data-cep>
+                <small data-cep-aviso>Preenche o endereço sozinho.</small>
+              </div>
+              <div class="campo"><label for="res-numero">Número</label><input type="text" id="res-numero" name="res-numero" inputmode="numeric" maxlength="20" autocomplete="off" data-cep-foco></div>
+            </div>
+            <div class="campo"><label for="res-endereco">Rua <em>*</em></label><input type="text" id="res-endereco" name="res-endereco" autocomplete="street-address" maxlength="200" data-cep-campo="logradouro" required></div>
+            <div class="dupla-coluna">
+              <div class="campo"><label for="res-complemento">Complemento</label><input type="text" id="res-complemento" name="res-complemento" maxlength="80" placeholder="Casa, apto, fundos"></div>
+              <div class="campo"><label for="res-bairro">Bairro</label><input type="text" id="res-bairro" name="res-bairro" maxlength="100" placeholder="Vila Matias" data-cep-campo="bairro"></div>
+            </div>
+            <div class="dupla-coluna">
+              <div class="campo"><label for="res-cidade">Cidade</label><input type="text" id="res-cidade" name="res-cidade" maxlength="100" placeholder="São Vicente" data-cep-campo="localidade"></div>
+              <div class="campo"><label for="res-uf">Estado</label><input type="text" id="res-uf" name="res-uf" maxlength="2" placeholder="SP" style="text-transform:uppercase" data-cep-campo="uf"></div>
+            </div>
             <div class="campo"><label for="res-obs">Observações</label><textarea id="res-obs" name="res-obs"></textarea></div>
           </fieldset>
           <button class="botao botao--folha" type="submit" data-magnetico data-broto><svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Salvar cadastro</span></button>
         </form>
 
-        <div class="painel-filtros">
-          <div class="campo"><label for="busca-res">Buscar por nome</label><input type="search" id="busca-res" name="busca-res" placeholder="Digite para filtrar"></div>
-          <div class="campo"><label for="bairro-res">Bairro</label><select id="bairro-res" name="bairro-res"><option>Todos</option><option>Vila Matias</option><option>Vila Margarida</option><option>Jardim Rio Branco</option></select></div>
+        <div class="painel-filtros" data-filtros>
+          <div class="campo"><label for="busca-res">Buscar por nome</label><input type="search" id="busca-res" name="busca-res" placeholder="Digite para filtrar" data-filtro-busca></div>
+          <!-- O filtro de bairro saiu: a coluna agora mostra o endereço inteiro, e um
+     select montado a partir dela listaria um endereço por linha. Procurar o
+     bairro pelo campo de busca ao lado dá no mesmo e é mais direto. -->
         </div>
 
         <section id="lista-responsaveis" aria-labelledby="t-lista-responsaveis" style="margin-bottom:var(--e-8)">
@@ -191,7 +211,10 @@
           <div class="tabela--rolavel">
             <table class="tabela">
               <caption>Em ordem alfabética.</caption>
-              <thead><tr><th scope="col">Nome</th><th scope="col">Parentesco</th><th scope="col">Telefone</th><th scope="col">Crianças</th><th scope="col">Bairro</th><th scope="col"><span class="sr-only">Ações</span></th></tr></thead>
+              <!-- Eram seis cabeçalhos para cinco células, como em Crianças:
+                   a coluna "Ações" ficava sempre vazia. E "Bairro" virou
+                   "Endereço", que é o que a linha mostra agora. -->
+              <thead><tr><th scope="col">Nome</th><th scope="col">Parentesco</th><th scope="col">Telefone</th><th scope="col">Crianças</th><th scope="col">Endereço</th><th scope="col"><span class="sr-only">Ações</span></th></tr></thead>
               <tbody>
               <tr><td>Ana Paula Ferreira</td><td>Mãe</td><td>(13) 95444-5566</td><td>1</td><td>Vila Matias</td><td><span class="acoes"><a class="link" href="#" data-broto>Detalhes</a></span></td></tr>
               <tr><td>Cláudia Martins</td><td>Mãe</td><td>(13) 97222-3344</td><td>1</td><td>Jardim Rio Branco</td><td><span class="acoes"><a class="link" href="#" data-broto>Detalhes</a></span></td></tr>

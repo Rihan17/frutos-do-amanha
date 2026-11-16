@@ -158,6 +158,31 @@ notícias isso não aparece. Quando aparecer, as saídas são reduzir a imagem n
 antes de enviar, ou guardar as fotos como arquivo de verdade — o que exige
 armazenamento externo, porque o disco do plano gratuito do Render é efêmero.
 
+## Responsáveis e endereço
+
+O responsável de uma criança chega por dois caminhos, e a tela de Responsáveis
+mostra os dois na mesma lista, juntos pelo nome:
+
+- **Pela solicitação de vaga.** É o caminho normal. A família pede vaga, e ao aprovar
+  o pedido o responsável entra junto com o beneficiário, embutido nele. Essas linhas
+  aparecem marcadas como "veio de solicitação" e não têm botão de desativar — quem
+  manda nelas é o beneficiário.
+- **Pelo cadastro do painel.** Para quem aparece na sede sem ter pedido vaga. Esses
+  vivem na coleção `responsaveis`, em `/adm/responsaveis`, e podem ser desativados.
+
+O CPF é guardado só com os números, então `111.444.777-35` e `11144477735` são o mesmo
+cadastro na hora de conferir repetição — a máscara é coisa da tela. Cadastro sem CPF
+passa: não dá para saber se duas Marias Silva são a mesma pessoa, e barrar por nome
+impediria a segunda. Desativar não apaga, porque o responsável pode estar ligado a uma
+criança em acompanhamento.
+
+O endereço é preenchido pelo **ViaCEP**: a pessoa digita o CEP e rua, bairro, cidade e
+estado aparecem sozinhos, sobrando o número. Vale no pedido de vaga e no cadastro do
+painel, pelos atributos `data-cep` e `data-cep-campo` do `paginas.js`. Nenhum campo de
+endereço é obrigatório na API, e nada trava se o ViaCEP estiver fora, se o CEP não
+existir ou se a pessoa não souber o CEP: os campos continuam editáveis à mão, e o que
+for digitado à mão não é sobrescrito por uma busca posterior.
+
 ## O que ainda não está ligado
 
 Os formulários públicos já enviam de verdade. O que falta:

@@ -15,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -84,6 +85,22 @@ public class GlobalExceptionHandler {
     ResponseEntity<Erro> corpoInvalido(HttpMessageNotReadableException e) {
         return ResponseEntity.badRequest().body(new Erro(Instant.now(), 400,
                 "JSON inválido ou valor de enum desconhecido", Map.of("body", "Verifique o JSON enviado")));
+    }
+
+    /* Arquivo que não existe é 404, não falha do servidor.
+
+       Sem este tratador o NoResourceFoundException caía no catch-all abaixo:
+       a resposta saía 500 e o log ganhava um rastro de pilha inteiro. Isso
+       acontecia em toda visita ao site, porque o carregador de fotos pedia
+       uma versão .webp de cada imagem antes de cair no .jpg — eram os únicos
+       erros que apareciam em produção. O pedido do .webp foi retirado do
+       frontend, e aqui fica a rede de segurança: qualquer arquivo ausente
+       responde 404 barato, sem rastro de pilha. */
+    @ExceptionHandler(NoResourceFoundException.class)
+    ResponseEntity<Erro> arquivoNaoEncontrado(NoResourceFoundException e) {
+        log.debug("Arquivo estático inexistente: {}", e.getResourcePath());
+        return ResponseEntity.status(404).body(new Erro(Instant.now(), 404,
+                "Arquivo não encontrado", Map.of()));
     }
 
     @ExceptionHandler(Exception.class)

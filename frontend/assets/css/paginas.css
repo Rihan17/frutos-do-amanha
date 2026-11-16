@@ -29,7 +29,7 @@ main { position: relative; }
   padding-block: clamp(8rem, 18vh, 13rem) var(--e-8);
   overflow: clip;
 }
-.capa--terra { --cor: var(--terra); background: var(--terra); color: var(--papel); }
+.capa--terra { --cor: var(--fundo-escuro); background: var(--fundo-escuro); color: var(--papel); }
 .capa--folha { --cor: var(--folha); background: var(--folha); color: var(--papel); }
 .capa--papel { --cor: var(--papel); background: var(--papel); }
 .capa--caqui { --cor: var(--caqui); background: var(--caqui); color: var(--terra); }
@@ -67,7 +67,7 @@ main { position: relative; }
 .faixa--papel { --cor: var(--papel); background: var(--papel); }
 .faixa--papel-2 { --cor: var(--papel-2); background: var(--papel-2); }
 .faixa--folha { --cor: var(--folha); background: var(--folha); color: var(--papel); }
-.faixa--terra { --cor: var(--terra); background: var(--terra); color: var(--papel); }
+.faixa--terra { --cor: var(--fundo-escuro); background: var(--fundo-escuro); color: var(--papel); }
 .faixa--caqui { --cor: var(--caqui); background: var(--caqui); color: var(--terra); }
 .faixa--curta { padding-block: var(--e-8); }
 .faixa > * { position: relative; z-index: var(--z-conteudo); }
@@ -148,7 +148,7 @@ main { position: relative; }
 .recorte h3 { font-size: clamp(1.3rem, 2.2vw, 1.9rem); }
 .recorte ul { padding-left: 1.1em; display: grid; gap: .4rem; }
 .recorte li::marker { color: var(--caqui); }
-.recorte--terra { background: var(--terra); color: var(--papel); }
+.recorte--terra { background: var(--fundo-escuro); color: var(--papel); }
 .recorte--terra li::marker { color: var(--mel); }
 
 /* Lista com folhinha no marcador */
@@ -187,7 +187,18 @@ main { position: relative; }
 .placar span { display: block; margin-top: .5rem; font-weight: 600; max-width: 20ch; }
 .placar li:nth-child(2) b, .placar li:nth-child(4) b { color: var(--caqui); }
 .faixa--caqui .placar li:nth-child(2) b, .faixa--caqui .placar li:nth-child(4) b { color: var(--pitanga-tinta); }
-@media (min-width: 760px) { .placar { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 760px) { .placar { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Dentro de .duas o placar divide a largura com o texto ao lado, e sobra
+   pouco mais de 350px. Em quatro colunas só cabem números de dois ou três
+   dígitos: "2.064" na fonte de display passa de 150px sozinho, e as faixas
+   1fr crescem até o conteúdo, empurrando o grid por cima do texto vizinho.
+   A transparência já transbordava assim com "R$ 28.400", de leve. Nessa
+   coluna, então, duas colunas e um número um pouco menor. */
+@media (min-width: 760px) {
+  .duas__lado .placar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .duas__lado .placar b { font-size: clamp(2rem, 3.6vw, 3.2rem); }
+}
 
 /* ---------- Galeria de fotos ---------- */
 .galeria { display: grid; gap: var(--e-5); grid-template-columns: repeat(2, 1fr); }
@@ -501,8 +512,51 @@ main { position: relative; }
 /* Gráfico de barras simples (painel) */
 .barras { display: flex; align-items: flex-end; gap: clamp(.4rem, 1.5vw, 1.1rem); height: 190px; padding-top: var(--e-4); }
 .barras li { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: .5rem; height: 100%; }
-.barras i { display: block; width: 100%; flex: 0 0 auto; background: var(--folha); height: var(--h, 10%); border-radius: 6px 6px 0 0; }
-.barras li:last-child i { background: var(--caqui); }
+/* A cor da barra conta o pagamento: verde embaixo é a parte paga, vermelho em
+   cima é o que ficou sem pagar. --pago vem do painel.js, em porcentagem. */
+.barras i {
+  display: block;
+  width: 100%;
+  flex: 0 0 auto;
+  height: var(--h, 10%);
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(to top,
+    var(--folha) 0 var(--pago, 100%),
+    var(--pitanga) var(--pago, 100%) 100%);
+  transition: filter .18s var(--ease-brota), transform .18s var(--ease-brota);
+}
+.barras li { position: relative; }
+.barras li:hover i,
+.barras li:focus-visible i { filter: brightness(1.18); transform: scaleY(1.03); transform-origin: bottom; }
+.barras li:focus-visible { outline: 2px solid var(--caqui-tinta); outline-offset: 4px; border-radius: 8px; }
+/* O balão com os números do mês, no hover e no foco pelo teclado. */
+.barras li::after {
+  content: attr(data-detalhe);
+  position: absolute;
+  bottom: calc(100% - 1.2rem);
+  left: 50%;
+  translate: -50% 0;
+  width: max-content;
+  max-width: 15rem;
+  padding: .45rem .7rem .5rem;
+  background: var(--fundo-escuro);
+  color: var(--papel);
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s;
+  z-index: 5;
+}
+.barras li:hover::after,
+.barras li:focus-visible::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .barras i { transition: none; }
+  .barras li:hover i, .barras li:focus-visible i { transform: none; }
+}
 .barras small { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--casca); }
 
 /* Navegação entre as telas do painel */

@@ -38,10 +38,10 @@ main { position: relative; }
    01 — SEMENTE (hero)
    ========================================================== */
 .hero {
-  --cor: var(--terra);
+  --cor: var(--fundo-escuro);
   position: relative;
   min-height: 100svh;
-  background: var(--terra);
+  background: var(--fundo-escuro);
   color: var(--papel);
   overflow: clip;
   display: flex;
@@ -49,6 +49,37 @@ main { position: relative; }
   justify-content: flex-end;
   padding-block: clamp(7rem, 16vh, 11rem) clamp(2.5rem, 7vh, 5rem);
 }
+/* Foto de abertura, atrás de tudo.
+   O véu é um degradê que escurece de baixo para cima: embaixo, onde ficam o
+   título e o texto, cobre quase tudo; em cima deixa a foto aparecer. Assim a
+   foto se vê e o texto claro mantém contraste de sobra. */
+.hero__fundo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center 28%;
+  z-index: 0;
+  opacity: .9;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(to top, var(--fundo-escuro) 18%, rgb(45 56 34 / .82) 48%, rgb(45 56 34 / .35) 100%);
+  pointer-events: none;
+}
+@media (max-width: 760px) {
+  /* No celular o texto ocupa quase a tela inteira: o véu fecha mais. */
+  .hero::after {
+    background: linear-gradient(to top, var(--fundo-escuro) 30%, rgb(45 56 34 / .88) 65%, rgb(45 56 34 / .55) 100%);
+  }
+}
+
 /* Solo: textura grossa que reage ao mouse (só transform) */
 .hero__solo {
   position: absolute !important;
@@ -88,6 +119,12 @@ main { position: relative; }
 .hero__texto { max-width: 36ch; font-size: clamp(1.05rem, 1.25vw, 1.3rem); color: rgb(243 235 221 / .86); }
 .hero__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-4) var(--e-6); }
 .hero .link { color: var(--papel); }
+/* A semente desenhada era o assunto da capa quando o fundo era liso. Com a
+   foto atrás, ela virou uma mancha marrom de meio metro em cima do rosto de
+   quem aparece na imagem. Fica no HTML, porque o home.js anima a radícula
+   dentro dela e procura o elemento, mas deixa de aparecer. Para trazê-la de
+   volta, é só apagar a regra .hero__semente { opacity: 0 } abaixo. */
+.hero__semente { opacity: 0; }
 .hero__semente {
   position: absolute !important;
   z-index: 1 !important;
@@ -98,6 +135,10 @@ main { position: relative; }
   will-change: transform;
 }
 .hero__semente svg { width: 100%; height: auto; overflow: visible; }
+/* Mesma história da semente: a polaroid era o único retrato da capa. Agora a
+   capa inteira é uma foto, e a polaroid virava uma segunda imagem disputando
+   atenção — e cobrindo o link "Conheça a história". Some, sem sair do HTML. */
+.hero__foto { display: none; }
 .hero__foto {
   position: absolute !important;
   z-index: 3 !important;

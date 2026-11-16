@@ -79,7 +79,7 @@
 }
 .topo.solido::before { opacity: 1; }
 .topo.escuro { color: var(--papel); }
-.topo.escuro::before { background: var(--terra); }
+.topo.escuro::before { background: var(--fundo-escuro); }
 .topo.escondido { transform: translateY(-110%); }
 .topo > * { position: relative; }
 
@@ -168,7 +168,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-menu);
-  background: var(--terra);
+  background: var(--fundo-escuro);
   color: var(--papel);
   display: flex;
   flex-direction: column;
@@ -269,7 +269,7 @@ body.menu-aberto .botao-menu__linhas::after { transform: translateY(-5px) rotate
   position: fixed;
   inset: 0;
   z-index: var(--z-loader);
-  background: var(--terra);
+  background: var(--fundo-escuro);
   color: var(--papel);
   align-items: center;
   justify-content: center;
@@ -332,7 +332,7 @@ html.intro-ativa, html.intro-ativa body { overflow: hidden; }
   grid-template-columns: auto 1fr;
   gap: var(--e-5);
   align-items: center;
-  background: var(--terra);
+  background: var(--fundo-escuro);
   color: var(--papel);
   padding: clamp(1rem, 2.5vw, 1.75rem);
   rotate: -1deg;
@@ -405,9 +405,9 @@ html.intro-ativa, html.intro-ativa body { overflow: hidden; }
 
 /* ---------- Rodapé: a colheita ---------- */
 .rodape {
-  --cor: var(--terra);
+  --cor: var(--fundo-escuro);
   position: relative;
-  background: var(--terra);
+  background: var(--fundo-escuro);
   color: var(--papel);
   padding-block: var(--e-9) var(--e-6);
   overflow: hidden;
@@ -457,7 +457,7 @@ body.menu-aberto .topo { z-index: calc(var(--z-menu) + 1); transform: none; }
   position: absolute;
   left: 0; right: 0; bottom: -30px;
   height: 32px;
-  background: var(--terra);
+  background: var(--fundo-escuro);
   -webkit-mask: url("../img/rasgo-baixo.svg") 0 0 / 100% 100% no-repeat;
           mask: url("../img/rasgo-baixo.svg") 0 0 / 100% 100% no-repeat;
 }

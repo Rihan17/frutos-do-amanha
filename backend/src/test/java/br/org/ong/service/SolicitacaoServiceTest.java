@@ -57,5 +57,42 @@ class SolicitacaoServiceTest {
     @Test void recusarSemJustificativaEErro400(){when(usuarios.findById(ADMIN_ID)).thenReturn(Optional.of(admin()));assertThrows(RequisicaoInvalidaException.class,()->service.recusar(ID,ADMIN_ID," "));}
     @Test void recusarFazUpdateCondicional(){when(usuarios.findById(ADMIN_ID)).thenReturn(Optional.of(admin()));Solicitacao recusada=pendente();recusada.setStatus(StatusSolicitacao.RECUSADA);when(mongo.findAndModify(any(Query.class),any(Update.class),any(FindAndModifyOptions.class),eq(Solicitacao.class))).thenReturn(recusada);assertEquals(StatusSolicitacao.RECUSADA,service.recusar(ID,ADMIN_ID,"Não atende aos critérios").getStatus());}
     @Test void naoAprovaSolicitacaoQueNaoEstaPendente(){when(usuarios.findById(ADMIN_ID)).thenReturn(Optional.of(admin()));Solicitacao antiga=aprovada();when(solicitacoes.findById(ID)).thenReturn(Optional.of(antiga));when(beneficiarios.findBySolicitacaoOrigemId(ID)).thenReturn(Optional.empty());assertThrows(RegraNegocioException.class,()->service.aprovar(ID,ADMIN_ID));}
-    @Test void consentimentoEObrigatorio(){var q=new SolicitacaoRequest("motivo",new SolicitacaoRequest.SolicitanteRequest("nome","tel"),new SolicitacaoRequest.BeneficiarioPedidoRequest("nome",LocalDate.of(2010,1,1),"F"),new SolicitacaoRequest.ResponsavelRequest("nome","a@b.com","tel","mãe"),new SolicitacaoRequest.ConsentimentoRequest(false));assertThrows(RequisicaoInvalidaException.class,()->service.criar(q));verifyNoInteractions(solicitacoes);}
+    @Test void consentimentoEObrigatorio(){var q=new SolicitacaoRequest("motivo",new SolicitacaoRequest.SolicitanteRequest("nome","tel"),new SolicitacaoRequest.BeneficiarioPedidoRequest("nome",LocalDate.of(2010,1,1),"F"),new SolicitacaoRequest.ResponsavelRequest("nome","a@b.com","tel","mãe",null,null,null,null,null,null,null),new SolicitacaoRequest.ConsentimentoRequest(false));assertThrows(RequisicaoInvalidaException.class,()->service.criar(q));verifyNoInteractions(solicitacoes);}
+
+    /* O endereco era perguntado no formulario publico e descartado no envio:
+       o ResponsavelRequest nao tinha onde guardar. Estes dois testes prendem
+       o caminho inteiro, do pedido ate o beneficiario. */
+    @Test void enderecoDoResponsavelEGuardado() {
+        when(solicitacoes.save(any())).thenAnswer(c -> c.getArgument(0));
+        var pedido = new SolicitacaoRequest("Preciso de apoio escolar.",
+                new SolicitacaoRequest.SolicitanteRequest("Fernanda Oliveira", "13999990000"),
+                new SolicitacaoRequest.BeneficiarioPedidoRequest("Lucas", LocalDate.of(2016, 5, 2), "M"),
+                new SolicitacaoRequest.ResponsavelRequest("Fernanda Oliveira", "f@example.org",
+                        "13999990000", "Mãe", "11345-230", "Rua Geralda Martins de Oliveira",
+                        "355", "   ", "Vila Matias", "São Vicente", "sp"),
+                new SolicitacaoRequest.ConsentimentoRequest(true));
+        DadosResponsavel guardado = service.criar(pedido).getResponsavel();
+        assertEquals("11345-230", guardado.cep());
+        assertEquals("355", guardado.numero());
+        assertNull(guardado.complemento(), "campo só com espaços vira null, não string vazia");
+        assertEquals("SP", guardado.uf(), "a UF fica em maiúsculas");
+        assertEquals("Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP",
+                guardado.enderecoCompleto());
+    }
+
+    @Test void oEnderecoAcompanhaOBeneficiarioQuandoAprova() {
+        Solicitacao s = pendente();
+        s.setResponsavel(new DadosResponsavel("Fernanda Oliveira", "f@example.org", "13999990000",
+                "Mãe", "11345-230", "Rua Geralda Martins de Oliveira", "355", null,
+                "Vila Matias", "São Vicente", "SP"));
+        when(usuarios.findById(ADMIN_ID)).thenReturn(Optional.of(admin()));
+        when(solicitacoes.findById(ID)).thenReturn(Optional.of(s));
+        when(beneficiarios.findBySolicitacaoOrigemId(ID)).thenReturn(Optional.empty());
+        when(beneficiarios.save(any())).thenAnswer(c -> c.getArgument(0));
+        when(mongo.findAndModify(any(Query.class), any(Update.class), any(FindAndModifyOptions.class),
+                eq(Solicitacao.class))).thenReturn(aprovada());
+        service.aprovar(ID, ADMIN_ID);
+        verify(beneficiarios).save(argThat(b -> "Vila Matias".equals(b.getResponsavel().bairro())
+                && "11345-230".equals(b.getResponsavel().cep())));
+    }
 }

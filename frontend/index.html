@@ -60,8 +60,7 @@
   <link rel="stylesheet" href="assets/css/components.css">
   <link rel="stylesheet" href="assets/css/home.css">
 
-  <!-- GSAP + ScrollTrigger + SplitText: animações ligadas ao scroll e texto linha a linha.
-       Lenis: rolagem suave sincronizada com o ScrollTrigger. Todos com defer. -->
+  <!-- GSAP + ScrollTrigger + SplitText -->
   <script defer src="assets/js/vendor/gsap.min.js"></script>
   <script defer src="assets/js/vendor/ScrollTrigger.min.js"></script>
   <script defer src="assets/js/vendor/SplitText.min.js"></script>
@@ -143,7 +142,7 @@
       </ul>
     </nav>
     <div class="menu__rodape">
-      <span>Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</span>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Geralda+Martins+de+Oliveira%2C+355+-+Vila+Matias%2C+S%C3%A3o+Vicente+-+SP" rel="noopener" target="_blank">Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</a>
       <a href="https://www.instagram.com/ongfrutosdoamanha/" rel="noopener" target="_blank">@ongfrutosdoamanha</a>
     </div>
   </div>
@@ -154,6 +153,11 @@
 
     <!-- ============ 01 · SEMENTE ============ -->
     <section class="hero capitulo" data-tom="escuro" data-etapa="semente" aria-labelledby="hero-titulo">
+      <!-- Foto de abertura. Fica atrás do título, com um véu por cima para o
+           texto claro continuar legível. Não usa data-foto: é uma só, sempre
+           esta, e não precisa do carregador que procura extensão. -->
+      <img class="hero__fundo" src="assets/img/hero-acolhimento.jpg" alt=""
+           aria-hidden="true" width="1545" height="672" fetchpriority="high" decoding="async">
       <div class="hero__solo" aria-hidden="true" data-solo></div>
 
       <div class="hero__semente" aria-hidden="true" data-semente-hero>
@@ -250,13 +254,13 @@
           <div class="numero-card fita" style="--fita-rot:-6deg">
             <p>
               <span class="numero-card__valor" aria-hidden="true">
-                <span data-contador="300">300</span>
+                <span data-contador="3272">3.272</span>
                 <svg class="traco" viewBox="0 0 200 120" preserveAspectRatio="none" data-desenha><path d="M44 20C112-2 192 22 193 62 194 104 118 118 68 110 18 102 4 70 15 43 23 24 62 9 120 12" pathLength="1"/></svg>
               </span>
               <span class="numero-card__texto">
                 <strong>crianças e adolescentes</strong>
-                <span class="sr-only">Cerca de 300 crianças e adolescentes atendidos.</span>
-                <span class="apoio" aria-hidden="true">atendidos pela ONG — cerca de trezentos.</span>
+                <span class="sr-only">3.272 crianças e adolescentes atendidos.</span>
+                <span class="apoio" aria-hidden="true">atendidos pela ONG desde 2011.</span>
               </span>
             </p>
           </div>
@@ -264,8 +268,9 @@
 
         <ul class="numeros" role="list">
           <li class="numero">
-            <span class="numero__valor" aria-hidden="true"><small>~</small><span data-contador="250">250</span></span>
-            <span class="numero__rotulo"><span class="sr-only">Cerca de 250 </span>famílias atendidas</span>
+            <!-- Sem o "~": 2.064 é número contado, não estimativa. -->
+            <span class="numero__valor" aria-hidden="true"><span data-contador="2064">2.064</span></span>
+            <span class="numero__rotulo"><span class="sr-only">2.064 </span>famílias atendidas</span>
           </li>
           <li class="numero">
             <span class="numero__valor" aria-hidden="true"><span data-contador="15">15</span></span>

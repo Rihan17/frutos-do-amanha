@@ -52,8 +52,12 @@ public class SolicitacaoService {
         solicitacao.setSolicitante(new Solicitante(request.solicitante().nome().trim(), request.solicitante().telefone().trim()));
         solicitacao.setBeneficiario(new DadosBeneficiarioSolicitacao(
                 request.beneficiario().nome().trim(), request.beneficiario().dataNascimento(), request.beneficiario().genero()));
-        solicitacao.setResponsavel(new DadosResponsavel(request.responsavel().nome().trim(), request.responsavel().email(),
-                request.responsavel().telefone().trim(), request.responsavel().parentesco().trim()));
+        var resp = request.responsavel();
+        solicitacao.setResponsavel(new DadosResponsavel(resp.nome().trim(), resp.email(),
+                resp.telefone().trim(), resp.parentesco().trim(),
+                limpo(resp.cep()), limpo(resp.endereco()), limpo(resp.numero()),
+                limpo(resp.complemento()), limpo(resp.bairro()), limpo(resp.cidade()),
+                resp.uf() == null ? null : resp.uf().trim().toUpperCase()));
         solicitacao.setConsentimento(new Consentimento(true, Instant.now()));
         solicitacao.setStatus(StatusSolicitacao.PENDENTE);
         solicitacao.setDataSolicitacao(Instant.now());
@@ -161,5 +165,14 @@ public class SolicitacaoService {
             throw new RegraNegocioException("A análise exige um administrador ativo");
         }
         return admin;
+    }
+
+    /* Campo de endereço em branco vira null, e não "" ou "   ": assim o
+       documento no banco não guarda string vazia, e quem lê pode testar só
+       por null. */
+    private static String limpo(String valor) {
+        if (valor == null) return null;
+        String v = valor.trim();
+        return v.isEmpty() ? null : v;
     }
 }

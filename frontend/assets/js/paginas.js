@@ -321,6 +321,88 @@
     });
   }
 
+  /* ==========================================================
+     Endereço pelo CEP (ViaCEP)
+
+     A pessoa digita o CEP e rua, bairro, cidade e estado se preenchem
+     sozinhos; sobra o número e o complemento. O ViaCEP é aberto, não pede
+     chave nem cadastro, e é mantido pelos Correios-adjacentes há anos.
+
+     Nada aqui é obrigatório: se o serviço estiver fora, se o CEP não existir
+     ou se a pessoa não souber o CEP, os campos continuam editáveis à mão. Um
+     formulário de pedido de vaga não pode travar por causa de um CEP.
+     ========================================================== */
+  function formatarCep(v) {
+    const d = soDigitos(v).slice(0, 8);
+    return d.length > 5 ? d.slice(0, 5) + '-' + d.slice(5) : d;
+  }
+
+  function cep() {
+    $$('[data-cep]').forEach((campo) => {
+      const form = campo.form || document;
+      const aviso = $('[data-cep-aviso]', form);
+      const destinos = () => $$('[data-cep-campo]', form);
+      let ultimoBuscado = '';
+
+      const dizer = (texto, erro) => {
+        if (!aviso) return;
+        aviso.textContent = texto || '';
+        aviso.classList.toggle('erro', !!erro);
+      };
+
+      const buscar = () => {
+        const d = soDigitos(campo.value);
+        if (d.length !== 8 || d === ultimoBuscado) return;
+        ultimoBuscado = d;
+        dizer('Procurando o endereço…');
+        fetch('https://viacep.com.br/ws/' + d + '/json/')
+          .then((r) => (r.ok ? r.json() : Promise.reject(new Error('resposta ' + r.status))))
+          .then((dados) => {
+            if (dados.erro) {
+              dizer('CEP não encontrado. Pode preencher o endereço à mão.', true);
+              return;
+            }
+            let preencheu = 0;
+            destinos().forEach((alvo) => {
+              const valor = dados[alvo.dataset.cepCampo];
+              /* Só preenche o que está vazio ou o que veio de uma busca
+                 anterior: o que a pessoa escreveu à mão não é sobrescrito. */
+              if (!valor) return;
+              if (alvo.value && !alvo.hasAttribute('data-cep-preenchido')) return;
+              alvo.value = valor;
+              alvo.setAttribute('data-cep-preenchido', '');
+              preencheu++;
+            });
+            dizer(preencheu ? 'Endereço preenchido pelo CEP. Confira e complete o número.' : '');
+            /* O foco vai para o número, que é o que falta. */
+            const numero = $('[data-cep-foco]', form);
+            if (numero && !numero.value) numero.focus();
+          })
+          .catch(() => {
+            dizer('Não deu para consultar o CEP agora. Preencha o endereço à mão.', true);
+          });
+      };
+
+      campo.addEventListener('input', () => {
+        campo.value = formatarCep(campo.value);
+        campo.setCustomValidity('');
+        /* Mexeu no CEP: o que foi preenchido por ele deixa de ser "dele" e
+           pode ser trocado pela busca nova. */
+        if (soDigitos(campo.value).length < 8) ultimoBuscado = '';
+        else buscar();
+      });
+      campo.addEventListener('blur', () => {
+        const d = soDigitos(campo.value);
+        campo.setCustomValidity(!d || d.length === 8 ? '' : 'O CEP tem 8 números.');
+        buscar();
+      });
+      /* Quem edita um campo preenchido pelo CEP assume ele. */
+      destinos().forEach((alvo) => {
+        alvo.addEventListener('input', () => alvo.removeAttribute('data-cep-preenchido'));
+      });
+    });
+  }
+
   /* ---------- E-mail limitado a alguns provedores ----------
      data-dominios lista os domínios aceitos, separados por espaço. A ONG
      pediu isso para o pedido de vaga: quase todo mundo usa um desses quatro,
@@ -378,5 +460,6 @@
   mascaras();
   dominiosDeEmail();
   datasDeNascimento();
+  cep();
   FDA.depoisDasFontes(blocos);
 })();

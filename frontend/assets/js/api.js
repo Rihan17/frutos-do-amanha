@@ -34,6 +34,18 @@
     store.setItem(USER_KEY, JSON.stringify(resposta.usuario || {}));
   }
 
+  /* Recados por situação, para quem está preenchendo um formulário. O 503 é o
+     caso comum no plano gratuito do Render: sem acesso por uns 15 minutos o
+     serviço hiberna, e a primeira visita espera a aplicação subir — perto de
+     um minuto. Quem enviar o formulário nessa janela precisa entender que é
+     para tentar de novo, e não que o cadastro deu erro. */
+  var RECADO_POR_STATUS = {
+    500: "Algo falhou do nosso lado. Tente de novo em instantes; se continuar, avise a equipe.",
+    502: "O servidor está reiniciando. Espere um minuto e tente de novo.",
+    503: "O servidor está acordando depois de um tempo parado. Espere um minuto e tente de novo.",
+    504: "O servidor demorou demais para responder. Tente de novo em instantes."
+  };
+
   function mensagemDoErro(payload, status) {
     if (payload && payload.campos) {
       var campos = payload.campos;
@@ -45,7 +57,13 @@
       }).filter(Boolean).join(" ");
       if (detalhe) return detalhe;
     }
-    return (payload && (payload.mensagem || payload.message)) || ("A solicitação falhou (HTTP " + status + ").");
+    var daApi = payload && (payload.mensagem || payload.message);
+    if (daApi) return daApi;
+    /* Situação não prevista: frase em português primeiro, e o código entre
+       parênteses no fim, que não atrapalha a leitura e ajuda quem for
+       investigar quando a pessoa relatar o problema. */
+    return RECADO_POR_STATUS[status]
+      || ("Não foi possível concluir agora. Tente de novo em instantes (erro " + status + ").");
   }
 
   async function request(path, options) {
@@ -76,7 +94,18 @@
     var text = await response.text();
     var payload = null;
     if (text) {
-      try { payload = JSON.parse(text); } catch (_) { payload = { mensagem: text }; }
+      try {
+        payload = JSON.parse(text);
+      } catch (_) {
+        /* Resposta que não é JSON: a página "Application loading" do Render
+           durante a hibernação, uma página de erro do Spring, o HTML de algum
+           proxy. Antes o corpo cru virava a mensagem do formulário, então a
+           pessoa que se candidatava a voluntário levava uma página de HTML ou
+           um rastro de pilha na tela. O texto vai para o console, de onde se
+           investiga, e a pessoa recebe o recado por status. */
+        console.error("Resposta não-JSON da API (HTTP " + response.status + "):", text.slice(0, 500));
+        payload = null;
+      }
     }
     if (!response.ok) {
       if (response.status === 401) limparSessao();
