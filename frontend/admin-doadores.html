@@ -66,6 +66,7 @@
       </a>
       <nav aria-label="Páginas principais">
         <ul class="topo__ancoras">
+        <li><a href="index.html">Início</a></li>
         <li><a href="quem-somos.html">Quem somos</a></li>
         <li><a href="projetos.html">Projetos</a></li>
         <li><a href="como-ajudar.html">Como ajudar</a></li>
@@ -123,8 +124,8 @@
           <p>Telas do painel</p>
           <ul>
           <li><a href="admin.html" data-broto>Visão geral</a></li>
-          <li><a href="admin-solicitacoes.html" data-broto>Solicitações <span class="contagem">3</span></a></li>
-          <li><a href="admin-voluntarios.html" data-broto>Voluntários <span class="contagem">4</span></a></li>
+          <li><a href="admin-solicitacoes.html" data-broto>Solicitações <span class="contagem" hidden></span></a></li>
+          <li><a href="admin-voluntarios.html" data-broto>Voluntários <span class="contagem" hidden></span></a></li>
           <li><a href="admin-criancas.html" data-broto>Crianças</a></li>
           <li><a href="admin-responsaveis.html" data-broto>Responsáveis</a></li>
           <li><a href="admin-doadores.html" aria-current="page" data-broto>Doadores</a></li>
@@ -135,23 +136,29 @@
           </ul>
         </nav>
 
+        <!-- Os rótulos falam de doação, e não de conta: o site não tem mais
+             cadastro de doador, então esta lista é montada a partir das
+             doações, agrupadas por pessoa. -->
         <ul class="mini-placar" style="margin-bottom:var(--e-8)">
-          <li><b data-conta="36">36</b><span>Contas ativas</span></li>
-          <li><b data-conta="12">12</b><span>Doam todo mês</span></li>
-          <li><b data-conta="9">9</b><span>Nunca doaram</span></li>
-          <li><b data-conta="2">2</b><span>Contas inativadas</span></li>
+          <li><b>0</b><span>Pessoas que já doaram</span></li>
+          <li><b>0</b><span>Doaram mais de uma vez</span></li>
+          <li><b>0</b><span>Sem doação confirmada</span></li>
+          <li><b>R$ 0,00</b><span>Total recebido</span></li>
         </ul>
 
-        <div class="painel-filtros">
-          <div class="campo"><label for="busca-doador">Buscar por nome ou e-mail</label><input type="search" id="busca-doador" name="busca-doador" placeholder="Digite para filtrar"></div>
-          <div class="campo"><label for="sit-doador">Situação</label><select id="sit-doador" name="sit-doador"><option>Todas</option><option>Ativa</option><option>Inativada</option></select></div>
-          <div class="campo"><label for="ord-doador">Ordenar por</label><select id="ord-doador" name="ord-doador"><option>Nome</option><option>Total doado</option><option>Doações</option></select></div>
+        <div class="painel-filtros" data-filtros>
+          <div class="campo"><label for="busca-doador">Buscar por nome ou e-mail</label><input type="search" id="busca-doador" name="busca-doador" placeholder="Digite para filtrar" data-filtro-busca></div>
+          <div class="campo"><label for="sit-doador">Situação</label><select id="sit-doador" name="sit-doador" data-filtro-coluna="4"><option value="">Todas</option><option>Confirmada</option><option>Doação pendente</option></select></div>
         </div>
 
         <section id="lista-doadores" aria-labelledby="t-lista-doadores" style="margin-bottom:var(--e-8)">
           <div class="painel-secao">
             <h2 id="t-lista-doadores" class="rotulo">Lista de doadores</h2>
-            <a class="link" href="#" data-broto>Exportar CSV</a>
+            <span style="display:flex;gap:var(--e-4);align-items:center;flex-wrap:wrap">
+              <small class="apoio" data-filtro-contagem></small>
+              <button class="link" type="button" data-exportar="csv">Exportar CSV</button>
+              <button class="link" type="button" data-exportar="pdf">Baixar PDF</button>
+            </span>
           </div>
           <div class="tabela--rolavel">
             <table class="tabela">
@@ -223,9 +230,5 @@
 
   <div class="cursor" aria-hidden="true" data-cursor-el><span class="cursor__bola"></span><span class="cursor__texto"></span></div>
   <div class="brotos" aria-hidden="true" data-brotos></div>
-  <div class="cortina" aria-hidden="true" data-cortina>
-    <svg viewBox="0 0 1000 1500" preserveAspectRatio="none"><path d="M0 120C60 92 118 138 190 104S320 60 392 98 520 140 604 96 742 58 820 102 944 128 1000 90V1400C940 1428 870 1384 800 1414S668 1450 590 1412 452 1370 380 1410 236 1446 160 1408 40 1394 0 1418Z"/></svg>
-    <svg class="marca" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44C24 30 24 22 24 14" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M24 26C16 20 6 21 2 27 10 33 20 32 24 26Z" fill="currentColor"/><path d="M24 20C32 12 44 12 47 19 39 26 28 26 24 20Z" fill="currentColor" opacity=".8"/></svg>
-  </div>
 </body>
 </html>

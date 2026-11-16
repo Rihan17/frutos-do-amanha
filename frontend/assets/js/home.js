@@ -34,8 +34,8 @@
     })();
     if (recarregou) FDA.sessao.apagar('fda-loader');
 
-    // Só na primeira visita da sessão (ou vindo de outra página, com a cortina)
-    if (FDA.sessao.ler('fda-loader') || FDA.cortinaAbrindo) { el.classList.add('fora'); return depois(); }
+    // Só na primeira visita da sessão
+    if (FDA.sessao.ler('fda-loader')) { el.classList.add('fora'); return depois(); }
     FDA.sessao.gravar('fda-loader', '1');
     FDA.lenis && FDA.lenis.stop();
     document.documentElement.classList.add('intro-ativa');

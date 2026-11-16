@@ -294,9 +294,128 @@
     });
   }
 
+  /* ==========================================================
+     Notícias vindas do banco
+
+     As matérias antigas são arquivos (noticia-*.html) e continuam no ar. As
+     criadas no painel vivem na API e aparecem em noticia.html?n=<endereço>.
+     ========================================================== */
+  function dataPorExtenso(iso) {
+    if (!iso) return '';
+    var p = String(iso).split('-');
+    if (p.length !== 3) return '';
+    var meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    return Number(p[2]) + ' de ' + meses[Number(p[1]) - 1] + ' de ' + p[0];
+  }
+
+  /* O texto é digitado num textarea, então vem em texto puro. Vira parágrafos
+     com createTextNode: nada do que a pessoa escreveu é interpretado como
+     HTML, mesmo que ela cole uma tag. */
+  function paragrafos(destino, texto) {
+    destino.textContent = '';
+    String(texto || '').split(/\n{2,}/).forEach(function (bloco) {
+      var limpo = bloco.trim();
+      if (!limpo) return;
+      var p = document.createElement('p');
+      limpo.split(/\n/).forEach(function (linha, i) {
+        if (i) p.appendChild(document.createElement('br'));
+        p.appendChild(document.createTextNode(linha));
+      });
+      destino.appendChild(p);
+    });
+  }
+
+  function listaDeNoticias() {
+    var ul = $('[data-noticias]');
+    if (!ul) return;
+    api.request('/noticias', { public: true }).then(function (lista) {
+      /* Banco vazio ou API fora: ficam as matérias escritas no HTML. */
+      if (!lista || !lista.length) return;
+      ul.textContent = '';
+      lista.forEach(function (n) {
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.className = 'artigo-linha';
+        a.href = 'noticia.html?n=' + encodeURIComponent(n.slug || n.id);
+        a.setAttribute('data-cursor', 'ler');
+
+        var meta = document.createElement('span');
+        meta.className = 'artigo-linha__meta';
+        var quando = document.createElement('b');
+        quando.textContent = dataPorExtenso(n.dataPublicacao);
+        var tipo = document.createElement('span');
+        tipo.textContent = n.categoria || '';
+        meta.appendChild(quando);
+        meta.appendChild(tipo);
+
+        var h3 = document.createElement('h3');
+        h3.textContent = n.titulo || '';
+        var p = document.createElement('p');
+        p.textContent = n.resumo || '';
+
+        a.appendChild(meta);
+        a.appendChild(h3);
+        a.appendChild(p);
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+    }).catch(function () { /* sem API, a lista escrita no HTML continua */ });
+  }
+
+  function materia() {
+    var artigo = $('[data-noticia]');
+    if (!artigo) return;
+    var endereco = new URLSearchParams(location.search).get('n');
+    var titulo = $('[data-n-titulo]');
+    var texto = $('[data-n-texto]');
+
+    function naoAchou(recado) {
+      if (titulo) titulo.textContent = 'Notícia não encontrada';
+      if (texto) paragrafos(texto, recado);
+      var resumo = $('[data-n-resumo]');
+      if (resumo) resumo.textContent = '';
+    }
+
+    if (!endereco) {
+      naoAchou('O endereço da notícia não veio no link. Veja a lista completa em Notícias.');
+      return;
+    }
+
+    api.request('/noticias/' + encodeURIComponent(endereco), { public: true }).then(function (n) {
+      document.title = n.titulo + ' — ONG Frutos do Amanhã';
+      if (titulo) titulo.textContent = n.titulo;
+      var resumo = $('[data-n-resumo]');
+      if (resumo) resumo.textContent = n.resumo || '';
+      var categoria = $('[data-n-categoria]');
+      if (categoria) categoria.textContent = n.categoria || 'Notícia';
+      var meta = $('[data-n-meta]');
+      if (meta) {
+        meta.textContent = '';
+        var t = document.createElement('time');
+        t.setAttribute('datetime', n.dataPublicacao || '');
+        t.textContent = dataPorExtenso(n.dataPublicacao);
+        meta.appendChild(t);
+        if (n.categoria) meta.appendChild(document.createTextNode(' · ' + n.categoria));
+      }
+      var figura = $('[data-n-figura]');
+      var img = $('[data-n-imagem]');
+      if (figura && img && n.imagemUrl) {
+        img.src = n.imagemUrl;
+        img.alt = n.imagemAlt || '';
+        figura.hidden = false;
+      }
+      if (texto) paragrafos(texto, n.texto);
+    }).catch(function (erro) {
+      naoAchou((erro && erro.message) || 'Não foi possível carregar esta notícia agora.');
+    });
+  }
+
   doacao();
   voluntariado();
   solicitacao();
   redefinirSenha();
   dadosDaOng();
+  listaDeNoticias();
+  materia();
 })();

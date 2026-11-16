@@ -230,6 +230,144 @@
     caixas.forEach((c) => c.classList.toggle('ativo', c === alvo));
   }
 
+  /* ==========================================================
+     Máscaras e validações dos campos
+
+     A máscara é escrita enquanto a pessoa digita e, no fim, usa
+     setCustomValidity: assim o próprio navegador barra o envio e mostra o
+     recado, sem precisar de código no submit. O campo guarda os dígitos
+     formatados — é o que vai para a API e o que a equipe lê no painel.
+     ========================================================== */
+  function soDigitos(v) { return (v || '').replace(/\D/g, ''); }
+
+  /* 000.000.000-00, formatado a cada tecla. */
+  function formatarCpf(v) {
+    const d = soDigitos(v).slice(0, 11);
+    if (d.length <= 3) return d;
+    if (d.length <= 6) return d.slice(0, 3) + '.' + d.slice(3);
+    if (d.length <= 9) return d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6);
+    return d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6, 9) + '-' + d.slice(9);
+  }
+
+  /* O dígito verificador do CPF: evita erro de digitação, que é o caso comum.
+     Não prova que o CPF existe, só que o número é bem formado. */
+  function cpfValido(v) {
+    const d = soDigitos(v);
+    if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+    for (let casa = 9; casa <= 10; casa++) {
+      let soma = 0;
+      for (let i = 0; i < casa; i++) soma += Number(d[i]) * (casa + 1 - i);
+      let dig = (soma * 10) % 11;
+      if (dig === 10) dig = 0;
+      if (dig !== Number(d[casa])) return false;
+    }
+    return true;
+  }
+
+  /* (13) 98858-5602 para celular, (13) 3456-7890 para fixo. */
+  function formatarTelefone(v) {
+    const d = soDigitos(v).slice(0, 11);
+    if (d.length <= 2) return d.length ? '(' + d : d;
+    const corpo = d.slice(2);
+    const corte = d.length > 10 ? 5 : 4;
+    if (!corpo) return '(' + d.slice(0, 2) + ') ';
+    if (corpo.length <= corte) return '(' + d.slice(0, 2) + ') ' + corpo;
+    return '(' + d.slice(0, 2) + ') ' + corpo.slice(0, corte) + '-' + corpo.slice(corte);
+  }
+
+  function mascaras() {
+    const regras = {
+      cpf: {
+        formatar: formatarCpf,
+        conferir: (v) => (!v ? '' : cpfValido(v) ? '' : 'Confira o CPF: faltam números ou algum dígito está trocado.')
+      },
+      telefone: {
+        formatar: formatarTelefone,
+        conferir: (v) => {
+          const d = soDigitos(v);
+          if (!d) return '';
+          return d.length === 10 || d.length === 11 ? ''
+            : 'Informe o telefone com DDD, por exemplo (13) 98858-5602.';
+        }
+      }
+    };
+
+    $$('[data-mascara]').forEach((campo) => {
+      const regra = regras[campo.dataset.mascara];
+      if (!regra) return;
+      const aplicar = () => {
+        /* Formatar mexe no valor, e isso joga o cursor para o fim. Só vale a
+           pena quando a pessoa está digitando no fim do campo, que é o caso
+           normal; quem edita no meio fica com o cursor onde estava. */
+        const noFim = campo.selectionStart === campo.value.length;
+        const antes = campo.value;
+        const depois = regra.formatar(antes);
+        if (depois !== antes) {
+          campo.value = depois;
+          if (!noFim) {
+            const pos = Math.min(campo.selectionStart || depois.length, depois.length);
+            try { campo.setSelectionRange(pos, pos); } catch (e) { /* campo sem seleção */ }
+          }
+        }
+        campo.setCustomValidity('');
+      };
+      campo.addEventListener('input', aplicar);
+      campo.addEventListener('blur', () => campo.setCustomValidity(regra.conferir(campo.value)));
+      /* Sem isto, o recado de erro fica preso depois de a pessoa corrigir. */
+      campo.form && campo.form.addEventListener('submit', () => {
+        campo.setCustomValidity(regra.conferir(campo.value));
+      }, true);
+      aplicar();
+    });
+  }
+
+  /* ---------- E-mail limitado a alguns provedores ----------
+     data-dominios lista os domínios aceitos, separados por espaço. A ONG
+     pediu isso para o pedido de vaga: quase todo mundo usa um desses quatro,
+     e reduz o endereço digitado errado que nunca recebe a resposta. */
+  function dominiosDeEmail() {
+    $$('[data-dominios]').forEach((campo) => {
+      const aceitos = campo.dataset.dominios.split(/\s+/).filter(Boolean);
+      if (!aceitos.length) return;
+      /* A lista completa tem apelido demais (hotmail, live, me.com…) para
+         caber num recado. data-dominios-recado diz o que a pessoa lê. */
+      const recado = campo.dataset.dominiosRecado
+        || 'Use um e-mail de um destes provedores: ' + aceitos.slice(0, 4).join(', ') + '.';
+      const conferir = () => {
+        const v = campo.value.trim().toLowerCase();
+        if (!v) { campo.setCustomValidity(''); return; }
+        const dominio = v.split('@')[1] || '';
+        campo.setCustomValidity(aceitos.indexOf(dominio) !== -1 ? '' : recado);
+      };
+      campo.addEventListener('input', () => campo.setCustomValidity(''));
+      campo.addEventListener('blur', conferir);
+      campo.form && campo.form.addEventListener('submit', conferir, true);
+    });
+  }
+
+  /* ---------- Data de nascimento dentro de um intervalo possível ----------
+     Sem limite, o campo aceita 01/01/0001 e datas no futuro, e o pedido entra
+     no painel com uma idade absurda. Os limites saem de data-idade-min e
+     data-idade-max, em anos. */
+  function datasDeNascimento() {
+    $$('[data-idade-max]').forEach((campo) => {
+      const hoje = new Date();
+      const anosMax = Number(campo.dataset.idadeMax);
+      const anosMin = Number(campo.dataset.idadeMin || 0);
+      const iso = (d) => d.toISOString().slice(0, 10);
+      campo.min = iso(new Date(hoje.getFullYear() - anosMax, hoje.getMonth(), hoje.getDate()));
+      campo.max = iso(new Date(hoje.getFullYear() - anosMin, hoje.getMonth(), hoje.getDate()));
+      campo.addEventListener('blur', () => {
+        if (campo.value && (campo.value < campo.min || campo.value > campo.max)) {
+          campo.setCustomValidity('A data precisa ser de uma criança de até ' + anosMax + ' anos.');
+        } else {
+          campo.setCustomValidity('');
+        }
+      });
+      campo.addEventListener('input', () => campo.setCustomValidity(''));
+    });
+  }
+
   raizInterna();
   tempo();
   contadores();
@@ -237,5 +375,8 @@
   sumario();
   formularios();
   estados();
+  mascaras();
+  dominiosDeEmail();
+  datasDeNascimento();
   FDA.depoisDasFontes(blocos);
 })();

@@ -242,7 +242,10 @@ main { position: relative; }
 
 /* ---------- Cartões de projeto / notícia ---------- */
 .cartoes { display: grid; gap: var(--e-7) var(--e-5); }
-@media (min-width: 900px) { .cartoes--2 { grid-template-columns: 1fr 1fr; } .cartoes--2 > :nth-child(even) { margin-top: var(--e-8); } }
+/* O cartão par tinha margin-top: var(--e-8), um desnível de propósito para a
+   coluna da direita descer um pouco. Na prática parecia defeito de alinhamento,
+   então as duas colunas começam na mesma altura. */
+@media (min-width: 900px) { .cartoes--2 { grid-template-columns: 1fr 1fr; } }
 .cartao { display: grid; gap: var(--e-4); align-content: start; }
 .cartao .foto { --proporcao: 3 / 2; }
 .cartao__selo { font-size: var(--t-rotulo); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--caqui-tinta); }
@@ -584,3 +587,33 @@ main { position: relative; }
 .raiz--interna { opacity: .85; }
 
 @media (max-width: 440px) { .canal b { font-size: 1.05rem; overflow-wrap: anywhere; } }
+
+/* ==========================================================
+   Impressão — o "Baixar PDF" do painel é o "Salvar como PDF"
+   do próprio navegador. Sem estas regras a folha sairia com o
+   cabeçalho escuro, o menu e o cursor desenhado.
+   ========================================================== */
+@media print {
+  .topo, .menu, .rodape, .cursor, .brotos,
+  .painel-filtros, .painel-nav, form,
+  [data-exportar], [data-sair], .acoes { display: none !important; }
+
+  html, body { background: #fff !important; color: #000 !important; }
+  main, .envelope, .painel, .capitulo { padding: 0 !important; margin: 0 !important; }
+
+  /* A tabela pode ser mais larga que a folha: na impressão ela quebra em
+     vez de rolar, e as linhas não se partem no meio entre páginas. */
+  .tabela--rolavel { overflow: visible !important; }
+  .tabela { width: 100% !important; border-collapse: collapse; font-size: 10pt; }
+  .tabela th, .tabela td { border: 1px solid #999; padding: .35rem .5rem; }
+  .tabela thead { display: table-header-group; }
+  .tabela tr { break-inside: avoid; }
+
+  /* As etiquetas coloridas viram texto simples, legível em preto e branco. */
+  .etiqueta { background: none !important; color: #000 !important; border: 1px solid #666; }
+
+  /* Linha escondida por filtro não vai para o papel. */
+  [hidden] { display: none !important; }
+
+  a[href]::after { content: ""; }
+}
