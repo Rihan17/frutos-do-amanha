@@ -128,7 +128,10 @@
       <span class="rasgo" aria-hidden="true"></span>
       <div class="envelope">
         <h2 id="lista" class="sr-only">Lista de notícias</h2>
-        <ul class="artigos" data-entra-lista>
+        <!-- As três abaixo são as matérias escritas à mão, de antes de as
+             notícias existirem no banco. O ligacao.js troca esta lista pelo
+             que vier de /noticias; sem API, ou com o banco vazio, elas ficam. -->
+        <ul class="artigos" data-entra-lista data-noticias>
           <li>
             <a class="artigo-linha" href="noticia-quermesse-beneficente.html" data-cursor="ler">
               <span class="artigo-linha__meta"><b>23 de agosto de 2026</b><span>Evento · Sede Vila Matias</span></span>

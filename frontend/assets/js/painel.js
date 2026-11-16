@@ -25,6 +25,13 @@
   }
   function data(v) {
     if (!v) return '—';
+    /* "2026-08-23", sem hora, o navegador lê como meia-noite em UTC; no fuso
+       do Brasil isso vira o dia 22. As datas que a API manda como LocalDate
+       (a publicação de uma notícia, por exemplo) são formatadas na mão, sem
+       passar por Date. Os instantes, com hora e fuso, seguem pelo caminho
+       normal. */
+    var soData = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v));
+    if (soData) return soData[3] + '/' + soData[2] + '/' + soData[1];
     var d = new Date(v);
     return isNaN(d) ? '—' : d.toLocaleDateString('pt-BR');
   }
@@ -52,13 +59,15 @@
     ENCERRADA: 'espera', ESTORNADA: 'espera', PAUSADO: 'espera',
     /* Não vem da API: é a situação de quem aparece na lista de doadores sem
        nenhuma doação confirmada. */
-    SEM_DOACAO: 'alerta'
+    SEM_DOACAO: 'alerta',
+    PUBLICADA: 'ok', RASCUNHO: 'espera'
   };
   var NOME_SITUACAO = {
     PENDENTE: 'Em análise', APROVADA: 'Aprovada', RECUSADA: 'Recusada',
     ENCERRADA: 'Encerrada', CONFIRMADA: 'Confirmada', FALHOU: 'Falhou',
     ESTORNADA: 'Estornada', ATIVO: 'Ativo', INATIVO: 'Inativo',
-    PAUSADO: 'Pausado', CANCELADO: 'Cancelado', SEM_DOACAO: 'Doação pendente'
+    PAUSADO: 'Pausado', CANCELADO: 'Cancelado', SEM_DOACAO: 'Doação pendente',
+    PUBLICADA: 'Publicada', RASCUNHO: 'Rascunho'
   };
   function etiqueta(status) {
     var s = String(status || '').toUpperCase();
@@ -353,9 +362,17 @@
         }
         corpo = { cargo: cargo.trim() };
       }
+      /* Quase toda ação do painel é um PUT sem corpo (aprovar, encerrar).
+         As notícias fogem disso: despublicar manda {publicada:false} e
+         excluir é um DELETE. Vêm nos atributos do próprio botão. */
+      var metodo = botao.getAttribute('data-metodo') || 'PUT';
+      var corpoFixo = botao.getAttribute('data-corpo');
+      if (corpoFixo && !corpo) {
+        try { corpo = JSON.parse(corpoFixo); } catch (e) { corpo = undefined; }
+      }
       var rotulo = botao.textContent;
       botao.textContent = 'Enviando…';
-      api.request(rota, { method: 'PUT', body: corpo })
+      api.request(rota, { method: metodo, body: corpo })
         .then(function () { avisar('Pronto. A lista foi atualizada.'); return recarregar(); })
         .catch(function (erro) {
           /* Sem recarregar a lista, o botão continua na tela: devolve o rótulo
@@ -669,10 +686,29 @@
     },
 
     noticias: function () {
-      /* As notícias são páginas HTML do próprio site, não há coleção no banco.
-         A tela fica informando isso em vez de fingir uma lista. */
-      preencher([], 4, 'As notícias são páginas do site, editadas no código. Não há cadastro na API.');
-      return Promise.resolve();
+      return api.request('/adm/noticias').then(function (lista) {
+        preencher(lista.map(function (n) {
+          var botoes = [];
+          if (n.publicada) {
+            botoes.push('<a class="link" href="noticia.html?n=' + encodeURIComponent(n.slug || n.id) +
+              '" target="_blank" rel="noopener" data-broto>Ver</a>');
+          }
+          botoes.push('<a class="link" href="#" data-editar="' + esc(n.id) + '" data-broto>Editar</a>');
+          botoes.push(botaoAcao(
+            n.publicada ? 'Despublicar' : 'Publicar',
+            n.publicada ? 'despublicar' : 'publicar',
+            '/adm/noticias/' + n.id,
+            n.publicada
+              ? 'Tirar "' + (n.titulo || '') + '" do ar? Ela continua salva como rascunho.'
+              : 'Publicar "' + (n.titulo || '') + '" no site?',
+            ' data-corpo=\'{"publicada":' + (n.publicada ? 'false' : 'true') + '}\''));
+          botoes.push(botaoAcao('Excluir', 'excluir', '/adm/noticias/' + n.id,
+            'Excluir "' + (n.titulo || '') + '" de vez? Isso não pode ser desfeito.',
+            ' data-metodo="DELETE"'));
+          return linha([data(n.dataPublicacao), esc(n.titulo), esc(n.categoria || '—'),
+            etiqueta(n.publicada ? 'PUBLICADA' : 'RASCUNHO'), acoes(botoes)]);
+        }), 5, 'Nenhuma notícia cadastrada ainda. Use o formulário acima.');
+      });
     }
   };
 
@@ -706,17 +742,26 @@
       var botao = $('button[type="submit"]', form);
       var texto = botao && ($('.botao__texto', botao) || botao);
       var original = texto && texto.textContent;
+      var salvou = null;
       if (botao) { botao.disabled = true; texto.textContent = 'Salvando…'; }
       Promise.resolve().then(montar).then(function (envio) {
-        return api.request(envio.rota, { method: 'POST', body: envio.corpo });
-      }).then(function () {
+        /* Cadastrar é POST. Editar uma notícia que já existe é PUT no id
+           dela, e aí o montar() devolve o método junto. */
+        return api.request(envio.rota, { method: envio.metodo || 'POST', body: envio.corpo })
+          .then(function (resposta) { return { envio: envio, resposta: resposta }; });
+      }).then(function (r) {
         form.reset();
-        avisoDoForm(form, depois.sucesso);
+        avisoDoForm(form, typeof depois.sucesso === 'function' ? depois.sucesso(r.envio, r.resposta) : depois.sucesso);
+        salvou = r;
         return depois.recarregar && depois.recarregar();
       }).catch(function (erro) {
         avisoDoForm(form, (erro && erro.message) || 'Não foi possível salvar.', 'erro');
       }).then(function () {
         if (botao) { botao.disabled = false; texto.textContent = original; }
+        /* Depois de devolver o rótulo que estava no botão: o aoSalvar pode
+           querer trocá-lo (sair do modo de edição devolve "Publicar"), e se
+           rodasse antes seria desfeito aqui. */
+        if (salvou && depois.aoSalvar) depois.aoSalvar(salvou.envio, salvou.resposta);
       });
     });
   }
@@ -798,6 +843,109 @@
           } };
         });
       }, { sucesso: 'Projeto publicado.', recarregar: recarregar });
+    }
+
+    /* ---------- Notícias: cadastro, edição, rascunho ----------
+       O mesmo formulário cria e edita. Em edição ele guarda o id da matéria,
+       troca o título da seção e o rótulo do botão, e passa a mandar PUT. */
+    if (tela === 'noticias') {
+      var formNot = $('form');
+      var tituloForm = $('[data-titulo-form]');
+      var botaoEnviar = formNot && $('button[type="submit"] .botao__texto', formNot);
+      var botaoCancelar = $('[data-cancelar-edicao]');
+      var botaoRascunho = $('[data-rascunho]');
+      var emEdicao = null;
+      /* O botão "Salvar rascunho" é o mesmo envio, só que com publicada
+         false. A marca dura um envio e volta ao padrão. */
+      var publicarAgora = true;
+
+      function sairDaEdicao() {
+        emEdicao = null;
+        if (tituloForm) tituloForm.textContent = 'Nova notícia';
+        if (botaoEnviar) botaoEnviar.textContent = 'Publicar';
+        if (botaoCancelar) botaoCancelar.hidden = true;
+        if (botaoRascunho) botaoRascunho.hidden = false;
+        if (formNot) formNot.reset();
+      }
+
+      function entrarEmEdicao(id) {
+        return api.request('/adm/noticias/' + id).then(function (n) {
+          emEdicao = n.id;
+          var por = function (campo, v) {
+            var el = document.getElementById(campo);
+            if (el) el.value = v == null ? '' : v;
+          };
+          por('not-titulo', n.titulo);
+          por('not-data', n.dataPublicacao);
+          por('not-tipo', n.categoria);
+          por('not-resumo', n.resumo);
+          por('not-texto', n.texto);
+          por('not-alt', n.imagemAlt);
+          /* input[type=file] não aceita valor por código, por segurança do
+             navegador. Deixar em branco mantém a foto que já está salva: o
+             PUT só manda imagemUrl quando a pessoa escolhe outro arquivo. */
+          var foto = document.getElementById('not-foto');
+          if (foto) foto.value = '';
+          if (tituloForm) tituloForm.textContent = 'Editando: ' + n.titulo;
+          if (botaoEnviar) botaoEnviar.textContent = 'Salvar alterações';
+          if (botaoCancelar) botaoCancelar.hidden = false;
+          if (botaoRascunho) botaoRascunho.hidden = true;
+          if (tituloForm) tituloForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }).catch(function (erro) {
+          avisar(erro.message || 'Não foi possível abrir a notícia para edição.', 'erro');
+        });
+      }
+
+      document.addEventListener('click', function (e) {
+        var link = e.target.closest('[data-editar]');
+        if (!link) return;
+        e.preventDefault();
+        entrarEmEdicao(link.getAttribute('data-editar'));
+      });
+      if (botaoCancelar) botaoCancelar.addEventListener('click', sairDaEdicao);
+      if (botaoRascunho) botaoRascunho.addEventListener('click', function () {
+        publicarAgora = false;
+        if (formNot.requestSubmit) formNot.requestSubmit();
+        else $('button[type="submit"]', formNot).click();
+      });
+
+      ligarForm(formNot, function () {
+        /* A intenção é lida uma vez e devolvida ao padrão aqui mesmo. Se
+           guardasse na variável até o fim do envio, um erro de rede deixaria
+           "rascunho" grudado, e o próximo "Publicar" salvaria escondido. */
+        var publicando = publicarAgora;
+        publicarAgora = true;
+        return lerImagem(document.getElementById('not-foto')).then(function (imagem) {
+          /* Sem "slug": o endereço da página sai do título, no backend. O
+             campo saiu do formulário por ser técnico demais para a tela. A
+             API continua aceitando um slug escolhido, para quando for preciso
+             consertar o endereço de uma matéria por chamada direta. */
+          var corpo = {
+            titulo: valor('not-titulo'),
+            categoria: valor('not-tipo') || null,
+            resumo: valor('not-resumo'),
+            texto: valor('not-texto'),
+            imagemAlt: valor('not-alt') || null,
+            dataPublicacao: valor('not-data') || null
+          };
+          if (imagem) corpo.imagemUrl = imagem;
+          /* Editando, "publicada" não vai no corpo: quem publica e despublica
+             é o botão da lista, e salvar uma correção não deve pôr no ar um
+             rascunho sem querer. */
+          if (!emEdicao) corpo.publicada = publicando;
+          return emEdicao
+            ? { rota: '/adm/noticias/' + emEdicao, metodo: 'PUT', corpo: corpo, publicando: publicando }
+            : { rota: '/adm/noticias', corpo: corpo, publicando: publicando };
+        });
+      }, {
+        sucesso: function (envio) {
+          if (envio.metodo === 'PUT') return 'Notícia atualizada.';
+          return envio.publicando ? 'Notícia publicada. Ela já aparece no site.'
+            : 'Rascunho salvo. Ele só vai ao ar quando você publicar.';
+        },
+        aoSalvar: sairDaEdicao,
+        recarregar: recarregar
+      });
     }
 
     if (tela === 'usuarios') {

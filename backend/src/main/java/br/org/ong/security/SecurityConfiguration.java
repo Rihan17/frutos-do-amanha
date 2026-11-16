@@ -42,6 +42,10 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/voluntarios/publico").permitAll()
                         .requestMatchers(HttpMethod.POST, "/solicitacoes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/projetos/**").permitAll()
+                        /* A lista de notícias e cada matéria são públicas, como os
+                           projetos. Só o GET: criar, editar e excluir ficam em
+                           /adm/noticias, que exige ADMIN. */
+                        .requestMatchers(HttpMethod.GET, "/noticias/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/publico/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))

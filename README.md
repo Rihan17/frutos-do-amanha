@@ -24,10 +24,11 @@ original; o que mudou é que o site servido agora é o visual novo.
 | `voluntariado.html` | Áreas, como funciona e formulário de candidatura |
 | `solicitar-vaga.html` | Formulário para as famílias |
 | `contato.html` | Canais, endereço, horários e mapa |
-| `noticias.html` | Lista editorial das notícias |
-| `noticia-quermesse-beneficente.html` | Matéria |
-| `noticia-entrega-julho.html` | Matéria |
-| `noticia-lista-material.html` | Matéria |
+| `noticias.html` | Lista editorial das notícias, vinda de `GET /noticias` |
+| `noticia.html` | Matéria montada pela API, por `?n=<endereço>` |
+| `noticia-quermesse-beneficente.html` | Matéria antiga, escrita à mão |
+| `noticia-entrega-julho.html` | Matéria antiga, escrita à mão |
+| `noticia-lista-material.html` | Matéria antiga, escrita à mão |
 | `doar-sucesso.html` · `doar-pendente.html` · `doar-falha.html` | Retornos do pagamento |
 | `confirmar-email.html` | Três estados: aguardando, confirmado, expirado |
 | `redefinir-senha.html` | Dois estados: formulário e link expirado |
@@ -115,6 +116,36 @@ bloquear esses endereços, o site cai para Georgia e Segoe UI.
 - Sem JavaScript: todo o conteúdo aparece normalmente.
 - Contraste conferido: todas as combinações de texto passam em WCAG AA.
 
+## Notícias
+
+As notícias vivem no banco e a equipe as escreve em `admin-noticias.html`, sem mexer em
+código. O mesmo formulário cria e edita; **Publicar** põe no ar e **Salvar rascunho**
+guarda sem publicar. Na lista, cada matéria tem Ver, Editar, Despublicar/Publicar e
+Excluir.
+
+| Rota | Quem usa |
+| --- | --- |
+| `GET /noticias` | `noticias.html` — só as publicadas, da mais recente para a mais antiga |
+| `GET /noticias/{endereço}` | `noticia.html?n=…` — a matéria inteira |
+| `GET` `POST` `PUT` `DELETE` `/adm/noticias` | o painel; exige ADMIN |
+
+O endereço da página (`?n=…`) sai do título, sem acento nem espaço, e repetido ganha
+sufixo (`entrega-de-julho-2`). Não há campo para ele no formulário: era técnico demais
+para a tela. Trocar o título **não** muda o endereço, para não quebrar link já
+divulgado — então um endereço errado só se conserta mandando `slug` num `PUT
+/adm/noticias/{id}`, que a API continua aceitando.
+
+O texto é digitado em texto puro e vira parágrafos na hora de exibir: nada do que for
+escrito é interpretado como HTML.
+
+As três matérias antigas são semeadas no banco na primeira inicialização
+(`NoticiaSeedConfiguration`), como acontece com os projetos. Sem isso elas sumiriam da
+listagem assim que a primeira notícia fosse publicada pelo painel. Os arquivos
+`noticia-*.html` continuam no projeto e seguem abrindo por endereço direto.
+
+A foto vai embutida como data URL em base64, no mesmo esquema dos projetos, com limite
+de 2 MB por imagem. Não há upload de arquivo nem pasta de mídia.
+
 ## O que ainda não está ligado
 
 Os formulários públicos já enviam de verdade. O que falta:
@@ -137,8 +168,8 @@ Os formulários públicos já enviam de verdade. O que falta:
   do formulário.
 - **Retornos do pagamento.** O Mercado Pago volta para `doar-sucesso.html?doacao=<id>`,
   e as três telas ainda mostram um resumo de exemplo em vez de buscar a doação.
-- **Notícias e projetos nas páginas públicas** seguem escritos no HTML. A API tem
-  `GET /projetos`, e só o `select` de destino da doação usa isso hoje.
+- **Projetos nas páginas públicas** seguem escritos no HTML. A API tem `GET /projetos`,
+  e só o `select` de destino da doação usa isso hoje.
 - **Área de conta do doador** (login, cadastro, histórico) foi retirada: as páginas não
   vieram, e no backend elas continuam bloqueadas na `SecurityConfiguration`. O endpoint
   `POST /auth/cadastro` que o site anterior chamava nunca existiu no controller.

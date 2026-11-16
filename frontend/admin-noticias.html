@@ -136,18 +136,20 @@
           </ul>
         </nav>
 
-        <h2 class="rotulo" style="margin-bottom:var(--e-4)">Nova notícia</h2>
+        <h2 class="rotulo" style="margin-bottom:var(--e-4)" data-titulo-form>Nova notícia</h2>
 
         <div class="aviso" hidden data-form-aviso>
           <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.2v.1"/></svg>
           <p data-form-aviso-texto></p>
         </div>
 
-        <form class="form" style="margin-bottom:var(--e-8)" data-form="Notícia preenchida corretamente. Esta tela ainda não publica — falta ligar ao back-end.">
+        <!-- Sem data-form: esta tela publica de verdade, pelo painel.js. O
+             data-form era da maquete e fazia o paginas.js mostrar uma
+             confirmação falsa por cima da resposta real da API. -->
+        <form class="form" style="margin-bottom:var(--e-8)">
           <fieldset>
             <legend>Identificação</legend>
             <div class="campo"><label for="not-titulo">Título <em>*</em></label><input type="text" id="not-titulo" name="not-titulo" required></div>
-            <div class="campo"><label for="not-endereco">Endereço da página</label><input type="text" id="not-endereco" name="not-endereco" placeholder="noticia-quermesse-beneficente.html"><small>Deixe em branco para gerar a partir do título.</small></div>
             <div class="dupla-coluna">
               <div class="campo"><label for="not-data">Data da publicação <em>*</em></label><input type="date" id="not-data" name="not-data" required></div>
               <div class="campo">
@@ -172,7 +174,8 @@
           </fieldset>
           <div class="capa__acoes" style="margin:0">
             <button class="botao botao--folha" type="submit" data-magnetico data-broto><svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Publicar</span></button>
-            <button class="link" type="button" data-broto>Salvar rascunho</button>
+            <button class="link" type="button" data-rascunho data-broto>Salvar rascunho</button>
+            <button class="link" type="button" data-cancelar-edicao hidden style="color:var(--pitanga-tinta)">Cancelar edição</button>
           </div>
         </form>
 
