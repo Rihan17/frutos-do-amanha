@@ -798,11 +798,17 @@
     return select && select.hasAttribute('data-projetos-ok') && select.value ? select.value : null;
   }
 
+  /* O limite acompanha o @Size de imagemUrl nos Request do backend. A foto
+     não é arquivo: vira texto em base64 dentro do próprio registro, e base64
+     engorda um terço. 10 MB de arquivo dão cerca de 14 milhões de caracteres,
+     que é o teto lá. Mexer num sem mexer no outro faz a API recusar o envio
+     com erro de validação. */
+  var LIMITE_IMAGEM_MB = 10;
   function lerImagem(input) {
     var arquivo = input && input.files && input.files[0];
     if (!arquivo) return Promise.resolve(null);
-    if (arquivo.size > 2 * 1024 * 1024) {
-      return Promise.reject(new Error('A imagem precisa ter menos de 2 MB.'));
+    if (arquivo.size > LIMITE_IMAGEM_MB * 1024 * 1024) {
+      return Promise.reject(new Error('A imagem precisa ter menos de ' + LIMITE_IMAGEM_MB + ' MB.'));
     }
     return new Promise(function (ok, falha) {
       var leitor = new FileReader();
