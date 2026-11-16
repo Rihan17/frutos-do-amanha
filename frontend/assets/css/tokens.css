@@ -46,7 +46,7 @@
 
   /* ---- Movimento ---- */
   --ease-brota: cubic-bezier(.16, 1, .3, 1);   /* revelações, títulos */
-  --ease-seiva: cubic-bezier(.65, 0, .35, 1);  /* scroll, cortina */
+  --ease-seiva: cubic-bezier(.65, 0, .35, 1);  /* scroll */
   --ease-mola: cubic-bezier(.34, 1.56, .64, 1);/* microinterações */
   --d-micro: .35s;
   --d-revela: .8s;
@@ -58,6 +58,5 @@
   --z-header: 50;
   --z-menu: 60;
   --z-cursor: 90;
-  --z-cortina: 95;
   --z-loader: 100;
 }

@@ -49,19 +49,38 @@
     PENDENTE: 'alerta',
     APROVADA: 'ok', CONFIRMADA: 'ok', ATIVO: 'ok',
     RECUSADA: 'erro', FALHOU: 'erro', CANCELADO: 'erro', INATIVO: 'erro',
-    ENCERRADA: 'espera', ESTORNADA: 'espera', PAUSADO: 'espera'
+    ENCERRADA: 'espera', ESTORNADA: 'espera', PAUSADO: 'espera',
+    /* Não vem da API: é a situação de quem aparece na lista de doadores sem
+       nenhuma doação confirmada. */
+    SEM_DOACAO: 'alerta'
   };
   var NOME_SITUACAO = {
     PENDENTE: 'Em análise', APROVADA: 'Aprovada', RECUSADA: 'Recusada',
     ENCERRADA: 'Encerrada', CONFIRMADA: 'Confirmada', FALHOU: 'Falhou',
     ESTORNADA: 'Estornada', ATIVO: 'Ativo', INATIVO: 'Inativo',
-    PAUSADO: 'Pausado', CANCELADO: 'Cancelado'
+    PAUSADO: 'Pausado', CANCELADO: 'Cancelado', SEM_DOACAO: 'Doação pendente'
   };
   function etiqueta(status) {
     var s = String(status || '').toUpperCase();
     var texto = NOME_SITUACAO[s] || (s ? s.charAt(0) + s.slice(1).toLowerCase() : '—');
     return '<span class="etiqueta etiqueta--' + (TOM[s] || 'espera') + '">' + esc(texto) + '</span>';
   }
+
+  /* A API grava a origem em maiúsculas (DoacaoService); na tela ela vira texto
+     legível. Os nomes aqui são os mesmos das opções do filtro no HTML — é por
+     esse texto que o filtro compara. */
+  var NOME_ORIGEM = {
+    PLATAFORMA: 'Plataforma',
+    PLATAFORMA_PUBLICA: 'Plataforma',
+    MERCADO_PAGO: 'Mercado Pago',
+    PIX_MANUAL: 'Pix lançado à mão'
+  };
+  function origem(v) {
+    var s = String(v || '').toUpperCase();
+    return NOME_ORIGEM[s] || (v ? String(v) : '—');
+  }
+
+  var MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
   /* ---------- Preencher a tabela da tela ---------- */
   function corpoDaTabela() {
@@ -75,10 +94,13 @@
     var tbody = corpoDaTabela();
     if (!tbody) return;
     if (!linhas.length) {
-      tbody.innerHTML = '<tr><td colspan="' + colunas + '">' + esc(vazio) + '</td></tr>';
+      tbody.innerHTML = '<tr data-vazio><td colspan="' + colunas + '">' + esc(vazio) + '</td></tr>';
       return;
     }
     tbody.innerHTML = linhas.join('');
+    /* A tabela foi redesenhada do zero: o filtro que estiver em uso precisa
+       valer de novo sobre as linhas novas. */
+    aplicarFiltros();
   }
   function linha(celulas) {
     return '<tr>' + celulas.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
@@ -95,6 +117,193 @@
     var alvos = $$('.ficha__valor, .mini-placar b');
     valores.forEach(function (v, i) {
       if (alvos[i]) alvos[i].textContent = v;
+    });
+  }
+
+  /* ==========================================================
+     Gráfico dos últimos seis meses
+
+     O HTML traz seis barras de exemplo com alturas fixas, e era isso que
+     mostrava dinheiro recebido num mês em que nada entrou. Aqui as barras
+     passam a sair das doações confirmadas, com a mais alta valendo 100%.
+     ========================================================== */
+  function grafico(confirmadas) {
+    var ul = $('.barras');
+    if (!ul) return;
+    var hoje = new Date();
+    var meses = [];
+    for (var i = 5; i >= 0; i--) {
+      var d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+      meses.push({ mes: d.getMonth(), ano: d.getFullYear(), total: 0 });
+    }
+    confirmadas.forEach(function (doa) {
+      var x = new Date(doa.data);
+      if (isNaN(x)) return;
+      meses.forEach(function (m) {
+        if (x.getMonth() === m.mes && x.getFullYear() === m.ano) m.total += Number(doa.valor || 0);
+      });
+    });
+    var maior = meses.reduce(function (s, m) { return Math.max(s, m.total); }, 0);
+    ul.innerHTML = meses.map(function (m) {
+      /* Sem nenhuma doação no período as barras ficam zeradas, que é a
+         informação verdadeira — melhor do que repetir o exemplo do HTML. */
+      var altura = maior > 0 ? Math.round((m.total / maior) * 100) : 0;
+      return '<li><i style="--h:' + altura + '%"></i><small>' + MESES[m.mes] + '</small></li>';
+    }).join('');
+    ul.setAttribute('aria-label', 'Doações por mês: ' + meses.map(function (m) {
+      return MESES[m.mes] + ' ' + moeda(m.total);
+    }).join(', '));
+  }
+
+  /* Preenche o select "Mês" com os meses que realmente têm lançamento. */
+  function encherFiltroMes(lista) {
+    var sel = $('[data-filtro-mes]');
+    if (!sel) return;
+    var vistos = {};
+    lista.forEach(function (d) {
+      var x = new Date(d.data);
+      if (isNaN(x)) return;
+      var m = x.getMonth() + 1;
+      vistos[x.getFullYear() + '-' + (m < 10 ? '0' + m : m)] = MESES[x.getMonth()] + '/' + x.getFullYear();
+    });
+    var escolhido = sel.value;
+    sel.innerHTML = '<option value="">Todos os meses</option>' +
+      Object.keys(vistos).sort().reverse().map(function (k) {
+        return '<option value="' + k + '">' + esc(vistos[k]) + '</option>';
+      }).join('');
+    if (escolhido) sel.value = escolhido;
+  }
+
+  /* ==========================================================
+     Filtros, busca e exportação
+
+     O painel carrega a lista inteira de uma vez, então filtrar no próprio
+     navegador evita uma ida e volta à API a cada tecla. Tudo acontece sobre
+     as linhas já desenhadas pelo preencher().
+     ========================================================== */
+  function linhasDaTabela() {
+    var tbody = corpoDaTabela();
+    return tbody ? $$('tr', tbody) : [];
+  }
+  function celula(tr, i) {
+    return tr.cells[i] ? tr.cells[i].textContent.trim() : '';
+  }
+  /* "05/10/2026" vira "2026-10", que é o value das opções do select de mês. */
+  function mesDaData(texto) {
+    var m = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    return m ? m[3] + '-' + m[2] : '';
+  }
+
+  function aplicarFiltros() {
+    var caixa = $('[data-filtros]');
+    if (!caixa) return;
+    var busca = $('[data-filtro-busca]', caixa);
+    var termo = busca ? busca.value.trim().toLowerCase() : '';
+    var colunas = $$('[data-filtro-coluna]', caixa);
+    var selMes = $('[data-filtro-mes]', caixa);
+    var mes = selMes ? selMes.value : '';
+    var linhas = linhasDaTabela();
+    var visiveis = 0, total = 0;
+
+    linhas.forEach(function (tr) {
+      if (tr.hasAttribute('data-vazio') || tr.hasAttribute('data-sem-resultado')) return;
+      total++;
+      var ok = true;
+      if (termo && tr.textContent.toLowerCase().indexOf(termo) === -1) ok = false;
+      if (ok) {
+        colunas.forEach(function (sel) {
+          if (!sel.value || !ok) return;
+          if (celula(tr, Number(sel.getAttribute('data-filtro-coluna')))
+              .toLowerCase().indexOf(sel.value.toLowerCase()) === -1) ok = false;
+        });
+      }
+      if (ok && mes && mesDaData(celula(tr, Number(selMes.getAttribute('data-filtro-mes')))) !== mes) ok = false;
+      tr.hidden = !ok;
+      if (ok) visiveis++;
+    });
+
+    /* Filtro que não acha nada deixaria a tabela em branco, sem explicar. */
+    var tbody = corpoDaTabela();
+    var recado = tbody && $('[data-sem-resultado]', tbody);
+    if (tbody && total && !visiveis) {
+      if (!recado) {
+        recado = tbody.insertRow();
+        recado.setAttribute('data-sem-resultado', '');
+        var td = recado.insertCell();
+        td.colSpan = 12;
+        td.textContent = 'Nenhum registro corresponde ao filtro.';
+      }
+      recado.hidden = false;
+    } else if (recado) {
+      recado.hidden = true;
+    }
+
+    var contador = $('[data-filtro-contagem]');
+    if (contador) {
+      contador.textContent = visiveis === total
+        ? total + (total === 1 ? ' registro' : ' registros')
+        : visiveis + ' de ' + total;
+    }
+  }
+
+  function ligarFiltros() {
+    var caixa = $('[data-filtros]');
+    if (!caixa) return;
+    $$('input, select', caixa).forEach(function (c) {
+      c.addEventListener(c.tagName === 'SELECT' ? 'change' : 'input', aplicarFiltros);
+    });
+  }
+
+  /* ---------- Exportar o que está na tela ----------
+     Exporta as linhas visíveis, respeitando o filtro: é o que a pessoa está
+     vendo. Separador ";" e BOM no começo para o Excel em português abrir o
+     arquivo com as colunas separadas e os acentos certos. */
+  function colunasExportaveis(tabela) {
+    return $$('thead th', tabela).map(function (th, i) {
+      return { i: i, titulo: th.textContent.trim() };
+    }).filter(function (c) { return c.titulo && c.titulo !== 'Ações'; });
+  }
+  function csv(valor) {
+    var t = String(valor == null ? '' : valor).replace(/\s+/g, ' ').trim();
+    return /[";\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+  }
+  function exportarCsv() {
+    var tbody = corpoDaTabela();
+    var tabela = tbody && tbody.closest('table');
+    if (!tabela) return;
+    var cols = colunasExportaveis(tabela);
+    var linhas = [cols.map(function (c) { return csv(c.titulo); }).join(';')];
+    linhasDaTabela().forEach(function (tr) {
+      if (tr.hidden || tr.hasAttribute('data-vazio') || tr.hasAttribute('data-sem-resultado')) return;
+      linhas.push(cols.map(function (c) { return csv(celula(tr, c.i)); }).join(';'));
+    });
+    if (linhas.length === 1) {
+      avisar('Não há nada para exportar com o filtro atual.', 'erro');
+      return;
+    }
+    var hoje = new Date().toISOString().slice(0, 10);
+    baixar('﻿' + linhas.join('\r\n'), (tela || 'painel') + '-' + hoje + '.csv',
+      'text/csv;charset=utf-8');
+  }
+  function baixar(conteudo, nome, tipo) {
+    var url = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    /* Revogar na hora cancela o download em alguns navegadores. */
+    setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+  }
+
+  function ligarExportacao() {
+    $$('[data-exportar]').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (b.getAttribute('data-exportar') === 'pdf') window.print();
+        else exportarCsv();
+      });
     });
   }
 
@@ -291,7 +500,7 @@
         var ultimas = doas.slice().sort(function (a, b) { return new Date(b.data) - new Date(a.data); }).slice(0, 8);
         preencher(ultimas.map(function (d) {
           return linha([data(d.data), esc(d.doadorNome || d.doadorEmail || 'Anônimo'), moeda(d.valor),
-            esc(d.origem || '—'), etiqueta(d.status)]);
+            esc(origem(d.origem)), etiqueta(d.status)]);
         }), 5, 'Ainda não há doações registradas.');
       });
     },
@@ -381,23 +590,27 @@
         var porPessoa = {};
         doas.forEach(function (d) {
           var chave = d.doadorId || d.doadorEmail || d.doadorNome || 'anonimo';
-          if (!porPessoa[chave]) porPessoa[chave] = { nome: d.doadorNome || 'Anônimo', email: d.doadorEmail || '', n: 0, total: 0, ultima: null };
+          if (!porPessoa[chave]) porPessoa[chave] = { nome: d.doadorNome || 'Anônimo', email: d.doadorEmail || '', n: 0, confirmadas: 0, total: 0, ultima: null };
           var p = porPessoa[chave];
           p.n++;
-          if (d.status === 'CONFIRMADA') p.total += Number(d.valor || 0);
+          if (d.status === 'CONFIRMADA') { p.confirmadas++; p.total += Number(d.valor || 0); }
           if (!p.ultima || new Date(d.data) > new Date(p.ultima)) p.ultima = d.data;
         });
         var lista = Object.keys(porPessoa).map(function (k) { return porPessoa[k]; })
           .sort(function (a, b) { return b.total - a.total; });
         placares([
           lista.length,
-          lista.filter(function (p) { return p.n > 1; }).length,
-          doas.length,
+          lista.filter(function (p) { return p.confirmadas > 1; }).length,
+          lista.filter(function (p) { return p.confirmadas === 0; }).length,
           moeda(lista.reduce(function (s, p) { return s + p.total; }, 0))
         ]);
+        /* A coluna "Doações" conta só as confirmadas, e a situação sai daí.
+           Antes ela era inventada a partir do número de tentativas (n > 1), e
+           por isso quem tinha uma cobrança aberta e nunca paga aparecia como
+           doador ativo, e quem pagou uma vez só aparecia "Em análise". */
         preencher(lista.map(function (p) {
-          return linha([esc(p.nome), esc(p.email || '—'), String(p.n), moeda(p.total),
-            etiqueta(p.n > 1 ? 'ATIVO' : 'PENDENTE')]);
+          return linha([esc(p.nome), esc(p.email || '—'), String(p.confirmadas), moeda(p.total),
+            etiqueta(p.confirmadas > 0 ? 'CONFIRMADA' : 'SEM_DOACAO')]);
         }), 5, 'Nenhum doador ainda.');
       });
     },
@@ -420,10 +633,12 @@
           planos.filter(function (p) { return p.status === 'ATIVO'; }).length
         ]);
         var ordenadas = doas.slice().sort(function (a, b) { return new Date(b.data) - new Date(a.data); });
+        encherFiltroMes(ordenadas);
         preencher(ordenadas.map(function (d) {
           return linha([data(d.data), esc(d.doadorNome || d.doadorEmail || 'Anônimo'), moeda(d.valor),
-            esc(d.origem || '—'), esc(nomeProjeto(d.projetoId)), etiqueta(d.status)]);
+            esc(origem(d.origem)), esc(nomeProjeto(d.projetoId)), etiqueta(d.status)]);
         }), 6, 'Ainda não há doações registradas.');
+        grafico(pagas);
       });
     },
 
@@ -598,6 +813,31 @@
     }
   }
 
+  /* ---------- Contagens do menu lateral ----------
+     Os números ao lado de "Solicitações" e "Voluntários" estavam escritos no
+     HTML e apareciam iguais em toda tela. Agora saem da API; enquanto não
+     chegam, ficam escondidos em vez de mostrar um número de exemplo. */
+  function contagensDoMenu() {
+    var cs = $('a[href="admin-solicitacoes.html"] .contagem');
+    var cv = $('a[href="admin-voluntarios.html"] .contagem');
+    if (!cs && !cv) return;
+    var pendentes = function (lista) {
+      return lista.filter(function (x) { return String(x.status).toUpperCase() === 'PENDENTE'; }).length;
+    };
+    var mostrar = function (el, n) {
+      if (!el) return;
+      el.textContent = String(n);
+      el.hidden = n === 0;
+    };
+    Promise.all([
+      api.request('/adm/solicitacoes').catch(function () { return null; }),
+      api.request('/adm/voluntarios').catch(function () { return null; })
+    ]).then(function (r) {
+      if (r[0]) mostrar(cs, pendentes(r[0]));
+      if (r[1]) mostrar(cv, pendentes(r[1]));
+    });
+  }
+
   /* ---------- Início ---------- */
   if (tela === 'login') { login(); return; }
   if (tela === 'esqueci-senha') { recuperarSenha(); return; }
@@ -607,6 +847,9 @@
   if (!api.token()) { location.replace('gestao.html'); return; }
 
   montarSaida();
+  ligarFiltros();
+  ligarExportacao();
+  contagensDoMenu();
   var recarregar = function () { return carregar[tela](); };
   ligarAcoes(recarregar);
   formularios(recarregar);

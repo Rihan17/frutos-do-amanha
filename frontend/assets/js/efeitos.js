@@ -1,6 +1,6 @@
 /* ==========================================================
    Efeitos compartilhados: cabeçalho, menu, cursor, botões
-   magnéticos, brotos no hover, cortina entre páginas, FAQ,
+   magnéticos, brotos no hover, FAQ,
    revelações de título e cópia da chave Pix.
    ========================================================== */
 (function () {
@@ -233,63 +233,6 @@
     });
   }
 
-  /* ---------- Cortina orgânica entre páginas ---------- */
-  function cortina() {
-    const c = $('[data-cortina]');
-    if (!c) return;
-    const forma = $('svg', c);
-    const marca = $('.marca', c);
-
-    /* O CSS deixa a cortina em repouso com transform: translateY(110%), que o
-       GSAP lê como y em pixels, e não como yPercent. Sem zerar esse y, todo
-       yPercent daqui para baixo soma uma altura de cortina e a animação sai
-       invertida: em vez de cobrir e abrir, ela sobe cobrindo e some de uma vez.
-       Zerar o y entrega o controle do transform ao GSAP. */
-    const repouso = (pct) => gsap.set(forma, { y: 0, yPercent: pct });
-
-    // Chegando de outra página: começa coberto e abre
-    if (comMovimento && FDA.sessao.ler('fda-cortina')) {
-      FDA.sessao.apagar('fda-cortina');
-      c.classList.add('ativa');
-      repouso(0);
-      gsap.set(marca, { opacity: 1 });
-      FDA.cortinaAbrindo = true;
-      let abriu = false;
-      const abrir = () => {
-        if (abriu) return;
-        abriu = true;
-        gsap.timeline({ onComplete: () => { c.classList.remove('ativa'); FDA.cortinaAbrindo = false; } })
-          .to(marca, { opacity: 0, duration: 0.3 })
-          .to(forma, { yPercent: -110, duration: 0.9, ease: FDA.ease.seiva }, '-=.1');
-      };
-      if (document.readyState === 'complete') abrir(); else window.addEventListener('load', abrir, { once: true });
-      setTimeout(abrir, 1800); // segurança se algo demorar
-    }
-
-    window.addEventListener('pageshow', (e) => {
-      if (e.persisted) { c.classList.remove('ativa'); gsap && repouso(110); }
-    });
-
-    if (!comMovimento) return;
-    document.addEventListener('click', (e) => {
-      const a = e.target.closest('a[href]');
-      if (!a || e.defaultPrevented) return;
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-      if (a.target === '_blank' || a.hasAttribute('download')) return;
-      const url = new URL(a.href, location.href);
-      if (url.origin !== location.origin) return;
-      if (url.pathname === location.pathname && url.hash) return; // âncora na mesma página
-      e.preventDefault();
-      fecharMenu();
-      FDA.sessao.gravar('fda-cortina', '1');
-      c.classList.add('ativa');
-      repouso(110);
-      gsap.timeline({ onComplete: () => { location.href = url.href; } })
-        .to(forma, { yPercent: 0, duration: 0.75, ease: FDA.ease.seiva })
-        .to(marca, { opacity: 1, duration: 0.25 }, '-=.2');
-    });
-  }
-
   /* ---------- FAQ com abertura animada ---------- */
   function faq() {
     $$('[data-faq] details').forEach((d) => {
@@ -375,7 +318,7 @@
   cursor();
   magneticos();
   brotos();
-  cortina();
+
   faq();
   copiarPix();
   // Títulos esperam as fontes para quebrar as linhas no lugar certo

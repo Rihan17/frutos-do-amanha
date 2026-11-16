@@ -264,30 +264,6 @@ body.menu-aberto .botao-menu__linhas::after { transform: translateY(-5px) rotate
 .cursor.sobre-caqui.doar .cursor__bola { background: var(--terra); }
 .cursor.sobre-caqui .cursor__texto { color: var(--papel); }
 
-/* ---------- Cortina orgânica entre páginas ---------- */
-.cortina {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-cortina);
-  pointer-events: none;
-  overflow: hidden;
-  visibility: hidden;
-}
-.cortina.ativa { visibility: visible; pointer-events: all; }
-.cortina svg {
-  position: absolute;
-  left: -5vw;
-  /* O reset "img, svg, video { max-width: 100% }" cortaria os 110vw em 100%,
-     e a cortina deixaria uma faixa da página à mostra na direita. */
-  max-width: none;
-  width: 110vw;
-  height: 150vh;
-  top: -25vh;
-  transform: translateY(110%);
-  fill: var(--terra);
-}
-.cortina .marca { position: absolute; width: 120px; left: 50%; top: 50%; translate: -50% -50%; color: var(--papel); opacity: 0; }
-
 /* ---------- Loader: a semente que germina ---------- */
 .loader {
   position: fixed;
