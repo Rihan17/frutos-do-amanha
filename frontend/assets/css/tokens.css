@@ -12,6 +12,15 @@
   --folha-clara: #4E6B3F;   /* folha iluminada (só ilustração) */
   --casca: #6B5443;         /* texto de apoio, traços — 6:1 no papel */
 
+  /* ---- Cor: as superfícies escuras ----
+     O marrom --terra fazia dois trabalhos: o texto no papel e o fundo das
+     faixas profundas. Isso deixava o site inteiro marrom. Aqui os dois papéis
+     se separam: --terra segue sendo a cor do texto, e as faixas escuras usam
+     um verde terroso, mais perto do verde da marca da ONG. É a mistura do
+     --terra com o --folha, então ainda tem a mesma temperatura.
+     Contraste do --papel sobre --fundo-escuro: 10,2:1. */
+  --fundo-escuro: #2D3822;    /* faixas, menu, rodapé, capas escuras */
+
   /* ---- Cor: acentos de fruto maduro (brotam ao rolar) ---- */
   --caqui: #E8672C;         /* decorativo ou texto >= 48px no papel; ok sobre terra */
   --caqui-tinta: #A34110;   /* caqui para texto/link no papel — 5.3:1 */

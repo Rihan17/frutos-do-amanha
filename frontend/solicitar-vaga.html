@@ -97,7 +97,7 @@
       </ul>
     </nav>
     <div class="menu__rodape">
-      <span>Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</span>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Geralda+Martins+de+Oliveira%2C+355+-+Vila+Matias%2C+S%C3%A3o+Vicente+-+SP" rel="noopener" target="_blank">Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</a>
       <a href="https://wa.me/5513988585602" rel="noopener" target="_blank">WhatsApp (13) 98858-5602</a>
       <a href="https://instagram.com/ongfrutosdoamanha" rel="noopener" target="_blank">@ongfrutosdoamanha</a>
     </div>
@@ -155,7 +155,26 @@
                      Microsoft, me.com e mac.com são do iCloud. -->
                 <div class="campo"><label for="resp-email">E-mail <span class="apoio">(opcional)</span></label><input type="email" id="resp-email" name="resp-email" autocomplete="email" data-dominios="gmail.com googlemail.com outlook.com outlook.com.br hotmail.com hotmail.com.br live.com yahoo.com yahoo.com.br ymail.com icloud.com me.com mac.com" data-dominios-recado="Use um e-mail do Gmail, Outlook/Hotmail, Yahoo ou iCloud."><small>Aceitamos Gmail, Outlook/Hotmail, Yahoo e iCloud.</small></div>
               </div>
-              <div class="campo"><label for="resp-bairro">Bairro e cidade <em>*</em></label><input type="text" id="resp-bairro" name="resp-bairro" placeholder="Vila Matias, São Vicente" required></div>
+              <!-- O CEP preenche rua, bairro, cidade e estado pelo ViaCEP.
+                   Nenhum deles é obrigatório, e todos continuam editáveis:
+                   quem não souber o CEP escreve o endereço à mão. -->
+              <div class="dupla-coluna">
+                <div class="campo">
+                  <label for="resp-cep">CEP</label>
+                  <input type="text" id="resp-cep" name="resp-cep" inputmode="numeric" maxlength="9" placeholder="00000-000" autocomplete="postal-code" data-cep>
+                  <small data-cep-aviso>Preenche o endereço sozinho.</small>
+                </div>
+                <div class="campo"><label for="resp-numero">Número</label><input type="text" id="resp-numero" name="resp-numero" inputmode="numeric" maxlength="20" autocomplete="off" data-cep-foco></div>
+              </div>
+              <div class="campo"><label for="resp-endereco">Rua</label><input type="text" id="resp-endereco" name="resp-endereco" autocomplete="street-address" maxlength="200" data-cep-campo="logradouro"></div>
+              <div class="dupla-coluna">
+                <div class="campo"><label for="resp-complemento">Complemento <span class="apoio">(opcional)</span></label><input type="text" id="resp-complemento" name="resp-complemento" maxlength="80" placeholder="Casa, apto, fundos"></div>
+                <div class="campo"><label for="resp-bairro">Bairro <em>*</em></label><input type="text" id="resp-bairro" name="resp-bairro" maxlength="100" placeholder="Vila Matias" data-cep-campo="bairro" required></div>
+              </div>
+              <div class="dupla-coluna">
+                <div class="campo"><label for="resp-cidade">Cidade <em>*</em></label><input type="text" id="resp-cidade" name="resp-cidade" maxlength="100" placeholder="São Vicente" data-cep-campo="localidade" required></div>
+                <div class="campo"><label for="resp-uf">Estado</label><input type="text" id="resp-uf" name="resp-uf" maxlength="2" placeholder="SP" style="text-transform:uppercase" data-cep-campo="uf"></div>
+              </div>
             </fieldset>
 
             <fieldset>

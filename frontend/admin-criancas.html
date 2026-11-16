@@ -98,7 +98,7 @@
       </ul>
     </nav>
     <div class="menu__rodape">
-      <span>Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</span>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Geralda+Martins+de+Oliveira%2C+355+-+Vila+Matias%2C+S%C3%A3o+Vicente+-+SP" rel="noopener" target="_blank">Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP</a>
       <a href="https://wa.me/5513988585602" rel="noopener" target="_blank">WhatsApp (13) 98858-5602</a>
       <a href="https://instagram.com/ongfrutosdoamanha" rel="noopener" target="_blank">@ongfrutosdoamanha</a>
     </div>
@@ -174,9 +174,9 @@
           <button class="botao botao--folha" type="submit" data-magnetico data-broto><svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Salvar cadastro</span></button>
         </form>
 
-        <div class="painel-filtros">
-          <div class="campo"><label for="busca-cri">Buscar por nome</label><input type="search" id="busca-cri" name="busca-cri" placeholder="Digite para filtrar"></div>
-          <div class="campo"><label for="ativ-cri">Atividade</label><select id="ativ-cri" name="ativ-cri"><option>Todas</option><option>Reforço escolar</option><option>Oficinas culturais</option><option>Esporte</option><option>Feirinha da Criança</option></select></div>
+        <div class="painel-filtros" data-filtros>
+          <div class="campo"><label for="busca-cri">Buscar por nome</label><input type="search" id="busca-cri" name="busca-cri" placeholder="Digite para filtrar" data-filtro-busca></div>
+          <div class="campo"><label for="ativ-cri">Atividade</label><select id="ativ-cri" name="ativ-cri" data-filtro-coluna="3" data-filtro-auto data-filtro-rotulo="Todas"><option value="">Todas</option></select></div>
         </div>
 
         <section id="lista-criancas" aria-labelledby="t-lista-criancas" style="margin-bottom:var(--e-8)">
@@ -187,7 +187,11 @@
           <div class="tabela--rolavel">
             <table class="tabela">
               <caption>Em ordem alfabética. A coluna Imagem mostra se há autorização do responsável.</caption>
-              <thead><tr><th scope="col">Nome</th><th scope="col">Idade</th><th scope="col">Responsável</th><th scope="col">Atividades</th><th scope="col">Imagem</th><th scope="col"><span class="sr-only">Ações</span></th></tr></thead>
+              <!-- Eram seis colunas para cinco células: o painel.js escreve
+                   nome, idade, responsável, atividades e a situação, e a
+                   situação caía embaixo de "Imagem", com "Ações" sempre
+                   vazia. Agora o cabeçalho diz o que a linha traz. -->
+              <thead><tr><th scope="col">Nome</th><th scope="col">Idade</th><th scope="col">Responsável</th><th scope="col">Atividades</th><th scope="col">Situação</th></tr></thead>
               <tbody>
               <tr><td>Gabriel Nunes</td><td>11 anos</td><td>Márcia Nunes</td><td>Reforço, esporte</td><td><span class="etiqueta etiqueta--ok">Sim</span></td><td><span class="acoes"><a class="link" href="#" data-broto>Detalhes</a></span></td></tr>
               <tr><td>Isabela Ferreira</td><td>10 anos</td><td>Ana Paula Ferreira</td><td>Reforço, oficinas</td><td><span class="etiqueta etiqueta--ok">Sim</span></td><td><span class="acoes"><a class="link" href="#" data-broto>Detalhes</a></span></td></tr>

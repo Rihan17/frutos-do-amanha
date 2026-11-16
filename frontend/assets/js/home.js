@@ -207,7 +207,9 @@
         trigger: el, start: 'top 85%', once: true,
         onEnter: () => gsap.to(obj, {
           v: alvo, duration: alvo > 50 ? 2.2 : 1.4, ease: 'expo.out',
-          onUpdate: () => { el.textContent = Math.round(obj.v); }
+          /* Com separador de milhar: 3272 vira "3.272". Sem isto, números de
+             quatro dígitos apareciam grudados. */
+          onUpdate: () => { el.textContent = Math.round(obj.v).toLocaleString('pt-BR'); }
         })
       });
     });

@@ -15,7 +15,15 @@
   FDA.config = {
     // Procura a foto nestas pastas, na ordem. A primeira que existir é usada.
     pastasFotos: ['assets/img/'],
-    extensoes: ['.webp', '.jpg', '.jpeg', '.png']
+    /* O .webp vinha primeiro, para ser preferido no dia em que as versões
+       .webp existissem. Elas nunca foram geradas: hoje a pasta tem 17 .jpg e
+       nenhum .webp. O custo disso não era só uma requisição perdida por foto
+       — cada 404 de recurso estático vira uma exceção no backend, com rastro
+       de pilha inteiro no log, e a home pede 11 fotos. Era o único erro que
+       aparecia em produção, em toda visita.
+
+       Quando os .webp forem gerados, basta pôr '.webp' de volta na frente. */
+    extensoes: ['.jpg', '.jpeg', '.png']
   };
 
   FDA.reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;

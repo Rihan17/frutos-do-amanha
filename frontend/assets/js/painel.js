@@ -91,6 +91,18 @@
 
   var MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
+  /* "Rua Geralda Martins de Oliveira, 355 — Vila Matias, São Vicente/SP",
+     montado com o que existir. Os cadastros antigos não têm endereço nenhum,
+     e os novos podem ter só o bairro: em qualquer caso sai a linha possível,
+     ou um traço. */
+  function endereco(r) {
+    if (!r) return '—';
+    var rua = [r.endereco, r.numero].filter(Boolean).join(', ');
+    if (r.complemento) rua = (rua ? rua + ' ' : '') + r.complemento;
+    var lugar = [r.bairro, [r.cidade, r.uf].filter(Boolean).join('/')].filter(Boolean).join(', ');
+    return [rua, lugar].filter(Boolean).join(' — ') || '—';
+  }
+
   /* ---------- Preencher a tabela da tela ---------- */
   function corpoDaTabela() {
     /* A maioria das telas tem uma seção #lista-*, que isola a tabela principal
@@ -107,8 +119,9 @@
       return;
     }
     tbody.innerHTML = linhas.join('');
-    /* A tabela foi redesenhada do zero: o filtro que estiver em uso precisa
-       valer de novo sobre as linhas novas. */
+    /* A tabela foi redesenhada do zero: os filtros que saem dela precisam ser
+       refeitos, e o que estiver em uso precisa valer de novo. */
+    encherFiltrosAutomaticos();
     aplicarFiltros();
   }
   function linha(celulas) {
@@ -136,32 +149,63 @@
      mostrava dinheiro recebido num mês em que nada entrou. Aqui as barras
      passam a sair das doações confirmadas, com a mais alta valendo 100%.
      ========================================================== */
-  function grafico(confirmadas) {
+  function grafico(doacoes) {
     var ul = $('.barras');
     if (!ul) return;
     var hoje = new Date();
     var meses = [];
     for (var i = 5; i >= 0; i--) {
       var d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-      meses.push({ mes: d.getMonth(), ano: d.getFullYear(), total: 0 });
+      meses.push({ mes: d.getMonth(), ano: d.getFullYear(), pagas: 0, abertas: 0, valor: 0 });
     }
-    confirmadas.forEach(function (doa) {
+    doacoes.forEach(function (doa) {
       var x = new Date(doa.data);
       if (isNaN(x)) return;
       meses.forEach(function (m) {
-        if (x.getMonth() === m.mes && x.getFullYear() === m.ano) m.total += Number(doa.valor || 0);
+        if (x.getMonth() !== m.mes || x.getFullYear() !== m.ano) return;
+        if (String(doa.status).toUpperCase() === 'CONFIRMADA') {
+          m.pagas++;
+          m.valor += Number(doa.valor || 0);
+        } else {
+          m.abertas++;
+        }
       });
     });
-    var maior = meses.reduce(function (s, m) { return Math.max(s, m.total); }, 0);
+
+    /* A altura é o número de doações do mês, comparado com o mês mais
+       movimentado. A cor dentro da barra é a proporção que foi mesmo paga:
+       de 10 doações com 2 pagas, a barra fica 20% verde embaixo e 80%
+       vermelha em cima. Sem nenhuma doação no período as barras zeram, que é
+       a informação verdadeira. */
+    var maior = meses.reduce(function (s, m) { return Math.max(s, m.pagas + m.abertas); }, 0);
+    var descrever = function (m) {
+      var total = m.pagas + m.abertas;
+      if (!total) return MESES[m.mes] + ': nenhuma doação';
+      return MESES[m.mes] + ': ' + m.pagas + (m.pagas === 1 ? ' paga' : ' pagas') +
+        ' (' + moeda(m.valor) + ') e ' + m.abertas +
+        (m.abertas === 1 ? ' sem pagamento' : ' sem pagamento');
+    };
     ul.innerHTML = meses.map(function (m) {
-      /* Sem nenhuma doação no período as barras ficam zeradas, que é a
-         informação verdadeira — melhor do que repetir o exemplo do HTML. */
-      var altura = maior > 0 ? Math.round((m.total / maior) * 100) : 0;
-      return '<li><i style="--h:' + altura + '%"></i><small>' + MESES[m.mes] + '</small></li>';
+      var total = m.pagas + m.abertas;
+      /* Mínimo de 2% para o mês com movimento não sumir ao lado de um mês
+         muito maior: uma barra invisível parece mês sem doação. */
+      var altura = maior > 0 && total > 0 ? Math.max(2, Math.round((total / maior) * 100)) : 0;
+      var pago = total > 0 ? Math.round((m.pagas / total) * 100) : 0;
+      var detalhe = descrever(m);
+      return '<li tabindex="0" aria-label="' + esc(detalhe) + '" data-detalhe="' + esc(detalhe) + '">' +
+        '<i style="--h:' + altura + '%;--pago:' + pago + '%"></i>' +
+        '<small>' + MESES[m.mes] + '</small></li>';
     }).join('');
-    ul.setAttribute('aria-label', 'Doações por mês: ' + meses.map(function (m) {
-      return MESES[m.mes] + ' ' + moeda(m.total);
-    }).join(', '));
+    /* Com as colunas navegáveis pelo teclado, o gráfico deixa de ser uma
+       imagem só e vira uma lista: cada coluna se anuncia sozinha. */
+    ul.removeAttribute('role');
+    ul.removeAttribute('aria-label');
+
+    var legenda = ul.parentNode && $('.legenda', ul.parentNode);
+    if (legenda) {
+      legenda.textContent = 'Altura: quantas doações no mês. Verde: pagas. Vermelho: sem pagamento. '
+        + 'Passe o mouse ou use Tab para ver os números.';
+    }
   }
 
   /* Preenche o select "Mês" com os meses que realmente têm lançamento. */
@@ -253,6 +297,34 @@
         ? total + (total === 1 ? ' registro' : ' registros')
         : visiveis + ' de ' + total;
     }
+  }
+
+  /* Selects marcados com data-filtro-auto se preenchem com os valores que
+     existem mesmo na coluna. As opções escritas à mão no HTML eram de
+     maquete: "Vila Matias", "Jardim Rio Branco" e por aí, bairros que podem
+     não existir no banco — e aí filtrar por eles não devolvia nada. */
+  function encherFiltrosAutomaticos() {
+    var caixa = $('[data-filtros]');
+    if (!caixa) return;
+    $$('[data-filtro-auto]', caixa).forEach(function (sel) {
+      var i = Number(sel.getAttribute('data-filtro-coluna'));
+      var vistos = {};
+      linhasDaTabela().forEach(function (tr) {
+        if (tr.hasAttribute('data-vazio') || tr.hasAttribute('data-sem-resultado')) return;
+        var v = celula(tr, i);
+        if (v && v !== '—') vistos[v] = true;
+      });
+      var escolhido = sel.value;
+      var rotulo = sel.getAttribute('data-filtro-rotulo') || 'Todos';
+      sel.innerHTML = '<option value="">' + esc(rotulo) + '</option>' +
+        Object.keys(vistos).sort(function (a, b) { return a.localeCompare(b, 'pt-BR'); })
+          .map(function (v) { return '<option>' + esc(v) + '</option>'; }).join('');
+      if (escolhido) sel.value = escolhido;
+      /* Coluna sem nenhum valor (ou toda em "—") não tem o que filtrar: o
+         select sai da tela em vez de ficar ali só com "Todas". */
+      var campo = sel.closest('.campo');
+      if (campo) campo.hidden = !Object.keys(vistos).length;
+    });
   }
 
   function ligarFiltros() {
@@ -584,19 +656,51 @@
     responsaveis: function () {
       /* Não existe endpoint de responsáveis: eles vêm dentro dos beneficiários,
          e aqui são agrupados por nome para virar uma lista de pessoas. */
-      return api.request('/adm/beneficiarios').then(function (bens) {
+      /* Duas origens na mesma lista: quem a equipe cadastrou aqui, que vive
+         na coleção própria, e quem entrou junto com uma solicitação aprovada
+         e mora dentro do beneficiário. A chave é o nome, que é o que existe
+         nos dois lados; quando a mesma pessoa aparece nas duas, o cadastro
+         manda, porque é o que a equipe pode corrigir. */
+      return Promise.all([
+        api.request('/adm/beneficiarios'),
+        api.request('/adm/responsaveis').catch(function () { return []; })
+      ]).then(function (r) {
+        var bens = r[0], cadastrados = r[1] || [];
         var porNome = {};
+        var chave = function (nome) { return String(nome || '').trim().toLowerCase(); };
+
         bens.forEach(function (b) {
-          var r = b.responsavel;
-          if (!r || !r.nome) return;
-          if (!porNome[r.nome]) porNome[r.nome] = { dados: r, criancas: [] };
-          porNome[r.nome].criancas.push(b.nome);
+          var resp = b.responsavel;
+          if (!resp || !resp.nome) return;
+          var k = chave(resp.nome);
+          if (!porNome[k]) porNome[k] = { dados: resp, criancas: [], id: null, ativo: true };
+          porNome[k].criancas.push(b.nome);
         });
-        var lista = Object.keys(porNome).map(function (n) { return porNome[n]; });
+        cadastrados.forEach(function (c) {
+          var k = chave(c.nome);
+          if (!porNome[k]) porNome[k] = { criancas: [] };
+          porNome[k].dados = c;
+          porNome[k].id = c.id;
+          porNome[k].ativo = c.ativo;
+        });
+
+        var lista = Object.keys(porNome).map(function (k) { return porNome[k]; })
+          .sort(function (a, b) {
+            return String(a.dados.nome).localeCompare(String(b.dados.nome), 'pt-BR');
+          });
+
         preencher(lista.map(function (x) {
-          return linha([esc(x.dados.nome), esc(x.dados.parentesco || '—'), esc(x.dados.telefone || '—'),
-            esc(x.criancas.join(', ')), esc(x.dados.bairro || '—')]);
-        }), 5, 'Nenhum responsável cadastrado ainda.');
+          var nome = esc(x.dados.nome) + (x.ativo === false ? ' ' + etiqueta('INATIVO') : '');
+          /* Só quem está na coleção tem id, e só esses podem ser desativados.
+             Quem veio de uma solicitação se desativa pelo beneficiário. */
+          var acao = x.id
+            ? botaoAcao('Desativar', 'desativar', '/adm/responsaveis/' + x.id,
+                'Desativar o cadastro de ' + x.dados.nome + '? Ele some da lista ativa, mas não é apagado.',
+                ' data-metodo="DELETE"')
+            : '<span class="apoio">veio de solicitação</span>';
+          return linha([nome, esc(x.dados.parentesco || '—'), esc(x.dados.telefone || '—'),
+            esc(x.criancas.join(', ') || '—'), esc(endereco(x.dados)), acoes([acao])]);
+        }), 6, 'Nenhum responsável ainda. Use o formulário acima ou aprove uma solicitação.');
       });
     },
 
@@ -655,7 +759,9 @@
           return linha([data(d.data), esc(d.doadorNome || d.doadorEmail || 'Anônimo'), moeda(d.valor),
             esc(origem(d.origem)), esc(nomeProjeto(d.projetoId)), etiqueta(d.status)]);
         }), 6, 'Ainda não há doações registradas.');
-        grafico(pagas);
+        /* O gráfico recebe todas, e não só as pagas: é ele que mostra a
+           proporção entre o que entrou e o que ficou pelo caminho. */
+        grafico(doas);
       });
     },
 
@@ -952,6 +1058,26 @@
         aoSalvar: sairDaEdicao,
         recarregar: recarregar
       });
+    }
+
+    if (tela === 'responsaveis') {
+      ligarForm($('form'), function () {
+        return { rota: '/adm/responsaveis', corpo: {
+          nome: valor('res-nome'),
+          cpf: valor('res-cpf') || null,
+          email: valor('res-email') || null,
+          telefone: valor('res-telefone'),
+          parentesco: valor('res-parentesco') || null,
+          cep: valor('res-cep') || null,
+          endereco: valor('res-endereco') || null,
+          numero: valor('res-numero') || null,
+          complemento: valor('res-complemento') || null,
+          bairro: valor('res-bairro') || null,
+          cidade: valor('res-cidade') || null,
+          uf: valor('res-uf') || null,
+          observacao: valor('res-obs') || null
+        } };
+      }, { sucesso: 'Responsável cadastrado.', recarregar: recarregar });
     }
 
     if (tela === 'usuarios') {

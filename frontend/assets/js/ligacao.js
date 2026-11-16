@@ -222,11 +222,20 @@
             dataNascimento: texto('crianca-nascimento'),
             genero: 'Não informado'
           },
+          /* O endereço é opcional na API: quem não souber o CEP e deixar os
+             campos em branco manda null, e o pedido entra do mesmo jeito. */
           responsavel: {
             nome: nome,
             email: texto('resp-email') || null,
             telefone: telefone,
-            parentesco: texto('resp-parentesco')
+            parentesco: texto('resp-parentesco'),
+            cep: texto('resp-cep') || null,
+            endereco: texto('resp-endereco') || null,
+            numero: texto('resp-numero') || null,
+            complemento: texto('resp-complemento') || null,
+            bairro: texto('resp-bairro') || null,
+            cidade: texto('resp-cidade') || null,
+            uf: texto('resp-uf') || null
           },
           consentimento: { aceito: aceitou }
         }
