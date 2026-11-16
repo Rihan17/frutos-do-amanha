@@ -401,9 +401,22 @@
       var figura = $('[data-n-figura]');
       var img = $('[data-n-imagem]');
       if (figura && img && n.imagemUrl) {
-        img.src = n.imagemUrl;
+        /* O CSS deixa .foto img com opacity 0 e só .foto.carregou img a
+           mostra. Quem põe essa classe é o FDA.carregarFotos, que percorre
+           img[data-foto] — as fotos que são arquivo no projeto. A imagem da
+           notícia vem da API, não passa por lá, e sem a classe ficaria
+           invisível por cima da moldura hachurada. */
+        var moldura = img.closest('.foto');
+        var mostrar = function () { if (moldura) moldura.classList.add('carregou'); };
+        img.addEventListener('load', mostrar);
+        /* Imagem quebrada: esconde a figura inteira, para não deixar a
+           moldura vazia no meio da matéria. */
+        img.addEventListener('error', function () { figura.hidden = true; });
         img.alt = n.imagemAlt || '';
+        img.src = n.imagemUrl;
         figura.hidden = false;
+        /* Uma data URL já decodificada pode ficar pronta antes do listener. */
+        if (img.complete && img.naturalWidth) mostrar();
       }
       if (texto) paragrafos(texto, n.texto);
     }).catch(function (erro) {

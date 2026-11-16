@@ -116,7 +116,13 @@
         <div class="capa__texto">
           <ol class="migalhas"><li><a href="index.html">Início</a></li><li><a href="noticias.html">Notícias</a></li><li><a aria-current="page" data-n-categoria>Notícia</a></li></ol>
           <p class="rotulo" data-n-meta></p>
-          <h1 data-titulo data-n-titulo>Carregando a notícia…</h1>
+          <!-- Sem data-titulo de propósito. Esse atributo entrega o título ao
+               SplitText, que o quebra em linhas para a animação e guarda o
+               texto original para remontar: escrever por cima com o título
+               que veio da API não gruda, o SplitText repõe "Carregando a
+               notícia…" na primeira remontagem. Aqui o título aparece direto,
+               sem a revelação linha a linha. -->
+          <h1 data-n-titulo>Carregando a notícia…</h1>
           <p class="capa__lead" data-n-resumo></p>
         </div>
       </div>
@@ -126,7 +132,12 @@
       <span class="rasgo" aria-hidden="true"></span>
       <div class="envelope">
         <article class="materia" data-noticia>
-          <figure class="fita" style="position:relative;max-width:62rem;--fita-rot:3deg" data-n-figura hidden>
+          <!-- width:100% é necessário: .materia tem justify-items:start a
+               partir de 900px, então o item do grid encolhe até a largura do
+               conteúdo. Nas matérias escritas à mão quem dá essa largura é a
+               legenda; esta figura não tem legenda, e todo o conteúdo da
+               .foto é posicionado em absoluto, então ela ficaria com zero. -->
+          <figure class="fita" style="position:relative;width:100%;max-width:62rem;--fita-rot:3deg" data-n-figura hidden>
             <div class="foto" style="--proporcao:3 / 2" data-cursor="ver">
               <img data-n-imagem alt="" width="1200" height="900">
             </div>

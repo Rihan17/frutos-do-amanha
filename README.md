@@ -144,7 +144,19 @@ listagem assim que a primeira notícia fosse publicada pelo painel. Os arquivos
 `noticia-*.html` continuam no projeto e seguem abrindo por endereço direto.
 
 A foto vai embutida como data URL em base64, no mesmo esquema dos projetos, com limite
-de 2 MB por imagem. Não há upload de arquivo nem pasta de mídia.
+de **10 MB por imagem**. Não há upload de arquivo nem pasta de mídia.
+
+O limite vive em dois lugares e os dois precisam andar juntos: `LIMITE_IMAGEM_MB` no
+`painel.js` confere o tamanho do arquivo, e o `@Size` de `imagemUrl` nos `Request` do
+backend confere o texto em base64, que é um terço maior — 10 MB de arquivo dão cerca de
+14 milhões de caracteres.
+
+Guardar a foto dentro do registro tem um custo que cresce com o uso: o documento do
+MongoDB tem teto de 16 MB, e a lista pública manda a imagem de cada notícia, então
+muitas matérias com fotos grandes deixam `noticias.html` pesada. Enquanto forem poucas
+notícias isso não aparece. Quando aparecer, as saídas são reduzir a imagem no navegador
+antes de enviar, ou guardar as fotos como arquivo de verdade — o que exige
+armazenamento externo, porque o disco do plano gratuito do Render é efêmero.
 
 ## O que ainda não está ligado
 
