@@ -510,6 +510,7 @@
         if (respondido) return;
         respondido = true;
         d.close();
+        document.documentElement.classList.remove('modal-aberto');
         resolve(resultado);
       }
 
@@ -554,6 +555,13 @@
       /* Esc dispara "cancel" no dialog; clique no fundo escuro fecha também. */
       d.oncancel = function (ev) { ev.preventDefault(); fechar(null); };
       d.onclick = function (ev) { if (ev.target === d) fechar(null); };
+      /* Um dialog aberto com showModal() vai para a camada de topo do
+         navegador, que fica acima de qualquer z-index. O cursor desenhado do
+         site é um elemento comum, então ele passa a ficar atrás do modal — e,
+         como o ponteiro do sistema está escondido para dar lugar a ele, não
+         sobrava cursor nenhum. Esta classe devolve o ponteiro enquanto o
+         modal está aberto. */
+      document.documentElement.classList.add('modal-aberto');
       d.showModal();
       var primeiro = botoes.querySelector('button');
       if (primeiro) primeiro.focus();
