@@ -42,4 +42,11 @@ public class AdminResponsavelController {
         return ResponsavelResponse.from(service.atualizar(id, request));
     }
     @DeleteMapping("/{id}") public void desativar(@PathVariable String id) { service.desativar(id); }
+
+    /* Duas saídas, dois endereços. O DELETE de cima encerra: o cadastro sai
+       da lista ativa e continua guardado. Este apaga, e por isso tem caminho
+       próprio — ninguém cai nele por engano. */
+    @DeleteMapping("/{id}/permanente") public void excluirPermanente(@PathVariable String id) {
+        service.excluirPermanente(id);
+    }
 }

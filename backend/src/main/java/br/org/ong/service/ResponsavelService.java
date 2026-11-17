@@ -61,6 +61,18 @@ public class ResponsavelService {
         responsaveis.save(r);
     }
 
+    /* Apaga o cadastro de vez, para o registro que nunca devia existir:
+       cadastro repetido, nome digitado errado, teste que sobrou.
+
+       Nada no banco aponta para este documento — a criança guarda uma cópia
+       dos dados do responsável dentro dela —, então apagar aqui não deixa
+       nenhuma criança sem contato. Em compensação, quem também veio de uma
+       solicitação aprovada continua aparecendo na lista do painel, vindo do
+       lado do beneficiário; só some de lá junto com a criança. */
+    public void excluirPermanente(String id) {
+        responsaveis.delete(obter(id));
+    }
+
     private void aplicar(Responsavel r, ResponsavelCadastroRequest req) {
         r.setNome(req.nome().trim());
         r.setTelefone(req.telefone().trim());

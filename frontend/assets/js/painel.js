@@ -95,6 +95,15 @@
      montado com o que existir. Os cadastros antigos não têm endereço nenhum,
      e os novos podem ter só o bairro: em qualquer caso sai a linha possível,
      ou um traço. */
+  /* O CPF é guardado só com os números, porque é assim que o backend compara
+     cadastro repetido. Na tela ele volta com os pontos, que é como a pessoa
+     leu no documento e como ela digitou no formulário. */
+  function cpf(valor) {
+    var d = String(valor == null ? '' : valor).replace(/\D/g, '');
+    if (d.length !== 11) return valor || '';
+    return d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6, 9) + '-' + d.slice(9);
+  }
+
   function endereco(r) {
     if (!r) return '—';
     var rua = [r.endereco, r.numero].filter(Boolean).join(', ');
@@ -1099,16 +1108,50 @@
           });
 
         preencher(lista.map(function (x) {
-          var nome = esc(x.dados.nome) + (x.ativo === false ? ' ' + etiqueta('INATIVO') : '');
-          /* Só quem está na coleção tem id, e só esses podem ser desativados.
-             Quem veio de uma solicitação se desativa pelo beneficiário. */
-          var acao = x.id
-            ? botaoAcao('Desativar', 'desativar', '/adm/responsaveis/' + x.id,
-                'Desativar o cadastro de ' + x.dados.nome + '? Ele some da lista ativa, mas não é apagado.',
-                ' data-metodo="DELETE"')
-            : '<span class="apoio">veio de solicitação</span>';
-          return linha([nome, esc(x.dados.parentesco || '—'), esc(x.dados.telefone || '—'),
-            esc(x.criancas.join(', ') || '—'), esc(endereco(x.dados)), acoes([acao])]);
+          var d = x.dados;
+          var nome = esc(d.nome) + (x.ativo === false ? ' ' + etiqueta('INATIVO') : '');
+          /* A ficha inteira, como foi preenchida no formulário. Na tabela só
+             cabem cinco colunas, e CPF, e-mail e observação ficavam de fora:
+             eram guardados e nunca mais apareciam para quem precisava ligar
+             para a família. */
+          var dados = {
+            titulo: d.nome || 'Responsável',
+            detalhes: [
+              /* Sem repetir o nome: ele já é o título do modal. */
+              ['CPF', cpf(d.cpf)],
+              ['Parentesco', d.parentesco],
+              ['Telefone', d.telefone],
+              ['E-mail', d.email],
+              ['CEP', d.cep],
+              ['Endereço', endereco(d)],
+              ['Crianças', x.criancas.join(', ')],
+              ['Situação', x.ativo === false ? 'Inativo' : 'Ativo'],
+              ['Origem', x.id ? 'Cadastrado no painel' : 'Veio de uma solicitação aprovada'],
+              ['Observação', d.observacao]
+            ].filter(function (par) { return par[1] && par[1] !== '—'; })
+          };
+
+          /* Só quem está na coleção própria tem id, e só esses têm o que
+             encerrar ou apagar aqui. Quem veio de uma solicitação mora dentro
+             da criança: sai junto com ela, na tela de Crianças. */
+          var botoes = [botaoAnalise('Ver', dados)];
+          if (x.id && x.ativo !== false) {
+            botoes.push(botaoAcao('Encerrar', 'encerrar', '/adm/responsaveis/' + x.id,
+              'Encerrar o cadastro de ' + d.nome + '?',
+              ' data-metodo="DELETE" data-aviso="Ele sai da lista ativa e continua guardado, ' +
+              'com o telefone e o endereço."'));
+          }
+          if (x.id) {
+            botoes.push(botaoAcao('Excluir', 'excluir', '/adm/responsaveis/' + x.id + '/permanente',
+              'Apagar o cadastro de ' + d.nome + ' para sempre?',
+              ' data-metodo="DELETE" data-aviso="O cadastro some da ONG e não dá para desfazer. ' +
+              'Para só tirá-lo da lista ativa, feche aqui e use Encerrar."'));
+          } else {
+            botoes.push('<span class="apoio">veio de solicitação</span>');
+          }
+
+          return linha([nome, esc(d.parentesco || '—'), esc(d.telefone || '—'),
+            esc(x.criancas.join(', ') || '—'), esc(endereco(d)), acoes(botoes)]);
         }), 6, 'Nenhum responsável ainda. Use o formulário acima ou aprove uma solicitação.');
       });
     },
