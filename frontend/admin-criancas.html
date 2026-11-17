@@ -173,6 +173,7 @@
           <button class="botao botao--folha" type="submit" data-magnetico data-broto><svg aria-hidden="true"><use href="#i-broto"/></svg><span class="botao__texto">Salvar cadastro</span></button>
         </form>
 
+        <h2 class="rotulo" style="margin-bottom:var(--e-4)">Buscar criança</h2>
         <div class="painel-filtros" data-filtros>
           <div class="campo"><label for="busca-cri">Buscar por nome</label><input type="search" id="busca-cri" name="busca-cri" placeholder="Digite para filtrar" data-filtro-busca></div>
           <div class="campo"><label for="ativ-cri">Atividade</label><select id="ativ-cri" name="ativ-cri" data-filtro-coluna="3" data-filtro-auto data-filtro-rotulo="Todas"><option value="">Todas</option></select></div>
@@ -186,11 +187,12 @@
           <div class="tabela--rolavel">
             <table class="tabela">
               <caption>Em ordem alfabética. A situação mostra quem está em acompanhamento hoje.</caption>
-              <!-- Eram seis colunas para cinco células: o painel.js escreve
+              <!-- Eram seis colunas para cinco células: o painel.js escrevia
                    nome, idade, responsável, atividades e a situação, e a
                    situação caía embaixo de "Imagem", com "Ações" sempre
-                   vazia. Agora o cabeçalho diz o que a linha traz. -->
-              <thead><tr><th scope="col">Nome</th><th scope="col">Idade</th><th scope="col">Responsável</th><th scope="col">Atividades</th><th scope="col">Situação</th></tr></thead>
+                   vazia. Agora são seis para seis: a última traz o botão de
+                   excluir de cada criança. -->
+              <thead><tr><th scope="col">Nome</th><th scope="col">Idade</th><th scope="col">Responsável</th><th scope="col">Atividades</th><th scope="col">Situação</th><th scope="col"><span class="sr-only">Ações</span></th></tr></thead>
               <tbody>
               <tr><td>Gabriel Nunes</td><td>11 anos</td><td>Márcia Nunes</td><td>Reforço, esporte</td><td><span class="etiqueta etiqueta--ok">Sim</span></td><td><span class="acoes"><a class="link" href="#" data-broto>Detalhes</a></span></td></tr>
               <tr><td>Isabela Ferreira</td><td>10 anos</td><td>Ana Paula Ferreira</td><td>Reforço, oficinas</td><td><span class="etiqueta etiqueta--ok">Sim</span></td><td><span class="acoes"><a class="link" href="#" data-broto>Detalhes</a></span></td></tr>

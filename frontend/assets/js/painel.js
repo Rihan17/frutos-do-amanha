@@ -613,24 +613,31 @@
       var acao = botao.getAttribute('data-acao');
       var rota = botao.getAttribute('data-rota');
       var pergunta = botao.getAttribute('data-pergunta') || 'Confirmar?';
-      /* Promover exige o cargo (CargoRequest). Rebaixar, não: vai sem corpo. */
-      var pedeCargo = acao === 'promover';
+      /* Algumas ações só valem com um texto escrito: promover pede a função
+         (CargoRequest) e excluir uma criança pede o motivo da saída, que fica
+         guardado no histórico dela. O nome do campo no corpo do pedido vem do
+         próprio botão, em data-campo; sem ele a ação vai sem corpo. */
+      var campoTexto = botao.getAttribute('data-campo') || (acao === 'promover' ? 'cargo' : null);
       var destrutiva = acao === 'excluir' || acao === 'desativar' || acao === 'rebaixar';
+      var atributo = function (nome, padrao) { return botao.getAttribute(nome) || padrao; };
 
       abrirModal({
         titulo: pergunta,
         botoes: [{
-          rotulo: pedeCargo ? 'Informar a função' : (destrutiva ? botao.textContent : 'Confirmar'),
+          rotulo: campoTexto
+            ? atributo('data-abrir', destrutiva ? botao.textContent : 'Informar a função')
+            : (destrutiva ? botao.textContent : 'Confirmar'),
           valor: 'ok',
           tom: destrutiva ? 'perigo' : 'normal',
-          pedirTexto: pedeCargo,
-          rotuloTexto: 'Função desta pessoa na ONG',
-          rotuloConfirmar: 'Dar o acesso',
-          erroTexto: 'Informe a função para dar o acesso.'
+          pedirTexto: !!campoTexto,
+          rotuloTexto: atributo('data-rotulo-texto', 'Função desta pessoa na ONG'),
+          rotuloConfirmar: atributo('data-confirmar', 'Dar o acesso'),
+          erroTexto: atributo('data-erro-texto', 'Informe a função para dar o acesso.')
         }]
       }).then(function (escolha) {
         if (!escolha) return;
-        var corpo = pedeCargo ? { cargo: escolha.texto } : undefined;
+        var corpo;
+        if (campoTexto) { corpo = {}; corpo[campoTexto] = escolha.texto; }
         /* Quase toda ação do painel é um PUT sem corpo (aprovar, encerrar).
            As notícias fogem disso: despublicar manda {publicada:false} e
            excluir é um DELETE. Vêm nos atributos do próprio botão. */
@@ -876,7 +883,19 @@
           } else if (v.justificativaRecusa) {
             dados.detalhes.push(['Motivo da recusa', v.justificativaRecusa]);
           }
-          var acao = acoes([botaoAnalise(v.status === 'PENDENTE' ? 'Analisar' : 'Ver', dados)]);
+          var botoes = [botaoAnalise(v.status === 'PENDENTE' ? 'Analisar' : 'Ver', dados)];
+          /* O backend só apaga candidatura pendente ou recusada. Quem foi
+             aprovado já é voluntario da casa: sai pelo encerramento, que
+             guarda a data da saída em vez de perder a passagem da pessoa. */
+          if (v.status === 'PENDENTE' || v.status === 'RECUSADA') {
+            botoes.push(botaoAcao('Excluir', 'excluir', '/adm/voluntarios/' + v.id,
+              'Excluir a candidatura de ' + (v.nomeContato || 'esta pessoa') + '?',
+              ' data-metodo="DELETE"'));
+          } else if (v.status === 'APROVADA') {
+            botoes.push(botaoAcao('Encerrar', 'encerrar', '/adm/voluntarios/' + v.id + '/encerrar',
+              'Encerrar a participação de ' + (v.nomeContato || 'esta pessoa') + '?'));
+          }
+          var acao = acoes(botoes);
           return linha([data(v.dataInscricao), esc(v.nomeContato || '—'), esc(area.trim()),
             esc(disp.trim()), etiqueta(v.status), acao]);
         }), 6, 'Nenhuma candidatura recebida até agora.');
@@ -891,9 +910,21 @@
           return p ? p.nome : id;
         };
         preencher(bens.map(function (b) {
+          /* Excluir aqui não apaga a criança: o backend marca a saída e guarda
+             o motivo, porque o histórico de quem passou pela ONG não pode
+             sumir. Por isso o motivo é obrigatório, como na recusa. Quem já
+             saiu não tem o botão: não há o que excluir de novo. */
+          var acao = b.ativo ? acoes([botaoAcao('Excluir', 'excluir',
+            '/adm/beneficiarios/' + b.id,
+            'Excluir ' + (b.nome || 'esta criança') + ' da lista?',
+            ' data-metodo="DELETE" data-campo="motivoSaida" data-abrir="Excluir"' +
+            ' data-rotulo-texto="Por que ela está saindo? Fica guardado no histórico dela."' +
+            ' data-confirmar="Confirmar exclusão"' +
+            ' data-erro-texto="Escreva o motivo da saída para continuar."')]) : '';
           return linha([esc(b.nome), idade(b.dataNascimento), esc((b.responsavel && b.responsavel.nome) || '—'),
-            esc((b.projetoIds || []).map(nomeProjeto).join(', ') || '—'), etiqueta(b.ativo ? 'ATIVO' : 'INATIVO')]);
-        }), 5, 'Nenhuma criança cadastrada ainda. Elas entram ao aprovar uma solicitação.');
+            esc((b.projetoIds || []).map(nomeProjeto).join(', ') || '—'),
+            etiqueta(b.ativo ? 'ATIVO' : 'INATIVO'), acao]);
+        }), 6, 'Nenhuma criança cadastrada ainda. Elas entram ao aprovar uma solicitação.');
       });
     },
 
