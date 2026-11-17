@@ -341,8 +341,20 @@ main { position: relative; }
 .campo input:disabled, .campo select:disabled, .campo textarea:disabled { opacity: .55; cursor: not-allowed; }
 .dupla-coluna { display: grid; gap: var(--e-4); }
 @media (min-width: 640px) { .dupla-coluna { grid-template-columns: 1fr 1fr; } }
+.tripla-coluna { display: grid; gap: var(--e-4); }
+@media (min-width: 640px) { .tripla-coluna { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Os dias da semana: caixas em linha, que quebram sozinhas no celular. O
+   grupo nao e um <label> unico - cada dia tem o seu -, entao o titulo dele e
+   um <span>, que a regra .campo > span la em cima ja deixa com cara de
+   rotulo de campo. */
+.ati-dias { display: flex; flex-wrap: wrap; gap: .6rem var(--e-5); }
+.ati-dias .marcar { grid-template-columns: auto auto; }
 .marcar { display: grid; grid-template-columns: auto 1fr; gap: .75rem; align-items: start; font-size: .95rem; }
 .marcar input { width: 1.25rem; height: 1.25rem; margin-top: .15rem; accent-color: var(--folha); }
+/* Turma cheia: a caixa aparece desligada em vez de sumir. Esconder faria
+   parecer que a atividade não existe, e quem inscreve ficaria procurando. */
+.marcar--fora { opacity: .55; cursor: not-allowed; }
+.marcar--fora input { cursor: not-allowed; }
 .form__nota { font-size: .85rem; color: var(--casca); max-width: 52ch; }
 .aviso {
   display: grid;

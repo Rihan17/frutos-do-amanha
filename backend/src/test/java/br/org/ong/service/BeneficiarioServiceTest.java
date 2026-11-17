@@ -19,7 +19,8 @@ class BeneficiarioServiceTest {
     private static final String ID = "000000000000000000000001";
 
     private static BeneficiarioService comRepositorio(BeneficiarioRepository repo) {
-        return new BeneficiarioService(repo, mock(ProjetoRepository.class));
+        return new BeneficiarioService(repo, mock(ProjetoRepository.class),
+                mock(br.org.ong.repository.AtividadeRepository.class));
     }
 
     @Test void exclusaoPermanenteApagaOCadastro() {

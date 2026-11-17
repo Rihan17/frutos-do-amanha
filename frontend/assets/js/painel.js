@@ -104,6 +104,43 @@
     return d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6, 9) + '-' + d.slice(9);
   }
 
+  /* ---------- Dias e horarios de uma turma ---------- */
+  /* O banco guarda os dias como codigos de tres letras, que a tela marca em
+     caixas. Aqui eles voltam a ser palavras, na ordem da semana. */
+  var NOME_DIA = {
+    SEG: 'segunda', TER: 'terça', QUA: 'quarta', QUI: 'quinta',
+    SEX: 'sexta', SAB: 'sábado', DOM: 'domingo'
+  };
+  var ORDEM_DIA = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'];
+
+  function dias(lista) {
+    var nomes = (lista || []).slice().sort(function (a, b) {
+      return ORDEM_DIA.indexOf(a) - ORDEM_DIA.indexOf(b);
+    }).map(function (d) { return NOME_DIA[d] || d; });
+    if (!nomes.length) return '';
+    /* "segunda, quarta e sexta": o "e" no fim e o jeito que a pessoa fala,
+       e esta frase vai inteira para o WhatsApp da familia. */
+    if (nomes.length === 1) return nomes[0];
+    return nomes.slice(0, -1).join(', ') + ' e ' + nomes[nomes.length - 1];
+  }
+
+  function horario(a) {
+    if (!a || !a.horarioInicio) return '';
+    return a.horarioFim ? a.horarioInicio + ' às ' + a.horarioFim : 'a partir das ' + a.horarioInicio;
+  }
+
+  /* "terça e quinta, 14:00 às 16:00" — uma linha só, com o que existir. */
+  function quando(a) {
+    return [dias(a && a.dias), horario(a)].filter(Boolean).join(', ');
+  }
+
+  /* "12 de 20" quando ha teto, so a contagem quando nao ha. */
+  function ocupacao(a) {
+    if (!a) return '—';
+    return a.vagas > 0 ? a.inscritos + ' de ' + a.vagas
+      : a.inscritos + (a.inscritos === 1 ? ' inscrita' : ' inscritas') + ' · sem limite';
+  }
+
   function endereco(r) {
     if (!r) return '—';
     var rua = [r.endereco, r.numero].filter(Boolean).join(', ');
@@ -492,7 +529,12 @@
        do cursor para o body. Sem isso, um close() que não passe pelo fechar()
        a deixaria presa dentro de um dialog escondido, e aí o cursor sumiria
        de vez, também fora do modal. */
-    caixa.addEventListener('close', devolverCursor);
+    /* O evento close chega numa tarefa posterior, e nao na hora. Entre o
+       fechar e o evento cabe a abertura do proximo modal — uma analise
+       aprovada abre o convite do WhatsApp logo em seguida. Sem esta
+       conferência, o close do primeiro arrancaria a bola do cursor de
+       dentro do segundo, que acabou de abrir. */
+    caixa.addEventListener('close', function () { if (!caixa.open) devolverCursor(); });
     document.body.appendChild(caixa);
     return caixa;
   }
@@ -547,8 +589,12 @@
        É o caso das atividades de uma criança: ela pode estar em várias, e
        quem decide precisa ver as que já valem antes de mexer. */
     escolhas.innerHTML = (opcoes.escolhas || []).map(function (e) {
-      return '<label class="marcar"><input type="checkbox" value="' + esc(e.valor) + '"' +
-        (e.marcado ? ' checked' : '') + '><span>' + esc(e.rotulo) + '</span></label>';
+      /* Turma cheia aparece, e nao some: esconde-la faria parecer que a
+         atividade nao existe. Ela vem desligada e dizendo por que. */
+      return '<label class="marcar' + (e.desligada ? ' marcar--fora' : '') + '">' +
+        '<input type="checkbox" value="' + esc(e.valor) + '"' +
+        (e.marcado ? ' checked' : '') + (e.desligada ? ' disabled' : '') +
+        '><span>' + esc(e.rotulo) + '</span></label>';
     }).join('');
     escolhas.hidden = !(opcoes.escolhas && opcoes.escolhas.length);
     campo.hidden = true;
@@ -595,6 +641,9 @@
           fechar({
             valor: b.valor,
             texto: texto.value.trim(),
+            /* :checked pega tambem as desligadas, e tem de pegar: uma turma
+               que encheu depois da crianca entrar nao pode sumir da lista
+               dela so porque a caixa veio travada. */
             marcados: $$('input:checked', escolhas).map(function (c) { return c.value; })
           });
         });
@@ -611,6 +660,11 @@
       /* Esc dispara "cancel" no dialog; clique no fundo escuro fecha também. */
       d.oncancel = function (ev) { ev.preventDefault(); fechar(null); };
       d.onclick = function (ev) { if (ev.target === d) fechar(null); };
+      /* Rede de segurança da promessa. Quem fecha pelo botão, pelo Esc ou
+         clicando no fundo passa por fechar(), que resolve. Um close() dado
+         de outro lugar não passaria, e a promessa ficaria pendurada para
+         sempre — com ela, o recarregar da lista que vem depois. */
+      d.addEventListener('close', function () { if (!d.open) fechar(null); }, { once: true });
       d.showModal();
       levarCursor(d);
       var primeiro = botoes.querySelector('button');
@@ -689,13 +743,45 @@
         });
       }
 
+      /* A ficha de uma turma mostra quem esta nela, e isso e uma busca a
+         parte: a lista de atividades traz so a contagem, para nao carregar o
+         nome de todas as criancas de todas as turmas a cada abertura da
+         tela. */
+      var antes = dados.criancasDe
+        ? api.request('/adm/atividades/' + dados.criancasDe + '/criancas').catch(function () { return []; })
+        : Promise.resolve(null);
+
+      antes.then(function (criancas) {
+        var detalhes = dados.detalhes || [];
+        if (criancas) {
+          detalhes = detalhes.concat(criancas.length
+            ? criancas.map(function (c) {
+                return ['Criança', c.nome + (c.ativo ? '' : ' (saiu da ONG)')];
+              })
+            : [['Crianças', 'Nenhuma inscrita ainda']]);
+          criancas.filter(function (c) { return c.ativo; }).forEach(function (c) {
+            botoes.push({
+              rotulo: 'Tirar ' + primeiroNome(c.nome), valor: 'tirar:' + c.id, tom: 'perigo'
+            });
+          });
+        }
+
       abrirModal({
         titulo: dados.titulo,
-        detalhes: dados.detalhes,
+        detalhes: detalhes,
         botoes: botoes,
         rotuloFechar: botoes.length ? 'Cancelar' : 'Fechar'
       }).then(function (escolha) {
         if (!escolha) return;
+        /* Tirar uma crianca da turma vem daqui, e nao de uma aprovacao: o
+           botao carrega o id dela no proprio valor. */
+        if (String(escolha.valor).indexOf('tirar:') === 0) {
+          var quem = escolha.valor.slice('tirar:'.length);
+          return api.request('/adm/atividades/' + dados.criancasDe + '/criancas/' + quem,
+            { method: 'DELETE' })
+            .then(function () { avisar('Pronto. A criança saiu da atividade.'); return recarregar(); })
+            .catch(function (erro) { avisar(erro.message || 'Não foi possível tirar.', 'erro'); });
+        }
         var rota = escolha.valor === 'aprovar' ? dados.aprovar : dados.recusar;
         /* O nome do campo é o do RecusaRequest no backend; "justificativa"
            sozinho volta 400 com "A justificativa da recusa é obrigatória". */
@@ -715,9 +801,13 @@
           });
       });
 
+      });
+
       function rotulo() { return dados.aprovar ? 'Analisar' : 'Ver'; }
     });
   }
+
+  function primeiroNome(nome) { return String(nome || '').trim().split(/\s+/)[0] || 'a criança'; }
 
   /* ==========================================================
      Atividades de uma criança
@@ -745,16 +835,29 @@
       try { dados = JSON.parse(link.getAttribute('data-atividades')); } catch (erro) { return; }
       var atuais = dados.atuais || [];
 
+      var turmas = dados.turmas || [];
+
       abrirModal({
         titulo: 'Atividades de ' + (dados.nome || 'esta criança'),
-        texto: (dados.projetos || []).length
-          ? 'Marque em quais projetos ela participa. Desmarcar tira a criança do projeto.'
-          : 'Nenhum projeto ativo no momento. Cadastre um em Projetos para poder inscrever.',
-        escolhas: (dados.projetos || []).map(function (pr) {
-          return { valor: pr.id, rotulo: pr.nome, marcado: atuais.indexOf(pr.id) >= 0 };
+        texto: turmas.length
+          ? 'Marque as turmas em que ela participa. Desmarcar tira a criança da turma.'
+          : 'Nenhuma atividade ativa no momento. Crie uma em Atividades para poder inscrever.',
+        escolhas: turmas.map(function (t) {
+          var dentro = atuais.indexOf(t.id) >= 0;
+          var cheia = t.vagasLivres === 0 && !dentro;
+          /* Dia, hora e vaga ao lado do nome: quem inscreve decide com isso
+             na frente, em vez de abrir a tela de Atividades para conferir. */
+          var detalhe = [t.quando, cheia ? 'turma cheia'
+            : (t.vagasLivres == null ? 'sem limite de vagas'
+               : t.vagasLivres + (t.vagasLivres === 1 ? ' vaga livre' : ' vagas livres'))]
+            .filter(Boolean).join(' · ');
+          return {
+            valor: t.id, marcado: dentro, desligada: cheia,
+            rotulo: t.nome + (detalhe ? ' — ' + detalhe : '')
+          };
         }),
-        botoes: (dados.projetos || []).length ? [{ rotulo: 'Salvar', valor: 'salvar' }] : [],
-        rotuloFechar: (dados.projetos || []).length ? 'Cancelar' : 'Fechar'
+        botoes: turmas.length ? [{ rotulo: 'Salvar', valor: 'salvar' }] : [],
+        rotuloFechar: turmas.length ? 'Cancelar' : 'Fechar'
       }).then(function (escolha) {
         if (!escolha) return;
         var marcados = escolha.marcados || [];
@@ -765,13 +868,16 @@
           avisar('Nada mudou nas atividades.');
           return;
         }
-        var nomes = (dados.projetos || []).filter(function (pr) {
-          return marcados.indexOf(pr.id) >= 0;
-        }).map(function (pr) { return pr.nome; });
+        /* Uma linha por turma, com o dia e a hora: e esta lista que vai para
+           o WhatsApp, e e por ela que a familia se organiza na semana. */
+        var escolhidas = turmas.filter(function (t) { return marcados.indexOf(t.id) >= 0; });
+        var nomes = escolhidas.map(function (t) {
+          return '• ' + t.nome + (t.quando ? ' — ' + t.quando : '');
+        });
 
         link.textContent = 'Salvando…';
         return api.request('/adm/beneficiarios/' + dados.id, {
-          method: 'PUT', body: { projetoIds: marcados }
+          method: 'PUT', body: { atividadeIds: marcados }
         }).then(function () {
           avisar('Pronto. As atividades foram salvas.');
           /* Sem nenhuma atividade não há o que anunciar: a saída de um projeto
@@ -783,7 +889,7 @@
               /* "participa de", e não "está inscrito" nem "inscrita": o nome da
                  criança não diz o gênero dela, e errar isso num recado que vai
                  para a família é feio. */
-              (dados.nome || 'A criança') + ' agora participa de: ' + nomes.join(', ') + '.\n\n' +
+              (dados.nome || 'A criança') + ' agora participa de:\n\n' + nomes.join('\n') + '\n\n' +
               'Qualquer dúvida sobre horários ou material, pode falar com a gente por aqui.'
           }, true);
         }).then(function () { return recarregar(); })
@@ -1122,16 +1228,19 @@
     },
 
     criancas: function () {
-      return Promise.all([api.request('/adm/beneficiarios'), api.request('/projetos')]).then(function (r) {
-        var bens = r[0], projetos = r[1];
-        var nomeProjeto = function (id) {
-          var p = projetos.filter(function (x) { return x.id === id; })[0];
-          return p ? p.nome : id;
-        };
-        /* /projetos devolve só os ativos, que são os únicos em que o backend
-           deixa inscrever alguém. São poucos, então cada linha leva a lista
-           inteira no atributo, como já acontece com os dados da análise. */
-        var projetosAtivos = projetos.map(function (x) { return { id: x.id, nome: x.nome }; });
+      return Promise.all([api.request('/adm/beneficiarios'),
+          api.request('/adm/atividades').catch(function () { return []; })]).then(function (r) {
+        var bens = r[0], todas = r[1] || [];
+        var porId = {};
+        todas.forEach(function (a) { porId[a.id] = a; });
+        var nomeAtividade = function (id) { return porId[id] ? porId[id].nome : id; };
+        /* Só as ativas entram na lista de marcar: o backend recusa inscrição
+           nova em turma encerrada, e oferecer uma caixa que vai dar erro é
+           pior do que não oferecer. As encerradas continuam aparecendo na
+           coluna de quem já estava nelas. */
+        var turmasAtivas = todas.filter(function (a) { return a.ativa; }).map(function (a) {
+          return { id: a.id, nome: a.nome, quando: quando(a), vagasLivres: a.vagasLivres };
+        });
         preencher(bens.map(function (b) {
           /* Duas saídas, porque são duas coisas diferentes.
 
@@ -1147,7 +1256,7 @@
           var botoes = [];
           if (b.ativo) {
             botoes.push(botaoAtividades({
-              id: b.id, nome: b.nome, atuais: b.projetoIds || [], projetos: projetosAtivos,
+              id: b.id, nome: b.nome, atuais: b.atividadeIds || [], turmas: turmasAtivas,
               responsavel: (b.responsavel && b.responsavel.nome) || '',
               telefone: (b.responsavel && b.responsavel.telefone) || ''
             }));
@@ -1164,7 +1273,7 @@
             'Para só tirar da lista de atendidas, feche aqui e use Encerrar."'));
           var acao = acoes(botoes);
           return linha([esc(b.nome), idade(b.dataNascimento), esc((b.responsavel && b.responsavel.nome) || '—'),
-            esc((b.projetoIds || []).map(nomeProjeto).join(', ') || '—'),
+            esc((b.atividadeIds || []).map(nomeAtividade).join(', ') || '—'),
             etiqueta(b.ativo ? 'ATIVO' : 'INATIVO'), acao]);
         }), 6, 'Nenhuma criança cadastrada ainda. Elas entram ao aprovar uma solicitação.');
       });
@@ -1322,6 +1431,44 @@
         /* O gráfico recebe todas, e não só as pagas: é ele que mostra a
            proporção entre o que entrou e o que ficou pelo caminho. */
         grafico(doas);
+      });
+    },
+
+    atividades: function () {
+      return api.request('/adm/atividades').then(function (lista) {
+        preencher(lista.map(function (a) {
+          /* A ficha da turma, com quem esta nela. Cada crianca traz o proprio
+             botao de sair: quem organiza uma turma pensa pela turma, e nao
+             abrindo a ficha de uma crianca por vez para desmarcar uma caixa. */
+          var dados = {
+            titulo: a.nome,
+            detalhes: [
+              ['Dias', dias(a.dias)],
+              ['Horário', horario(a)],
+              ['Onde', a.local],
+              ['Vagas', a.vagas > 0 ? a.vagas + ' no total, ' +
+                (a.vagasLivres === 0 ? 'turma cheia' : a.vagasLivres + ' livres') : 'sem limite'],
+              ['Inscritas hoje', String(a.inscritos)],
+              ['Situação', a.ativa ? 'Ativa' : 'Encerrada'],
+              ['Observação', a.observacao]
+            ].filter(function (par) { return par[1] && par[1] !== '—'; }),
+            criancasDe: a.id
+          };
+          var botoes = [botaoAnalise('Ver', dados)];
+          if (a.ativa) {
+            botoes.push(botaoAcao('Encerrar', 'encerrar', '/adm/atividades/' + a.id,
+              'Encerrar a atividade ' + a.nome + '?',
+              ' data-metodo="DELETE" data-aviso="Ela para de aceitar inscrição nova e continua ' +
+              'guardada, com as crianças que passaram por ela."'));
+          }
+          botoes.push(botaoAcao('Excluir', 'excluir', '/adm/atividades/' + a.id + '/permanente',
+            'Apagar a atividade ' + a.nome + ' para sempre?',
+            ' data-metodo="DELETE" data-aviso="A turma some da ONG e sai da ficha de cada criança ' +
+            'inscrita nela. Não dá para desfazer."'));
+
+          return linha([esc(a.nome), esc(dias(a.dias) || '—'), esc(horario(a) || '—'),
+            esc(ocupacao(a)), etiqueta(a.ativa ? 'ATIVO' : 'INATIVO'), acoes(botoes)]);
+        }), 6, 'Nenhuma atividade criada ainda. Use o formulário acima.');
       });
     },
 
@@ -1498,6 +1645,23 @@
           observacao: valor('doa-obs').slice(0, 140) || null
         } };
       }, { sucesso: 'Doação registrada.', recarregar: recarregar });
+    }
+
+    /* Criar turma. Os dias saem das caixas marcadas; vagas em branco vira 0,
+       que o backend lê como "sem limite". */
+    if (tela === 'atividades') {
+      ligarForm($('form'), function () {
+        return { rota: '/adm/atividades', corpo: {
+          nome: valor('ati-nome'),
+          dias: $$('input[name=ati-dia]:checked').map(function (c) { return c.value; }),
+          horarioInicio: valor('ati-inicio') || null,
+          horarioFim: valor('ati-fim') || null,
+          local: valor('ati-local') || null,
+          vagas: Number(valor('ati-vagas')) || 0,
+          observacao: valor('ati-obs') || null,
+          ativa: true
+        } };
+      }, { sucesso: 'Atividade criada.', recarregar: recarregar });
     }
 
     if (tela === 'projetos') {
