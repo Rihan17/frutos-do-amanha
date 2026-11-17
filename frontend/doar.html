@@ -136,15 +136,8 @@
             <p data-form-aviso-texto></p>
           </div>
           <form class="form" data-api="doacao">
-            <fieldset>
-              <legend>Com que frequência</legend>
-              <div class="escolhas" style="grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
-                <label class="escolha"><input type="radio" name="frequencia" value="unica" checked><span>Uma vez</span></label>
-                <label class="escolha"><input type="radio" name="frequencia" value="mensal"><span>Todo mês</span></label>
-              </div>
-              <p class="form__nota">Na doação mensal, o valor é cobrado uma vez por mês até você cancelar.</p>
-            </fieldset>
-
+            <!-- O bloco "Com que frequência" saiu junto com a doação mensal.
+                 Com uma opção só, escolher não fazia sentido. -->
             <fieldset>
               <legend>Valor</legend>
               <div class="escolhas">

@@ -134,23 +134,14 @@
       if (marcado.value !== 'outro') return parseFloat(marcado.value) || 0;
       return parseFloat(texto('valor-outro')) || 0;
     }
-    function mensal() {
-      var m = form.querySelector('input[name="frequencia"]:checked');
-      return !!m && m.value === 'mensal';
-    }
+    /* A doação mensal foi retirada do site: o formulário não pergunta mais a
+       frequência, e toda doação é única. A assinatura continua existindo na
+       API (PlanoController, PlanoCobrancaJob), sem nada no site que a crie. */
 
     ligar('[data-api="doacao"]', function () {
       var valor = escolhido();
       if (valor < 5) {
         aviso(form, 'O valor mínimo da doação é R$ 5,00.', 'erro');
-        return;
-      }
-      /* A doação mensal depende de uma conta de doador, e o site não tem mais
-         cadastro. Até existir outro caminho, a cobrança recorrente é combinada
-         direto com a ONG. */
-      if (mensal()) {
-        aviso(form, 'A doação mensal é combinada direto com a ONG pelo WhatsApp (13) 98858-5602. ' +
-          'Para doar agora, escolha "Uma vez" ou use a chave Pix em Como ajudar.', 'erro');
         return;
       }
       return api.request('/doacoes/publico', {

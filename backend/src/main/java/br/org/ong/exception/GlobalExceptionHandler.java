@@ -1,6 +1,9 @@
 package br.org.ong.exception;
 
+import br.org.ong.config.PaginaDeErro;
 import br.org.ong.exception.EmailServiceUnavailableException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -97,8 +100,14 @@ public class GlobalExceptionHandler {
        frontend, e aqui fica a rede de segurança: qualquer arquivo ausente
        responde 404 barato, sem rastro de pilha. */
     @ExceptionHandler(NoResourceFoundException.class)
-    ResponseEntity<Erro> arquivoNaoEncontrado(NoResourceFoundException e) {
+    ResponseEntity<Erro> arquivoNaoEncontrado(NoResourceFoundException e,
+            HttpServletRequest requisicao, HttpServletResponse resposta) throws java.io.IOException {
         log.debug("Arquivo estático inexistente: {}", e.getResourcePath());
+        /* Pessoa navegando recebe a página do site; o fetch do próprio site,
+           e qualquer cliente de API, continua recebendo JSON. */
+        if (PaginaDeErro.querPagina(requisicao) && PaginaDeErro.escrever(resposta, 404)) {
+            return null;
+        }
         return ResponseEntity.status(404).body(new Erro(Instant.now(), 404,
                 "Arquivo não encontrado", Map.of()));
     }

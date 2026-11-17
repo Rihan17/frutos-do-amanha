@@ -104,12 +104,35 @@
   }
 
   /* ---------- Preencher a tabela da tela ---------- */
+  /* Um elemento escondido (ou dentro de um [hidden]) não tem offsetParent.
+     É assim que a tela de Doações sabe qual das duas visões está no ar. */
+  function visivel(el) { return !!el && el.offsetParent !== null; }
+
   function corpoDaTabela() {
     /* A maioria das telas tem uma seção #lista-*, que isola a tabela principal
-       das auxiliares. A visão geral não tem, e aí vale a primeira da página. */
-    var secao = $('[id^="lista-"]');
+       das auxiliares. A visão geral não tem, e aí vale a primeira da página.
+       Doações tem duas, uma por visão: vale a que está aparecendo. */
+    var secoes = $$('[id^="lista-"]');
+    var secao = secoes.filter(visivel)[0] || secoes[0];
     var tbody = secao && $('table.tabela tbody', secao);
     return tbody || $('.tabela--rolavel table.tabela tbody') || $('table.tabela tbody');
+  }
+
+  /* Mesma ideia para os filtros: cada visão tem os seus. */
+  function caixaDeFiltros() {
+    var caixas = $$('[data-filtros]');
+    return caixas.filter(visivel)[0] || caixas[0] || null;
+  }
+
+  /* Escreve numa seção específica, e não na visível: a tela de Doações monta
+     as duas de uma vez, para trocar de visão sem ir à API de novo. */
+  function preencherSecao(id, linhas, colunas, vazio) {
+    var secao = document.getElementById(id);
+    var tbody = secao && $('table.tabela tbody', secao);
+    if (!tbody) return;
+    tbody.innerHTML = linhas.length
+      ? linhas.join('')
+      : '<tr data-vazio><td colspan="' + colunas + '">' + esc(vazio) + '</td></tr>';
   }
   function preencher(linhas, colunas, vazio) {
     var tbody = corpoDaTabela();
@@ -248,7 +271,7 @@
   }
 
   function aplicarFiltros() {
-    var caixa = $('[data-filtros]');
+    var caixa = caixaDeFiltros();
     if (!caixa) return;
     var busca = $('[data-filtro-busca]', caixa);
     var termo = busca ? busca.value.trim().toLowerCase() : '';
@@ -291,7 +314,10 @@
       recado.hidden = true;
     }
 
-    var contador = $('[data-filtro-contagem]');
+    /* Cada visão tem o seu contador. Procurar pelo documento inteiro pegaria
+       o da visão escondida, e o número apareceria no lugar errado. */
+    var contadores = $$('[data-filtro-contagem]');
+    var contador = contadores.filter(visivel)[0] || contadores[0];
     if (contador) {
       contador.textContent = visiveis === total
         ? total + (total === 1 ? ' registro' : ' registros')
@@ -304,7 +330,7 @@
      maquete: "Vila Matias", "Jardim Rio Branco" e por aí, bairros que podem
      não existir no banco — e aí filtrar por eles não devolvia nada. */
   function encherFiltrosAutomaticos() {
-    var caixa = $('[data-filtros]');
+    var caixa = caixaDeFiltros();
     if (!caixa) return;
     $$('[data-filtro-auto]', caixa).forEach(function (sel) {
       var i = Number(sel.getAttribute('data-filtro-coluna'));
@@ -327,10 +353,31 @@
     });
   }
 
+  /* Troca entre "Por doação" e "Por pessoa" sem ir à API: as duas tabelas já
+     foram montadas no mesmo carregamento. Cada visão tem os seus filtros, e
+     por isso eles são reaplicados depois da troca. */
+  function ligarVisoes() {
+    var botoes = $$('[data-ver]');
+    if (!botoes.length) return;
+    botoes.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var alvo = b.getAttribute('data-ver');
+        botoes.forEach(function (outro) {
+          outro.setAttribute('aria-selected', String(outro === b));
+        });
+        $$('[data-visao]').forEach(function (painel) {
+          painel.hidden = painel.getAttribute('data-visao') !== alvo;
+        });
+        encherFiltrosAutomaticos();
+        aplicarFiltros();
+      });
+    });
+  }
+
   function ligarFiltros() {
-    var caixa = $('[data-filtros]');
-    if (!caixa) return;
-    $$('input, select', caixa).forEach(function (c) {
+    /* Liga em todas as caixas, e não só na visível: a tela de Doações tem uma
+       por visão, e a escondida vira a visível quando a pessoa troca. */
+    $$('[data-filtros] input, [data-filtros] select').forEach(function (c) {
       c.addEventListener(c.tagName === 'SELECT' ? 'change' : 'input', aplicarFiltros);
     });
   }
@@ -403,6 +450,161 @@
   }
 
   /* ---------- Ações da linha (aprovar, recusar) ---------- */
+  /* ==========================================================
+     Modal
+
+     Substitui o confirm e o prompt do navegador. Os dois tinham o mesmo
+     defeito: cabem uma frase e nada mais. Para decidir uma solicitação de
+     vaga, a pessoa precisa LER o motivo que a família escreveu, e isso não
+     cabia num confirm — ela aprovava ou recusava sem ver o pedido.
+
+     O mesmo modal faz dois trabalhos: a análise, que mostra o pedido inteiro
+     e oferece aprovar ou recusar, e a confirmação simples de uma ação como
+     excluir. Recusar sempre exige um motivo escrito.
+     ========================================================== */
+  var caixa = null;
+  function modal() {
+    if (caixa) return caixa;
+    caixa = document.createElement('dialog');
+    caixa.className = 'modal';
+    caixa.innerHTML =
+      '<div class="modal__caixa">' +
+      '  <h2 class="modal__titulo" data-modal-titulo></h2>' +
+      '  <div class="modal__corpo" data-modal-corpo></div>' +
+      '  <div class="campo modal__campo" data-modal-campo hidden>' +
+      '    <label for="modal-texto" data-modal-rotulo></label>' +
+      '    <textarea id="modal-texto" data-modal-texto rows="3"></textarea>' +
+      '    <small class="modal__erro" data-modal-erro hidden></small>' +
+      '  </div>' +
+      '  <div class="modal__acoes" data-modal-acoes></div>' +
+      '</div>';
+    document.body.appendChild(caixa);
+    return caixa;
+  }
+
+  /* Devolve { valor, texto } do botão escolhido, ou null se a pessoa
+     desistiu (Cancelar, Esc ou clique fora). */
+  function abrirModal(opcoes) {
+    var d = modal();
+    var titulo = $('[data-modal-titulo]', d), corpo = $('[data-modal-corpo]', d);
+    var campo = $('[data-modal-campo]', d), rotulo = $('[data-modal-rotulo]', d);
+    var texto = $('[data-modal-texto]', d), erro = $('[data-modal-erro]', d);
+    var botoes = $('[data-modal-acoes]', d);
+
+    titulo.textContent = opcoes.titulo || 'Confirmar';
+    corpo.innerHTML = (opcoes.detalhes || []).map(function (par) {
+      return '<p class="modal__linha"><b>' + esc(par[0]) + '</b><span>' + esc(par[1] || '—') + '</span></p>';
+    }).join('');
+    campo.hidden = true;
+    texto.value = '';
+    erro.hidden = true;
+    botoes.innerHTML = '';
+
+    return new Promise(function (resolve) {
+      var respondido = false;
+      function fechar(resultado) {
+        if (respondido) return;
+        respondido = true;
+        d.close();
+        resolve(resultado);
+      }
+
+      (opcoes.botoes || []).forEach(function (b) {
+        var el = document.createElement('button');
+        el.type = 'button';
+        el.className = b.tom === 'perigo' ? 'botao botao--doar' : 'botao botao--folha';
+        el.textContent = b.rotulo;
+        el.addEventListener('click', function () {
+          if (b.pedirTexto && campo.hidden) {
+            /* O primeiro clique abre o campo do motivo; o envio só sai no
+               segundo, com o motivo escrito. Assim ninguém recusa sem
+               justificar por engano. */
+            campo.hidden = false;
+            rotulo.textContent = b.rotuloTexto || 'Escreva o motivo';
+            el.textContent = b.rotuloConfirmar || 'Confirmar';
+            texto.focus();
+            return;
+          }
+          if (b.pedirTexto && !texto.value.trim()) {
+            erro.textContent = b.erroTexto || 'Escreva o motivo para continuar.';
+            erro.hidden = false;
+            texto.focus();
+            return;
+          }
+          fechar({ valor: b.valor, texto: texto.value.trim() });
+        });
+        botoes.appendChild(el);
+      });
+
+      var cancelar = document.createElement('button');
+      cancelar.type = 'button';
+      cancelar.className = 'link';
+      cancelar.textContent = opcoes.rotuloFechar || 'Cancelar';
+      cancelar.addEventListener('click', function () { fechar(null); });
+      botoes.appendChild(cancelar);
+
+      /* Esc dispara "cancel" no dialog; clique no fundo escuro fecha também. */
+      d.oncancel = function (ev) { ev.preventDefault(); fechar(null); };
+      d.onclick = function (ev) { if (ev.target === d) fechar(null); };
+      d.showModal();
+      var primeiro = botoes.querySelector('button');
+      if (primeiro) primeiro.focus();
+    });
+  }
+
+  /* Link que abre a análise de um pedido. Os dados vão num JSON no próprio
+     atributo, porque a lista é remontada a cada recarga e guardar referência
+     a objetos daria trabalho sem ganho. */
+  function botaoAnalise(rotulo, dados) {
+    return '<a class="link" href="#" data-analisar="' + esc(JSON.stringify(dados)) + '" data-broto>' +
+      esc(rotulo) + '</a>';
+  }
+
+  function ligarAnalise(recarregar) {
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('[data-analisar]');
+      if (!link) return;
+      e.preventDefault();
+      var dados;
+      try { dados = JSON.parse(link.getAttribute('data-analisar')); } catch (erro) { return; }
+
+      var botoes = [];
+      if (dados.aprovar) {
+        botoes.push({ rotulo: 'Aprovar', valor: 'aprovar' });
+      }
+      if (dados.recusar) {
+        botoes.push({
+          rotulo: 'Recusar', valor: 'recusar', tom: 'perigo', pedirTexto: true,
+          rotuloTexto: 'Por que está recusando? A pessoa recebe este texto.',
+          rotuloConfirmar: 'Confirmar recusa',
+          erroTexto: 'A recusa precisa de um motivo escrito.'
+        });
+      }
+
+      abrirModal({
+        titulo: dados.titulo,
+        detalhes: dados.detalhes,
+        botoes: botoes,
+        rotuloFechar: botoes.length ? 'Cancelar' : 'Fechar'
+      }).then(function (escolha) {
+        if (!escolha) return;
+        var rota = escolha.valor === 'aprovar' ? dados.aprovar : dados.recusar;
+        /* O nome do campo é o do RecusaRequest no backend; "justificativa"
+           sozinho volta 400 com "A justificativa da recusa é obrigatória". */
+        var corpo = escolha.valor === 'recusar' ? { justificativaRecusa: escolha.texto } : undefined;
+        link.textContent = 'Enviando…';
+        return api.request(rota, { method: 'PUT', body: corpo })
+          .then(function () { avisar('Pronto. A lista foi atualizada.'); return recarregar(); })
+          .catch(function (erro) {
+            link.textContent = rotulo(link);
+            avisar(erro.message || 'Não foi possível concluir.', 'erro');
+          });
+      });
+
+      function rotulo() { return dados.aprovar ? 'Analisar' : 'Ver'; }
+    });
+  }
+
   function ligarAcoes(recarregar) {
     document.addEventListener('click', function (e) {
       var botao = e.target.closest('[data-acao]');
@@ -411,47 +613,43 @@
       var acao = botao.getAttribute('data-acao');
       var rota = botao.getAttribute('data-rota');
       var pergunta = botao.getAttribute('data-pergunta') || 'Confirmar?';
-      if (!window.confirm(pergunta)) return;
-      var corpo;
-      if (acao === 'recusar') {
-        var motivo = window.prompt('Motivo da recusa (fica registrado no cadastro):', '');
-        if (motivo === null) return;
-        if (!motivo.trim()) {
-          avisar('A recusa precisa de um motivo. Nada foi alterado.', 'erro');
-          return;
+      /* Promover exige o cargo (CargoRequest). Rebaixar, não: vai sem corpo. */
+      var pedeCargo = acao === 'promover';
+      var destrutiva = acao === 'excluir' || acao === 'desativar' || acao === 'rebaixar';
+
+      abrirModal({
+        titulo: pergunta,
+        botoes: [{
+          rotulo: pedeCargo ? 'Informar a função' : (destrutiva ? botao.textContent : 'Confirmar'),
+          valor: 'ok',
+          tom: destrutiva ? 'perigo' : 'normal',
+          pedirTexto: pedeCargo,
+          rotuloTexto: 'Função desta pessoa na ONG',
+          rotuloConfirmar: 'Dar o acesso',
+          erroTexto: 'Informe a função para dar o acesso.'
+        }]
+      }).then(function (escolha) {
+        if (!escolha) return;
+        var corpo = pedeCargo ? { cargo: escolha.texto } : undefined;
+        /* Quase toda ação do painel é um PUT sem corpo (aprovar, encerrar).
+           As notícias fogem disso: despublicar manda {publicada:false} e
+           excluir é um DELETE. Vêm nos atributos do próprio botão. */
+        var metodo = botao.getAttribute('data-metodo') || 'PUT';
+        var corpoFixo = botao.getAttribute('data-corpo');
+        if (corpoFixo && !corpo) {
+          try { corpo = JSON.parse(corpoFixo); } catch (e) { corpo = undefined; }
         }
-        /* O nome do campo é o do RecusaRequest no backend; "justificativa"
-           sozinho volta 400 com "A justificativa da recusa é obrigatória". */
-        corpo = { justificativaRecusa: motivo.trim() };
-      }
-      if (acao === 'promover') {
-        /* Promover exige o cargo (CargoRequest). Rebaixar, não: vai sem corpo. */
-        var cargo = window.prompt('Função desta pessoa na ONG:', botao.getAttribute('data-cargo') || '');
-        if (cargo === null) return;
-        if (!cargo.trim()) {
-          avisar('Informe a função para dar o acesso. Nada foi alterado.', 'erro');
-          return;
-        }
-        corpo = { cargo: cargo.trim() };
-      }
-      /* Quase toda ação do painel é um PUT sem corpo (aprovar, encerrar).
-         As notícias fogem disso: despublicar manda {publicada:false} e
-         excluir é um DELETE. Vêm nos atributos do próprio botão. */
-      var metodo = botao.getAttribute('data-metodo') || 'PUT';
-      var corpoFixo = botao.getAttribute('data-corpo');
-      if (corpoFixo && !corpo) {
-        try { corpo = JSON.parse(corpoFixo); } catch (e) { corpo = undefined; }
-      }
-      var rotulo = botao.textContent;
-      botao.textContent = 'Enviando…';
-      api.request(rota, { method: metodo, body: corpo })
-        .then(function () { avisar('Pronto. A lista foi atualizada.'); return recarregar(); })
-        .catch(function (erro) {
-          /* Sem recarregar a lista, o botão continua na tela: devolve o rótulo
-             dele para a ação poder ser tentada de novo. */
-          botao.textContent = rotulo;
-          avisar(erro.message || 'Não foi possível concluir.', 'erro');
-        });
+        var rotulo = botao.textContent;
+        botao.textContent = 'Enviando…';
+        return api.request(rota, { method: metodo, body: corpo })
+          .then(function () { avisar('Pronto. A lista foi atualizada.'); return recarregar(); })
+          .catch(function (erro) {
+            /* Sem recarregar a lista, o botão continua na tela: devolve o
+               rótulo dele para a ação poder ser tentada de novo. */
+            botao.textContent = rotulo;
+            avisar(erro.message || 'Não foi possível concluir.', 'erro');
+          });
+      });
     });
   }
   function acoes(itens) {
@@ -565,9 +763,12 @@
       return Promise.all([
         api.request('/adm/solicitacoes'), api.request('/adm/voluntarios'),
         api.request('/adm/beneficiarios'), api.request('/adm/doacoes'),
-        api.request('/adm/usuarios'), api.request('/adm/planos')
+        api.request('/adm/usuarios')
       ]).then(function (r) {
-        var sols = r[0], vols = r[1], bens = r[2], doas = r[3], users = r[4], planos = r[5];
+        /* Sem /adm/planos: a doação mensal saiu do site, e o cartão
+           "Doações mensais ativas" saiu junto. Os endpoints de plano
+           continuam na API para quem precisar ver uma assinatura antiga. */
+        var sols = r[0], vols = r[1], bens = r[2], doas = r[3], users = r[4];
         var mes = new Date().getMonth(), ano = new Date().getFullYear();
         var pagas = doas.filter(function (d) { return d.status === 'CONFIRMADA'; });
         var noMes = pagas.filter(function (d) { var x = new Date(d.data); return x.getMonth() === mes && x.getFullYear() === ano; });
@@ -580,7 +781,6 @@
           moeda(total),
           pagas.length,
           doas.filter(function (d) { return String(d.status).toUpperCase() === 'PENDENTE'; }).length,
-          planos.filter(function (p) { return p.status === 'ATIVO'; }).length,
           bens.filter(function (b) { return b.ativo; }).length,
           responsaveis.size,
           vols.filter(function (v) { return v.status === 'APROVADA'; }).length,
@@ -604,10 +804,32 @@
           lista.filter(function (s) { return s.status === 'RECUSADA' && doAno(s); }).length
         ]);
         preencher(lista.map(function (s) {
-          var acao = s.status === 'PENDENTE' ? acoes([
-            botaoAcao('Aprovar', 'aprovar', '/adm/solicitacoes/' + s.id + '/aprovar', 'Aprovar a solicitação de ' + (s.beneficiario && s.beneficiario.nome) + '?'),
-            botaoAcao('Recusar', 'recusar', '/adm/solicitacoes/' + s.id + '/recusar', 'Recusar a solicitação de ' + (s.beneficiario && s.beneficiario.nome) + '?')
-          ]) : '<span class="apoio">—</span>';
+          var b = s.beneficiario || {}, r = s.responsavel || {};
+          /* Uma entrada só, que abre o pedido inteiro. Antes eram dois
+             botões que perguntavam "Aprovar?" num confirm, e quem decidia
+             nunca via o motivo que a família escreveu. */
+          var dados = {
+            titulo: 'Solicitação de vaga — ' + (b.nome || 'criança'),
+            detalhes: [
+              ['Criança', b.nome],
+              ['Idade', idade(b.dataNascimento)],
+              ['Responsável', r.nome],
+              ['Parentesco', r.parentesco],
+              ['Telefone', r.telefone],
+              ['E-mail', r.email],
+              ['Endereço', endereco(r)],
+              ['Recebida em', data(s.dataSolicitacao)],
+              ['Situação', NOME_SITUACAO[String(s.status).toUpperCase()] || s.status],
+              ['Motivo do pedido', s.motivo]
+            ].filter(function (par) { return par[1] && par[1] !== '—'; })
+          };
+          if (s.status === 'PENDENTE') {
+            dados.aprovar = '/adm/solicitacoes/' + s.id + '/aprovar';
+            dados.recusar = '/adm/solicitacoes/' + s.id + '/recusar';
+          } else if (s.justificativaRecusa) {
+            dados.detalhes.push(['Motivo da recusa', s.justificativaRecusa]);
+          }
+          var acao = acoes([botaoAnalise(s.status === 'PENDENTE' ? 'Analisar' : 'Ver', dados)]);
           return linha([data(s.dataSolicitacao), esc(s.beneficiario && s.beneficiario.nome),
             idade(s.beneficiario && s.beneficiario.dataNascimento), esc(s.responsavel && s.responsavel.nome),
             etiqueta(s.status), acao]);
@@ -629,10 +851,29 @@
           var obs = String(v.observacao || '');
           var area = (obs.match(/Área:\s*([^.]*)/) || [])[1] || '—';
           var disp = (obs.match(/Disponibilidade:\s*(.*)$/) || [])[1] || '—';
-          var acao = v.status === 'PENDENTE' ? acoes([
-            botaoAcao('Aprovar', 'aprovar', '/adm/voluntarios/' + v.id + '/aprovar', 'Aprovar ' + v.nomeContato + ' como voluntário?'),
-            botaoAcao('Recusar', 'recusar', '/adm/voluntarios/' + v.id + '/recusar', 'Recusar a candidatura de ' + v.nomeContato + '?')
-          ]) : '<span class="apoio">—</span>';
+          var dados = {
+            titulo: 'Candidatura — ' + (v.nomeContato || 'voluntário'),
+            detalhes: [
+              ['Nome', v.nomeContato],
+              ['E-mail', v.emailContato],
+              ['Telefone', v.telefoneContato],
+              ['Área de interesse', area.trim()],
+              ['Disponibilidade', disp.trim()],
+              ['Enviada em', data(v.dataInscricao)],
+              ['Situação', NOME_SITUACAO[String(v.status).toUpperCase()] || v.status],
+              /* A observação inteira, como a pessoa escreveu: é nela que vem
+                 o recado de quem se candidata, e o resumo acima pode ter
+                 deixado algo de fora. */
+              ['O que a pessoa escreveu', v.observacao]
+            ].filter(function (par) { return par[1] && par[1] !== '—'; })
+          };
+          if (v.status === 'PENDENTE') {
+            dados.aprovar = '/adm/voluntarios/' + v.id + '/aprovar';
+            dados.recusar = '/adm/voluntarios/' + v.id + '/recusar';
+          } else if (v.justificativaRecusa) {
+            dados.detalhes.push(['Motivo da recusa', v.justificativaRecusa]);
+          }
+          var acao = acoes([botaoAnalise(v.status === 'PENDENTE' ? 'Analisar' : 'Ver', dados)]);
           return linha([data(v.dataInscricao), esc(v.nomeContato || '—'), esc(area.trim()),
             esc(disp.trim()), etiqueta(v.status), acao]);
         }), 6, 'Nenhuma candidatura recebida até agora.');
@@ -704,41 +945,9 @@
       });
     },
 
-    doadores: function () {
-      /* Também não tem endpoint próprio: a lista sai das doações, somadas por
-         pessoa. Quem doou sem conta aparece pelo nome e e-mail informados. */
-      return api.request('/adm/doacoes').then(function (doas) {
-        var porPessoa = {};
-        doas.forEach(function (d) {
-          var chave = d.doadorId || d.doadorEmail || d.doadorNome || 'anonimo';
-          if (!porPessoa[chave]) porPessoa[chave] = { nome: d.doadorNome || 'Anônimo', email: d.doadorEmail || '', n: 0, confirmadas: 0, total: 0, ultima: null };
-          var p = porPessoa[chave];
-          p.n++;
-          if (d.status === 'CONFIRMADA') { p.confirmadas++; p.total += Number(d.valor || 0); }
-          if (!p.ultima || new Date(d.data) > new Date(p.ultima)) p.ultima = d.data;
-        });
-        var lista = Object.keys(porPessoa).map(function (k) { return porPessoa[k]; })
-          .sort(function (a, b) { return b.total - a.total; });
-        placares([
-          lista.length,
-          lista.filter(function (p) { return p.confirmadas > 1; }).length,
-          lista.filter(function (p) { return p.confirmadas === 0; }).length,
-          moeda(lista.reduce(function (s, p) { return s + p.total; }, 0))
-        ]);
-        /* A coluna "Doações" conta só as confirmadas, e a situação sai daí.
-           Antes ela era inventada a partir do número de tentativas (n > 1), e
-           por isso quem tinha uma cobrança aberta e nunca paga aparecia como
-           doador ativo, e quem pagou uma vez só aparecia "Em análise". */
-        preencher(lista.map(function (p) {
-          return linha([esc(p.nome), esc(p.email || '—'), String(p.confirmadas), moeda(p.total),
-            etiqueta(p.confirmadas > 0 ? 'CONFIRMADA' : 'SEM_DOACAO')]);
-        }), 5, 'Nenhum doador ainda.');
-      });
-    },
-
     doacoes: function () {
-      return Promise.all([api.request('/adm/doacoes'), api.request('/projetos'), api.request('/adm/planos')]).then(function (r) {
-        var doas = r[0], projetos = r[1], planos = r[2];
+      return Promise.all([api.request('/adm/doacoes'), api.request('/projetos')]).then(function (r) {
+        var doas = r[0], projetos = r[1];
         var nomeProjeto = function (id) {
           if (!id) return 'Onde for mais necessário';
           var p = projetos.filter(function (x) { return x.id === id; })[0];
@@ -750,15 +959,56 @@
         placares([
           moeda(noMes.reduce(function (s, d) { return s + Number(d.valor || 0); }, 0)),
           pagas.length,
-          doas.filter(function (d) { return String(d.status).toUpperCase() === 'PENDENTE'; }).length,
-          planos.filter(function (p) { return p.status === 'ATIVO'; }).length
+          doas.filter(function (d) { return String(d.status).toUpperCase() === 'PENDENTE'; }).length
         ]);
         var ordenadas = doas.slice().sort(function (a, b) { return new Date(b.data) - new Date(a.data); });
         encherFiltroMes(ordenadas);
-        preencher(ordenadas.map(function (d) {
+
+        /* ---- Visão "Por doação": o extrato, uma linha por doação ---- */
+        preencherSecao('lista-doacoes', ordenadas.map(function (d) {
           return linha([data(d.data), esc(d.doadorNome || d.doadorEmail || 'Anônimo'), moeda(d.valor),
             esc(origem(d.origem)), esc(nomeProjeto(d.projetoId)), etiqueta(d.status)]);
         }), 6, 'Ainda não há doações registradas.');
+
+        /* ---- Visão "Por pessoa": as mesmas doações, agrupadas ----
+           Era a tela de Doadores, que nunca teve fonte própria: o site não
+           tem cadastro de doador, e a lista sempre saiu daqui. */
+        var porPessoa = {};
+        ordenadas.forEach(function (d) {
+          var chave = d.doadorId || d.doadorEmail || d.doadorNome || 'anonimo';
+          if (!porPessoa[chave]) {
+            porPessoa[chave] = { nome: d.doadorNome || 'Anônimo', email: d.doadorEmail || '',
+              confirmadas: 0, total: 0, doacoes: [] };
+          }
+          var p = porPessoa[chave];
+          p.doacoes.push(d);
+          if (d.status === 'CONFIRMADA') { p.confirmadas++; p.total += Number(d.valor || 0); }
+        });
+        var pessoas = Object.keys(porPessoa).map(function (k) { return porPessoa[k]; })
+          .sort(function (a, b) { return b.total - a.total; });
+
+        preencherSecao('lista-pessoas', pessoas.map(function (p) {
+          /* O modal abre o extrato da pessoa: cada doação vira uma linha, com
+             a data e a origem de um lado e o valor e a situação do outro. */
+          var dados = {
+            titulo: p.nome,
+            detalhes: [['Contato', p.email || '—'],
+              ['Doações confirmadas', String(p.confirmadas)],
+              ['Total doado', moeda(p.total)]]
+              .concat(p.doacoes.map(function (d) {
+                return [data(d.data) + ' · ' + origem(d.origem),
+                  moeda(d.valor) + ' — ' + (NOME_SITUACAO[String(d.status).toUpperCase()] || d.status) +
+                  ' · ' + nomeProjeto(d.projetoId)];
+              }))
+          };
+          return linha([esc(p.nome), esc(p.email || '—'), String(p.confirmadas), moeda(p.total),
+            etiqueta(p.confirmadas > 0 ? 'CONFIRMADA' : 'SEM_DOACAO'),
+            acoes([botaoAnalise('Ver doações', dados)])]);
+        }), 6, 'Ninguém doou ainda.');
+
+        encherFiltrosAutomaticos();
+        aplicarFiltros();
+
         /* O gráfico recebe todas, e não só as pagas: é ele que mostra a
            proporção entre o que entrou e o que ficou pelo caminho. */
         grafico(doas);
@@ -1127,6 +1377,8 @@
   if (!api.token()) { location.replace('gestao.html'); return; }
 
   montarSaida();
+  ligarAnalise(function () { return carregar[tela](); });
+  ligarVisoes();
   ligarFiltros();
   ligarExportacao();
   contagensDoMenu();
