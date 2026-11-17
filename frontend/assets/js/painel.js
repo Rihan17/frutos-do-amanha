@@ -492,9 +492,13 @@
     var botoes = $('[data-modal-acoes]', d);
 
     titulo.textContent = opcoes.titulo || 'Confirmar';
-    corpo.innerHTML = (opcoes.detalhes || []).map(function (par) {
-      return '<p class="modal__linha"><b>' + esc(par[0]) + '</b><span>' + esc(par[1] || '—') + '</span></p>';
-    }).join('');
+    /* Dois tipos de conteúdo no corpo: um recado em prosa, para o que a
+       ação vai causar, e os pares rótulo/valor do pedido que se analisa. */
+    corpo.innerHTML =
+      (opcoes.texto ? '<p class="modal__aviso">' + esc(opcoes.texto) + '</p>' : '') +
+      (opcoes.detalhes || []).map(function (par) {
+        return '<p class="modal__linha"><b>' + esc(par[0]) + '</b><span>' + esc(par[1] || '—') + '</span></p>';
+      }).join('');
     campo.hidden = true;
     texto.value = '';
     erro.hidden = true;
@@ -623,6 +627,7 @@
 
       abrirModal({
         titulo: pergunta,
+        texto: botao.getAttribute('data-aviso'),
         botoes: [{
           rotulo: campoTexto
             ? atributo('data-abrir', destrutiva ? botao.textContent : 'Informar a função')
@@ -884,17 +889,17 @@
             dados.detalhes.push(['Motivo da recusa', v.justificativaRecusa]);
           }
           var botoes = [botaoAnalise(v.status === 'PENDENTE' ? 'Analisar' : 'Ver', dados)];
-          /* O backend só apaga candidatura pendente ou recusada. Quem foi
-             aprovado já é voluntario da casa: sai pelo encerramento, que
-             guarda a data da saída em vez de perder a passagem da pessoa. */
-          if (v.status === 'PENDENTE' || v.status === 'RECUSADA') {
-            botoes.push(botaoAcao('Excluir', 'excluir', '/adm/voluntarios/' + v.id,
-              'Excluir a candidatura de ' + (v.nomeContato || 'esta pessoa') + '?',
-              ' data-metodo="DELETE"'));
-          } else if (v.status === 'APROVADA') {
+          /* As mesmas duas saídas da lista de crianças. Encerrar guarda a
+             data e deixa a candidatura na lista; excluir apaga. Quem já
+             está encerrado só tem a segunda. */
+          if (v.status !== 'ENCERRADA') {
             botoes.push(botaoAcao('Encerrar', 'encerrar', '/adm/voluntarios/' + v.id + '/encerrar',
               'Encerrar a participação de ' + (v.nomeContato || 'esta pessoa') + '?'));
           }
+          botoes.push(botaoAcao('Excluir', 'excluir', '/adm/voluntarios/' + v.id,
+            'Apagar a candidatura de ' + (v.nomeContato || 'esta pessoa') + ' para sempre?',
+            ' data-metodo="DELETE" data-aviso="A candidatura some da ONG e não dá para desfazer. ' +
+            'Para só encerrar a participação, feche aqui e use Encerrar."'));
           var acao = acoes(botoes);
           return linha([data(v.dataInscricao), esc(v.nomeContato || '—'), esc(area.trim()),
             esc(disp.trim()), etiqueta(v.status), acao]);
@@ -910,17 +915,31 @@
           return p ? p.nome : id;
         };
         preencher(bens.map(function (b) {
-          /* Excluir aqui não apaga a criança: o backend marca a saída e guarda
-             o motivo, porque o histórico de quem passou pela ONG não pode
-             sumir. Por isso o motivo é obrigatório, como na recusa. Quem já
-             saiu não tem o botão: não há o que excluir de novo. */
-          var acao = b.ativo ? acoes([botaoAcao('Excluir', 'excluir',
-            '/adm/beneficiarios/' + b.id,
-            'Excluir ' + (b.nome || 'esta criança') + ' da lista?',
-            ' data-metodo="DELETE" data-campo="motivoSaida" data-abrir="Excluir"' +
-            ' data-rotulo-texto="Por que ela está saindo? Fica guardado no histórico dela."' +
-            ' data-confirmar="Confirmar exclusão"' +
-            ' data-erro-texto="Escreva o motivo da saída para continuar."')]) : '';
+          /* Duas saídas, porque são duas coisas diferentes.
+
+             Encerrar é o caminho de sempre: a criança deixa de ser atendida,
+             mas continua na lista com a data e o motivo — a passagem dela
+             pela ONG faz parte do histórico. Por isso o motivo é
+             obrigatório, como na recusa de uma solicitação. Quem já saiu
+             não tem esse botão: não há o que encerrar de novo.
+
+             Excluir apaga o cadastro e não tem volta. É para o registro que
+             nunca devia existir — nome repetido, digitação errada —, e fica
+             sempre disponível, inclusive para quem já saiu. */
+          var botoes = [];
+          if (b.ativo) {
+            botoes.push(botaoAcao('Encerrar', 'encerrar', '/adm/beneficiarios/' + b.id,
+              'Encerrar o acompanhamento de ' + (b.nome || 'esta criança') + '?',
+              ' data-metodo="DELETE" data-campo="motivoSaida" data-abrir="Encerrar"' +
+              ' data-rotulo-texto="Por que ela está saindo? Fica guardado no histórico dela."' +
+              ' data-confirmar="Confirmar saída"' +
+              ' data-erro-texto="Escreva o motivo da saída para continuar."'));
+          }
+          botoes.push(botaoAcao('Excluir', 'excluir', '/adm/beneficiarios/' + b.id + '/permanente',
+            'Apagar o cadastro de ' + (b.nome || 'esta criança') + ' para sempre?',
+            ' data-metodo="DELETE" data-aviso="O cadastro some da ONG e não dá para desfazer. ' +
+            'Para só tirar da lista de atendidas, feche aqui e use Encerrar."'));
+          var acao = acoes(botoes);
           return linha([esc(b.nome), idade(b.dataNascimento), esc((b.responsavel && b.responsavel.nome) || '—'),
             esc((b.projetoIds || []).map(nomeProjeto).join(', ') || '—'),
             etiqueta(b.ativo ? 'ATIVO' : 'INATIVO'), acao]);

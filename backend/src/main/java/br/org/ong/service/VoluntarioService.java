@@ -92,11 +92,17 @@ public class VoluntarioService {
         Voluntario result=mongo.findAndModify(q,u,org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true),Voluntario.class);
         if(result==null)throw new RegraNegocioException("A inscrição deixou de estar pendente antes da análise");return result;
     }
+    /* Apaga a candidatura de vez, esteja ela como estiver.
+
+       Antes só pendente e recusada podiam ser excluídas, para não perder o
+       registro de quem chegou a ser voluntario da casa. Esse cuidado não
+       sumiu: ele virou escolha de quem usa o painel, que agora vê duas
+       ações lado a lado — encerrar, que guarda a data da saída, e excluir,
+       que é isto aqui e não tem volta. */
     public void excluir(String id){
-        Voluntario v=obter(id);
-        if(v.getStatus()!=StatusVoluntario.PENDENTE&&v.getStatus()!=StatusVoluntario.RECUSADA)throw new RegraNegocioException("Somente inscrições pendentes ou recusadas podem ser excluídas");
-        Query q=Query.query(Criteria.where("id").is(id).and("status").in(StatusVoluntario.PENDENTE,StatusVoluntario.RECUSADA));
-        if(mongo.remove(q,Voluntario.class).getDeletedCount()==0){obter(id);throw new RegraNegocioException("A inscrição mudou antes de ser excluída");}
+        obter(id);
+        Query q=Query.query(Criteria.where("id").is(id));
+        if(mongo.remove(q,Voluntario.class).getDeletedCount()==0)throw new RegraNegocioException("A inscrição foi excluída por outra pessoa");
     }
     private Voluntario obter(String id){ValidarId.objectId(id);return voluntarios.findById(id).orElseThrow(()->new NaoEncontradoException("Inscrição de voluntário não encontrada"));}
 }

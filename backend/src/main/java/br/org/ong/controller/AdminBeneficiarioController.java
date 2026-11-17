@@ -46,4 +46,13 @@ public class AdminBeneficiarioController {
                                           @Valid @RequestBody DesativarBeneficiarioRequest request) {
         return BeneficiarioResponse.from(service.desativar(id, request));
     }
+
+    /* Duas saídas diferentes, dois endereços diferentes. O DELETE de cima
+       encerra: a criança deixa de ser atendida, mas continua na lista com a
+       data e o motivo. Este apaga o cadastro, e por isso tem um caminho
+       próprio — ninguém cai nele por engano. */
+    @DeleteMapping("/{id}/permanente")
+    public void excluirPermanente(@PathVariable String id) {
+        service.excluirPermanente(id);
+    }
 }
