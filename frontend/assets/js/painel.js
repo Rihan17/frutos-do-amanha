@@ -519,6 +519,10 @@
         el.className = b.tom === 'perigo' ? 'botao botao--doar' : 'botao botao--folha';
         el.textContent = b.rotulo;
         el.addEventListener('click', function () {
+          /* Botão que leva para fora em vez de mandar algo para a API. O
+             window.open sai de dentro do clique da pessoa, que é o que o
+             bloqueador de pop-up exige para deixar passar. */
+          if (b.url) { window.open(b.url, '_blank', 'noopener'); fechar({ valor: b.valor }); return; }
           if (b.pedirTexto && campo.hidden) {
             /* O primeiro clique abre o campo do motivo; o envio só sai no
                segundo, com o motivo escrito. Assim ninguém recusa sem
@@ -564,6 +568,48 @@
       esc(rotulo) + '</a>';
   }
 
+  /* ==========================================================
+     Avisar pelo WhatsApp
+
+     Quem pede uma vaga ou se candidata ficava sem resposta: a decisão
+     acontecia no painel e parava ali. Agora, assim que a análise é enviada,
+     o painel oferece a conversa certa com o texto já escrito.
+
+     Não é envio automático, e isso é de propósito: mandar sozinho exigiria
+     a conta de WhatsApp Business da Meta, com a ONG verificada, modelos de
+     mensagem aprovados e cobrança por envio. O que dá para fazer sem nada
+     disso é tirar o trabalho manual do caminho — quem está de plantão
+     confere o texto e aperta enviar, em vez de procurar o telefone na lista
+     e escrever tudo de novo.
+     ========================================================== */
+  function numeroWhatsapp(telefone) {
+    var so = String(telefone || '').replace(/\D/g, '');
+    /* O formulário guarda no formato daqui, "(13) 98888-0000": dez ou onze
+       dígitos, com DDD e sem país. O wa.me só aceita com o código do país. */
+    if (so.length === 10 || so.length === 11) return '55' + so;
+    if ((so.length === 12 || so.length === 13) && so.indexOf('55') === 0) return so;
+    /* Telefone estranho (ramal, número de fora, digitação errada): melhor
+       mostrar o texto para copiar do que montar um link que não abre. */
+    return null;
+  }
+
+  function oferecerWhatsapp(whats, aprovado, motivo) {
+    if (!whats || !whats.telefone) return;
+    var texto = aprovado ? whats.aprovado : String(whats.recusado || '').replace('{motivo}', motivo || '');
+    if (!texto) return;
+    var numero = numeroWhatsapp(whats.telefone);
+    return abrirModal({
+      titulo: 'Pronto. Avisar a pessoa?',
+      texto: numero
+        ? 'O WhatsApp abre numa aba nova com a mensagem já escrita. Confira e envie.'
+        : 'O telefone cadastrado não dá para abrir no WhatsApp. Copie a mensagem abaixo.',
+      detalhes: [['Para', (whats.nome || 'contato') + ' · ' + whats.telefone], ['Mensagem', texto]],
+      botoes: numero ? [{ rotulo: 'Abrir o WhatsApp', valor: 'abrir',
+        url: 'https://wa.me/' + numero + '?text=' + encodeURIComponent(texto) }] : [],
+      rotuloFechar: numero ? 'Agora não' : 'Fechar'
+    });
+  }
+
   function ligarAnalise(recarregar) {
     document.addEventListener('click', function (e) {
       var link = e.target.closest('[data-analisar]');
@@ -598,7 +644,13 @@
         var corpo = escolha.valor === 'recusar' ? { justificativaRecusa: escolha.texto } : undefined;
         link.textContent = 'Enviando…';
         return api.request(rota, { method: 'PUT', body: corpo })
-          .then(function () { avisar('Pronto. A lista foi atualizada.'); return recarregar(); })
+          .then(function () {
+            avisar('Pronto. A lista foi atualizada.');
+            /* O aviso vem antes de recarregar: a lista se refaz enquanto a
+               pessoa lê a mensagem, e não some a linha de baixo dela. */
+            return oferecerWhatsapp(dados.whats, escolha.valor === 'aprovar', escolha.texto);
+          })
+          .then(function () { return recarregar(); })
           .catch(function (erro) {
             link.textContent = rotulo(link);
             avisar(erro.message || 'Não foi possível concluir.', 'erro');
@@ -798,6 +850,13 @@
           vols.filter(function (v) { return v.status === 'APROVADA'; }).length,
           users.filter(function (u) { return u.tipo === 'COMUM' && u.ativo; }).length
         ]);
+        /* O mesmo gráfico da tela de Doações. Aqui as barras tinham ficado
+           como estavam no HTML: alturas inventadas de maio a outubro, que
+           não mudavam com as doações de verdade e não diziam nada ao passar
+           o mouse. Agora as duas telas leem a mesma função e mostram o
+           valor do mês no mesmo lugar. */
+        grafico(doas);
+
         var ultimas = doas.slice().sort(function (a, b) { return new Date(b.data) - new Date(a.data); }).slice(0, 8);
         preencher(ultimas.map(function (d) {
           return linha([data(d.data), esc(d.doadorNome || d.doadorEmail || 'Anônimo'), moeda(d.valor),
@@ -841,6 +900,18 @@
           if (s.status === 'PENDENTE') {
             dados.aprovar = '/adm/solicitacoes/' + s.id + '/aprovar';
             dados.recusar = '/adm/solicitacoes/' + s.id + '/recusar';
+            /* Quem recebe o recado é o responsável, não a criança: o telefone
+               do cadastro é o dele, e é com ele que a ONG combina. */
+            dados.whats = {
+              nome: r.nome, telefone: r.telefone,
+              aprovado: 'Olá, ' + (r.nome || '') + '! Aqui é da ONG Frutos do Amanhã.\n\n' +
+                'A solicitação de vaga para ' + (b.nome || 'a criança') + ' foi aprovada.\n\n' +
+                'Pode falar com a gente por aqui para combinarmos os próximos passos.',
+              recusado: 'Olá, ' + (r.nome || '') + '! Aqui é da ONG Frutos do Amanhã.\n\n' +
+                'Infelizmente não conseguimos aprovar a solicitação de vaga para ' +
+                (b.nome || 'a criança') + ' neste momento.\n\nMotivo: {motivo}\n\n' +
+                'Qualquer dúvida, pode falar com a gente por aqui.'
+            };
           } else if (s.justificativaRecusa) {
             dados.detalhes.push(['Motivo da recusa', s.justificativaRecusa]);
           }
@@ -885,6 +956,15 @@
           if (v.status === 'PENDENTE') {
             dados.aprovar = '/adm/voluntarios/' + v.id + '/aprovar';
             dados.recusar = '/adm/voluntarios/' + v.id + '/recusar';
+            dados.whats = {
+              nome: v.nomeContato, telefone: v.telefoneContato,
+              aprovado: 'Olá, ' + (v.nomeContato || '') + '! Aqui é da ONG Frutos do Amanhã.\n\n' +
+                'Sua candidatura para o voluntariado foi aprovada.\n\n' +
+                'Pode falar com a gente por aqui para combinarmos como você começa.',
+              recusado: 'Olá, ' + (v.nomeContato || '') + '! Aqui é da ONG Frutos do Amanhã.\n\n' +
+                'Neste momento não vamos seguir com a sua candidatura para voluntariado.\n\n' +
+                'Motivo: {motivo}\n\nObrigado pelo interesse — dá para se candidatar de novo mais para a frente.'
+            };
           } else if (v.justificativaRecusa) {
             dados.detalhes.push(['Motivo da recusa', v.justificativaRecusa]);
           }
