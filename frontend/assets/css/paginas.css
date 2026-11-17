@@ -735,6 +735,10 @@ body[data-pagina="admin"] h2.rotulo { font-size: 1rem; letter-spacing: .1em; }
    antes dos pares rótulo/valor e não é um deles: é prosa, e precisa ser
    lido antes do botão vermelho logo abaixo. */
 .modal__aviso { margin: 0; max-width: none; color: var(--casca); }
+/* As caixas de marcar do modal, quando a pergunta e "quais" em vez de
+   sim ou nao. Rolam sozinhas se a ONG tiver muitos projetos, para o
+   modal nao crescer alem da tela. */
+.modal__escolhas { display: grid; gap: var(--e-3); max-height: 40vh; overflow-y: auto; }
 .modal__campo { margin: 0; }
 .modal__erro { color: var(--pitanga-tinta); font-weight: 600; }
 .modal__acoes {

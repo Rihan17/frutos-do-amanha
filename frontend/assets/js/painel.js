@@ -480,6 +480,7 @@
       '<div class="modal__caixa">' +
       '  <h2 class="modal__titulo" data-modal-titulo></h2>' +
       '  <div class="modal__corpo" data-modal-corpo></div>' +
+      '  <div class="modal__escolhas" data-modal-escolhas hidden></div>' +
       '  <div class="campo modal__campo" data-modal-campo hidden>' +
       '    <label for="modal-texto" data-modal-rotulo></label>' +
       '    <textarea id="modal-texto" data-modal-texto rows="3"></textarea>' +
@@ -530,6 +531,7 @@
     var d = modal();
     var titulo = $('[data-modal-titulo]', d), corpo = $('[data-modal-corpo]', d);
     var campo = $('[data-modal-campo]', d), rotulo = $('[data-modal-rotulo]', d);
+    var escolhas = $('[data-modal-escolhas]', d);
     var texto = $('[data-modal-texto]', d), erro = $('[data-modal-erro]', d);
     var botoes = $('[data-modal-acoes]', d);
 
@@ -541,6 +543,14 @@
       (opcoes.detalhes || []).map(function (par) {
         return '<p class="modal__linha"><b>' + esc(par[0]) + '</b><span>' + esc(par[1] || '—') + '</span></p>';
       }).join('');
+    /* Caixas de marcar, quando a decisão não é sim ou não mas "quais".
+       É o caso das atividades de uma criança: ela pode estar em várias, e
+       quem decide precisa ver as que já valem antes de mexer. */
+    escolhas.innerHTML = (opcoes.escolhas || []).map(function (e) {
+      return '<label class="marcar"><input type="checkbox" value="' + esc(e.valor) + '"' +
+        (e.marcado ? ' checked' : '') + '><span>' + esc(e.rotulo) + '</span></label>';
+    }).join('');
+    escolhas.hidden = !(opcoes.escolhas && opcoes.escolhas.length);
     campo.hidden = true;
     texto.value = '';
     erro.hidden = true;
@@ -582,7 +592,11 @@
             texto.focus();
             return;
           }
-          fechar({ valor: b.valor, texto: texto.value.trim() });
+          fechar({
+            valor: b.valor,
+            texto: texto.value.trim(),
+            marcados: $$('input:checked', escolhas).map(function (c) { return c.value; })
+          });
         });
         botoes.appendChild(el);
       });
@@ -702,6 +716,82 @@
       });
 
       function rotulo() { return dados.aprovar ? 'Analisar' : 'Ver'; }
+    });
+  }
+
+  /* ==========================================================
+     Atividades de uma criança
+
+     A coluna "Atividades" da tela de Crianças mostrava em quais projetos cada
+     uma estava, e não havia por onde mudar isso: dava para ver e não dava
+     para inscrever ninguém. A inscrição acontecia fora do painel.
+
+     O modal traz os projetos ativos com as atuais já marcadas — trocar uma
+     atividade é desmarcar e marcar, e quem decide vê o estado de hoje antes
+     de mexer. Depois de salvar, o painel oferece o recado para o responsável,
+     como na aprovação de uma solicitação.
+     ========================================================== */
+  function botaoAtividades(dados) {
+    return '<a class="link" href="#" data-atividades="' + esc(JSON.stringify(dados)) + '" data-broto>' +
+      'Atividades</a>';
+  }
+
+  function ligarAtividades(recarregar) {
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('[data-atividades]');
+      if (!link) return;
+      e.preventDefault();
+      var dados;
+      try { dados = JSON.parse(link.getAttribute('data-atividades')); } catch (erro) { return; }
+      var atuais = dados.atuais || [];
+
+      abrirModal({
+        titulo: 'Atividades de ' + (dados.nome || 'esta criança'),
+        texto: (dados.projetos || []).length
+          ? 'Marque em quais projetos ela participa. Desmarcar tira a criança do projeto.'
+          : 'Nenhum projeto ativo no momento. Cadastre um em Projetos para poder inscrever.',
+        escolhas: (dados.projetos || []).map(function (pr) {
+          return { valor: pr.id, rotulo: pr.nome, marcado: atuais.indexOf(pr.id) >= 0 };
+        }),
+        botoes: (dados.projetos || []).length ? [{ rotulo: 'Salvar', valor: 'salvar' }] : [],
+        rotuloFechar: (dados.projetos || []).length ? 'Cancelar' : 'Fechar'
+      }).then(function (escolha) {
+        if (!escolha) return;
+        var marcados = escolha.marcados || [];
+        /* Lista igual: sem pedido ao servidor e sem recado — ninguém precisa
+           saber de uma mudança que não houve. */
+        if (marcados.length === atuais.length &&
+            marcados.every(function (id) { return atuais.indexOf(id) >= 0; })) {
+          avisar('Nada mudou nas atividades.');
+          return;
+        }
+        var nomes = (dados.projetos || []).filter(function (pr) {
+          return marcados.indexOf(pr.id) >= 0;
+        }).map(function (pr) { return pr.nome; });
+
+        link.textContent = 'Salvando…';
+        return api.request('/adm/beneficiarios/' + dados.id, {
+          method: 'PUT', body: { projetoIds: marcados }
+        }).then(function () {
+          avisar('Pronto. As atividades foram salvas.');
+          /* Sem nenhuma atividade não há o que anunciar: a saída de um projeto
+             é conversa, não recado automático. */
+          if (!nomes.length) return;
+          return oferecerWhatsapp({
+            nome: dados.responsavel, telefone: dados.telefone,
+            aprovado: 'Olá, ' + (dados.responsavel || '') + '! Aqui é da ONG Frutos do Amanhã.\n\n' +
+              /* "participa de", e não "está inscrito" nem "inscrita": o nome da
+                 criança não diz o gênero dela, e errar isso num recado que vai
+                 para a família é feio. */
+              (dados.nome || 'A criança') + ' agora participa de: ' + nomes.join(', ') + '.\n\n' +
+              'Qualquer dúvida sobre horários ou material, pode falar com a gente por aqui.'
+          }, true);
+        }).then(function () { return recarregar(); })
+          .catch(function (erro) {
+            link.textContent = 'Atividades';
+            avisar(erro.message || 'Não foi possível salvar.', 'erro');
+          });
+      });
     });
   }
 
@@ -1038,6 +1128,10 @@
           var p = projetos.filter(function (x) { return x.id === id; })[0];
           return p ? p.nome : id;
         };
+        /* /projetos devolve só os ativos, que são os únicos em que o backend
+           deixa inscrever alguém. São poucos, então cada linha leva a lista
+           inteira no atributo, como já acontece com os dados da análise. */
+        var projetosAtivos = projetos.map(function (x) { return { id: x.id, nome: x.nome }; });
         preencher(bens.map(function (b) {
           /* Duas saídas, porque são duas coisas diferentes.
 
@@ -1052,6 +1146,11 @@
              sempre disponível, inclusive para quem já saiu. */
           var botoes = [];
           if (b.ativo) {
+            botoes.push(botaoAtividades({
+              id: b.id, nome: b.nome, atuais: b.projetoIds || [], projetos: projetosAtivos,
+              responsavel: (b.responsavel && b.responsavel.nome) || '',
+              telefone: (b.responsavel && b.responsavel.telefone) || ''
+            }));
             botoes.push(botaoAcao('Encerrar', 'encerrar', '/adm/beneficiarios/' + b.id,
               'Encerrar o acompanhamento de ' + (b.nome || 'esta criança') + '?',
               ' data-metodo="DELETE" data-campo="motivoSaida" data-abrir="Encerrar"' +
@@ -1595,6 +1694,7 @@
   contagensDoMenu();
   var recarregar = function () { return carregar[tela](); };
   ligarAcoes(recarregar);
+  ligarAtividades(recarregar);
   formularios(recarregar);
   recarregar().catch(function (erro) {
     if (!api.token()) { location.replace('gestao.html'); return; }
