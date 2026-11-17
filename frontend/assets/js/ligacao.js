@@ -132,7 +132,10 @@
       var marcado = form.querySelector('input[name="valor"]:checked');
       if (!marcado) return 0;
       if (marcado.value !== 'outro') return parseFloat(marcado.value) || 0;
-      return parseFloat(texto('valor-outro')) || 0;
+      /* O campo passou a ser mascarado: "1.234,56" nao e parseFloat.
+         O paginas.js, que escreve a mascara, expoe quem a desfaz. */
+      return (window.FDA && FDA.valorEmNumero) ? FDA.valorEmNumero(texto('valor-outro'))
+        : parseFloat(texto('valor-outro')) || 0;
     }
     /* A doação mensal foi retirada do site: o formulário não pergunta mais a
        frequência, e toda doação é única. A assinatura continua existindo na
