@@ -820,7 +820,10 @@
               ['Endereço', endereco(r)],
               ['Recebida em', data(s.dataSolicitacao)],
               ['Situação', NOME_SITUACAO[String(s.status).toUpperCase()] || s.status],
-              ['Motivo do pedido', s.motivo]
+              /* A pergunta do formulário público, com as mesmas palavras que
+                 a família leu ao responder: é o texto que quem decide precisa
+                 ler antes de aprovar ou recusar. */
+              ['Por que está procurando a ONG', s.motivo]
             ].filter(function (par) { return par[1] && par[1] !== '—'; })
           };
           if (s.status === 'PENDENTE') {
