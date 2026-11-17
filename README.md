@@ -1,214 +1,125 @@
 # ONG Frutos do Amanhã
 
-Site e API da ONG Frutos do Amanhã, de São Vicente/SP, num repositório só. O backend
-Spring Boot serve as páginas e a API no mesmo endereço, como já acontecia no projeto
-original; o que mudou é que o site servido agora é o visual novo.
+**Site institucional e plataforma de apoio à gestão da organização**
 
-- **frontend/** — 45 páginas, todas no visual novo: 24 públicas, 10 do painel da
-  equipe, o login, a recuperação de senha e as telas de retorno.
-- **backend/** — API REST em Java 17 com Spring Boot e MongoDB, trazida do repositório
-  `Kdu13/ong-frutos-do-amanha`.
+## Apresentação
 
-## As telas
+Este projeto reúne o site público da ONG Frutos do Amanhã e uma API com painel administrativo. A plataforma apresenta a atuação da organização, facilita o contato com a comunidade e concentra ferramentas para acompanhar solicitações, voluntariado, doações e conteúdo institucional.
 
-| Arquivo | O que é |
-| --- | --- |
-| `index.html` | Home — a narrativa completa, da semente ao fruto |
-| `quem-somos.html` | História, linha do tempo animada, missão, pilares, galeria |
-| `projetos.html` | Os dois projetos ativos + atividades da semana |
-| `projeto-feirinha-da-crianca.html` | Detalhe do projeto |
-| `projeto-estudando-para-o-amanha.html` | Detalhe da campanha |
-| `transparencia.html` | Dados da ONG, barras de aplicação, números, relatórios |
-| `como-ajudar.html` | Pix, plataforma, itens e voluntariado (com âncoras) |
-| `doar.html` | Formulário de doação com valor, destino e resumo |
-| `voluntariado.html` | Áreas, como funciona e formulário de candidatura |
-| `solicitar-vaga.html` | Formulário para as famílias |
-| `contato.html` | Canais, endereço, horários e mapa |
-| `noticias.html` | Lista editorial das notícias, vinda de `GET /noticias` |
-| `noticia.html` | Matéria montada pela API, por `?n=<endereço>` |
-| `noticia-quermesse-beneficente.html` | Matéria antiga, escrita à mão |
-| `noticia-entrega-julho.html` | Matéria antiga, escrita à mão |
-| `noticia-lista-material.html` | Matéria antiga, escrita à mão |
-| `doar-sucesso.html` · `doar-pendente.html` · `doar-falha.html` | Retornos do pagamento |
-| `confirmar-email.html` | Três estados: aguardando, confirmado, expirado |
-| `redefinir-senha.html` | Dois estados: formulário e link expirado |
-| `404.html` | Página não encontrada |
-| `mapa-do-site.html` | Todas as páginas |
-| `privacidade.html` · `termos.html` | Documentos legais, com sumário lateral |
+## Finalidade
 
-### O painel
+O sistema foi desenvolvido para aproximar a ONG das famílias, apoiadores e voluntários, oferecendo informações sobre projetos, ações, transparência e canais de participação. No painel administrativo, a equipe pode acompanhar registros e atualizar os dados que são publicados no site.
 
+## Funcionalidades
 
-## Fotos
+### Site público
 
-As fotos vivem em `assets/img/`, ao lado dos SVGs da interface. Para cada nome o site
-tenta `.webp`, `.jpg`, `.jpeg` e `.png`, nessa ordem, e fica com o primeiro que existir
-— hoje isso custa uma requisição perdida no `.webp` antes de achar o `.jpg`, que some
-no dia em que os `.webp` forem gerados.
+- Apresentação da ONG, sua história, projetos e notícias.
+- Consulta de informações institucionais, como contatos, endereço, redes sociais e chave Pix.
+- Página de transparência e páginas de privacidade e termos de uso.
+- Formulário público para solicitação de vaga e formulário de candidatura a voluntariado.
+- Doação por Pix, com chave e QR Code, e doação avulsa pelo Checkout Pro do Mercado Pago.
+- Retorno para as páginas de sucesso, pendência ou falha do pagamento.
 
-As 17 fotos que as páginas pedem estão todas no lugar:
+As atualizações de pagamento do Mercado Pago são recebidas pela API por meio de webhook. A opção de doação mensal na interface atual orienta o visitante a combinar a contribuição diretamente com a ONG.
 
-`hero-criancas` · `sede-vila-matias` · `feirinha-da-crianca` · `feirinha-2` ·
-`estudando-para-o-amanha` · `estudando-2` · `quermesse-beneficente` · `quermesse-2` ·
-`pilar-empreendedorismo` · `lista-material` · `entrega-julho` · `galeria-reforco` ·
-`galeria-danca` · `galeria-informatica` · `galeria-arte` · `galeria-esporte` ·
-`galeria-convivencia`
+### Painel administrativo
 
-Onde uma foto não existir aparece uma moldura hachurada com o nome do arquivo esperado.
+- Acesso da equipe por login protegido com token JWT.
+- Visão geral de solicitações, voluntários, beneficiários e doações.
+- Consulta e acompanhamento de solicitações de vaga e candidaturas de voluntariado.
+- Gestão de projetos, notícias e informações institucionais.
+- Consulta de doadores, doações, responsáveis, crianças/beneficiários e administradores.
+- Filtros e indicadores para apoiar o acompanhamento das doações.
 
-## Estrutura
+As solicitações de vaga e candidaturas públicas não exigem criação de conta. O acesso autenticado disponível na interface é destinado à equipe administrativa.
 
-```
+## Tecnologias
+
+- **Frontend:** HTML, CSS e JavaScript, sem etapa de compilação ou instalação de pacotes npm.
+- **Backend:** Java 17, Spring Boot e API REST.
+- **Banco de dados:** MongoDB.
+- **Autenticação:** JWT Bearer para rotas protegidas.
+- **Pagamentos:** Mercado Pago Checkout Pro e integração de notificações por webhook.
+- **Publicação:** Docker e Render.
+
+## Organização do repositório
+
+```text
 .
-├── backend/                     API Spring Boot (Java 17) + MongoDB
-│   └── src/main/java/br/org/ong/
-│       ├── controller/          endpoints REST
-│       ├── service/             regras
-│       ├── model/ repository/   documentos e acesso ao Mongo
-│       └── security/            JWT e quem pode o quê
-├── frontend/
-│   ├── *.html                   24 páginas públicas do visual novo
-│   ├── gestao.html              login da equipe, visual novo (também em /gestao)
-│   ├── admin*.html              painel da equipe, visual novo, ligado por painel.js
-│   ├── esqueci-senha.html       pede o link de recuperação de senha
-│   └── assets/
-│       ├── css/  tokens · base · components · paginas · home
-│       ├── js/   nucleo · efeitos · paginas · home · api · ligacao · vendor/
-│       └── img/  as 17 fotos e os SVGs da interface
-├── Dockerfile                   build único: Maven + o site dentro do jar
-├── render.yaml
-└── DEPLOYMENT.md
+├── backend/          API Spring Boot, regras de negócio e acesso ao MongoDB
+├── frontend/         páginas, estilos, imagens e integração com a API
+├── Dockerfile        empacota frontend e backend para publicação
+├── render.yaml       configuração do serviço no Render
+└── DEPLOYMENT.md     instruções de publicação e configuração
 ```
 
-- `tokens.css` — cores, fontes, espaçamentos e curvas de animação, tudo em `:root`
-- `components.css` — cabeçalho, menu, botões, cursor, cortina, bloco Pix, FAQ, rodapé
-- `paginas.css` — só as páginas internas; `home.css` só a Home
-- `nucleo.js` — configuração, rolagem suave e carregamento das fotos
-- `efeitos.js` — o que é igual em todas as páginas
-- `paginas.js` — linha do tempo, contadores, barras, formulários e estados de tela
-- `api.js` / `api-config.js` — cliente HTTP e descoberta do endereço da API
-- `ligacao.js` — os formulários públicos que falam com a API
-- `painel.js` — o login da equipe e as dez telas do painel no visual novo
-- `api.js` / `api-config.js` — cliente HTTP e descoberta do endereço da API
+## Executar localmente
 
-## Bibliotecas (cópias locais em `assets/js/vendor/`, com `defer`)
+### Requisitos
 
-| Biblioteca | Versão | Para quê |
-| --- | --- | --- |
-| GSAP + ScrollTrigger | 3.15.0 | raiz desenhada no scroll, galeria horizontal, contadores, intro |
-| GSAP SplitText | 3.15.0 | títulos revelados linha a linha com máscara |
-| Lenis | 1.3.26 | rolagem suave (desligada no toque e com "reduzir movimento") |
+- Java 17 ou superior.
+- MongoDB Atlas ou uma instância MongoDB acessível.
+- OpenSSL para gerar a chave JWT (ou uma chave Base64 segura de pelo menos 32 bytes).
+- Python 3 para servir o frontend localmente.
 
-As bibliotecas ficam dentro do próprio site, e não num CDN, porque redes de faculdade e
-de empresa costumam bloquear CDNs, e sem o GSAP todas as animações ficam desligadas.
-Os arquivos são os mesmos do jsDelivr, conferidos pelo hash. Para atualizar uma versão,
-baixe o arquivo novo para `assets/js/vendor/` e mantenha o mesmo nome.
-O GSAP tem licença própria (<https://gsap.com/standard-license>); o Lenis é MIT.
+### 1. Iniciar a API
 
-Fontes: Fraunces (Google Fonts) e Satoshi (Fontshare) **ainda vêm de fora**. Se a rede
-bloquear esses endereços, o site cai para Georgia e Segoe UI.
+No Linux ou macOS, abra um terminal na pasta principal do repositório e configure as variáveis no mesmo terminal:
 
-## Acessibilidade e movimento
+```bash
+cd backend
+export MONGODB_URI='mongodb+srv://USUARIO:SENHA@CLUSTER/ong_demo?retryWrites=true&w=majority'
+export MONGODB_DATABASE='ong_demo'
+export JWT_SECRET="$(openssl rand -base64 32)"
+export ONG_ADMIN_EMAIL='admin@exemplo.org'
+export ONG_ADMIN_NOME='Administrador local'
+read -rsp 'Senha inicial do administrador: ' ONG_ADMIN_PASSWORD; echo
+export ONG_ADMIN_PASSWORD
+./mvnw spring-boot:run
+```
 
-- Intro da Home: fica na tela até a pessoa rolar (mouse, arrastar no celular ou seta/espaço/Enter). Só na primeira visita da sessão.
-- `prefers-reduced-motion`: sem intro animada, raiz já desenhada, números finais, galeria vira carrossel.
-- Celular/toque: sem cursor customizado nem botões magnéticos; galeria com `scroll-snap`.
-- Sem JavaScript: todo o conteúdo aparece normalmente.
-- Contraste conferido: todas as combinações de texto passam em WCAG AA.
+Substitua `USUARIO`, `SENHA` e `CLUSTER` pelos dados do seu MongoDB Atlas. A senha do banco pode precisar de codificação URL caso contenha caracteres especiais. Libere o IP da sua rede em **Network Access** do Atlas e use, de preferência, um banco separado para desenvolvimento, como `ong_demo`.
 
-## Notícias
+O seed cria o primeiro administrador somente se o banco ainda não tiver um. `ONG_ADMIN_EMAIL` e `ONG_ADMIN_PASSWORD` são necessários nesse primeiro início e a senha deve ter ao menos 8 caracteres. Se já houver um administrador no banco, essas variáveis não criam outro.
 
-As notícias vivem no banco e a equipe as escreve em `admin-noticias.html`, sem mexer em
-código. O mesmo formulário cria e edita; **Publicar** põe no ar e **Salvar rascunho**
-guarda sem publicar. Na lista, cada matéria tem Ver, Editar, Despublicar/Publicar e
-Excluir.
+Com a API em execução, ela fica disponível em `http://localhost:8080`.
 
-| Rota | Quem usa |
+### 2. Iniciar o site
+
+Abra um segundo terminal na pasta principal do repositório e execute:
+
+```bash
+python3 -m http.server 5500 --directory frontend
+```
+
+Acesse `http://localhost:5500`. O frontend detecta o ambiente local e envia as chamadas para a API em `http://localhost:8080`.
+
+No Windows, inicie a API com `cd backend` e `./mvnw.cmd spring-boot:run`, após configurar as mesmas variáveis de ambiente no PowerShell.
+
+## Configurações e segurança
+
+O arquivo `.env.example` documenta as variáveis utilizadas. A aplicação não deve receber credenciais reais em arquivos versionados: configure os valores no ambiente local ou na plataforma de hospedagem e mantenha `.env` fora do Git.
+
+As variáveis mais importantes são:
+
+| Variável | Uso |
 | --- | --- |
-| `GET /noticias` | `noticias.html` — só as publicadas, da mais recente para a mais antiga |
-| `GET /noticias/{endereço}` | `noticia.html?n=…` — a matéria inteira |
-| `GET` `POST` `PUT` `DELETE` `/adm/noticias` | o painel; exige ADMIN |
+| `MONGODB_URI` | Conexão com o MongoDB. |
+| `MONGODB_DATABASE` | Nome do banco utilizado pela aplicação. |
+| `JWT_SECRET` | Assinatura dos tokens de autenticação. |
+| `ONG_ADMIN_EMAIL` e `ONG_ADMIN_PASSWORD` | Criação do primeiro administrador quando o banco ainda não possui um. |
+| `MERCADOPAGO_ACCESS_TOKEN` | Credencial privada necessária para iniciar pagamentos pelo Mercado Pago. |
+| `MERCADOPAGO_WEBHOOK_SECRET` | Validação das notificações de pagamento recebidas pelo webhook. |
+| `APP_FRONTEND_BASE_URL` e `APP_BACKEND_PUBLIC_URL` | URLs públicas usadas nos redirecionamentos e na integração de pagamentos. |
+| `APP_CORS_ALLOWED_ORIGINS` | Origens autorizadas a chamar a API pelo navegador. |
 
-O endereço da página (`?n=…`) sai do título, sem acento nem espaço, e repetido ganha
-sufixo (`entrega-de-julho-2`). Não há campo para ele no formulário: era técnico demais
-para a tela. Trocar o título **não** muda o endereço, para não quebrar link já
-divulgado — então um endereço errado só se conserta mandando `slug` num `PUT
-/adm/noticias/{id}`, que a API continua aceitando.
+Para detalhes de publicação, Mercado Pago, recuperação de senha e endpoints, consulte [`DEPLOYMENT.md`](DEPLOYMENT.md) e [`backend/README.md`](backend/README.md).
 
-O texto é digitado em texto puro e vira parágrafos na hora de exibir: nada do que for
-escrito é interpretado como HTML.
+## Equipe
 
-As três matérias antigas são semeadas no banco na primeira inicialização
-(`NoticiaSeedConfiguration`), como acontece com os projetos. Sem isso elas sumiriam da
-listagem assim que a primeira notícia fosse publicada pelo painel. Os arquivos
-`noticia-*.html` continuam no projeto e seguem abrindo por endereço direto.
-
-A foto vai embutida como data URL em base64, no mesmo esquema dos projetos, com limite
-de **10 MB por imagem**. Não há upload de arquivo nem pasta de mídia.
-
-O limite vive em dois lugares e os dois precisam andar juntos: `LIMITE_IMAGEM_MB` no
-`painel.js` confere o tamanho do arquivo, e o `@Size` de `imagemUrl` nos `Request` do
-backend confere o texto em base64, que é um terço maior — 10 MB de arquivo dão cerca de
-14 milhões de caracteres.
-
-Guardar a foto dentro do registro tem um custo que cresce com o uso: o documento do
-MongoDB tem teto de 16 MB, e a lista pública manda a imagem de cada notícia, então
-muitas matérias com fotos grandes deixam `noticias.html` pesada. Enquanto forem poucas
-notícias isso não aparece. Quando aparecer, as saídas são reduzir a imagem no navegador
-antes de enviar, ou guardar as fotos como arquivo de verdade — o que exige
-armazenamento externo, porque o disco do plano gratuito do Render é efêmero.
-
-## Responsáveis e endereço
-
-O responsável de uma criança chega por dois caminhos, e a tela de Responsáveis
-mostra os dois na mesma lista, juntos pelo nome:
-
-- **Pela solicitação de vaga.** É o caminho normal. A família pede vaga, e ao aprovar
-  o pedido o responsável entra junto com o beneficiário, embutido nele. Essas linhas
-  aparecem marcadas como "veio de solicitação" e não têm botão de desativar — quem
-  manda nelas é o beneficiário.
-- **Pelo cadastro do painel.** Para quem aparece na sede sem ter pedido vaga. Esses
-  vivem na coleção `responsaveis`, em `/adm/responsaveis`, e podem ser desativados.
-
-O CPF é guardado só com os números, então `111.444.777-35` e `11144477735` são o mesmo
-cadastro na hora de conferir repetição — a máscara é coisa da tela. Cadastro sem CPF
-passa: não dá para saber se duas Marias Silva são a mesma pessoa, e barrar por nome
-impediria a segunda. Desativar não apaga, porque o responsável pode estar ligado a uma
-criança em acompanhamento.
-
-O endereço é preenchido pelo **ViaCEP**: a pessoa digita o CEP e rua, bairro, cidade e
-estado aparecem sozinhos, sobrando o número. Vale no pedido de vaga e no cadastro do
-painel, pelos atributos `data-cep` e `data-cep-campo` do `paginas.js`. Nenhum campo de
-endereço é obrigatório na API, e nada trava se o ViaCEP estiver fora, se o CEP não
-existir ou se a pessoa não souber o CEP: os campos continuam editáveis à mão, e o que
-for digitado à mão não é sobrescrito por uma busca posterior.
-
-## O que ainda não está ligado
-
-Os formulários públicos já enviam de verdade. O que falta:
-
-- **Edições que ficaram sem tela.** O painel anterior foi removido, e com ele sumiram
-  da interface: editar os dados da ONG, editar e encerrar voluntário, apagar
-  solicitação, editar e apagar projeto, editar e desativar beneficiário. Os endpoints
-  continuam na API (`PUT /adm/ong`, `PUT`/`DELETE` em `/adm/voluntarios/{id}`,
-  `/adm/solicitacoes/{id}`, `/adm/projetos/{id}` e `/adm/beneficiarios/{id}`); falta a
-  tela. Enquanto isso, essas operações só por chamada direta à API.
-- **Página de projeto por slug.** O `projeto.html`, que montava a página de qualquer
-  projeto a partir da API, saiu junto. Os dois projetos de hoje têm página própria
-  escrita à mão, mas um projeto novo criado no painel fica sem página pública.
-- **Páginas que não existem devolvem 500, não 404.** O `GlobalExceptionHandler` tem um
-  `@ExceptionHandler(Exception.class)` que engole o `NoResourceFoundException` do
-  Spring, então o `404.html` nunca aparece. É de antes desta junção.
-- **Doação mensal.** A API cobra assinatura por `POST /planos`, que exige uma conta de
-  doador, e o site não tem mais cadastro. Escolher "Todo mês" hoje mostra um recado
-  pedindo para combinar pelo WhatsApp. Ou se cria outro caminho na API, ou a opção sai
-  do formulário.
-- **Retornos do pagamento.** O Mercado Pago volta para `doar-sucesso.html?doacao=<id>`,
-  e as três telas ainda mostram um resumo de exemplo em vez de buscar a doação.
-- **Projetos nas páginas públicas** seguem escritos no HTML. A API tem `GET /projetos`,
-  e só o `select` de destino da doação usa isso hoje.
-- **Área de conta do doador** (login, cadastro, histórico) foi retirada: as páginas não
-  vieram, e no backend elas continuam bloqueadas na `SecurityConfiguration`. O endpoint
-  `POST /auth/cadastro` que o site anterior chamava nunca existiu no controller.
-
+- Carlos Eduardo Correia - Backend
+- Gabriel Pegetti de Carvalho - Documentação
+- Jorge Americo Cannalonga Junior - Scrum Master
+- Rihan da Silva Amorim - Frontend
 
