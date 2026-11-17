@@ -6,12 +6,14 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 class GlobalExceptionHandlerTest {
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
@@ -48,12 +50,30 @@ class GlobalExceptionHandlerTest {
        catch-all, e cada visita ao site gerava varios 500 com rastro de pilha
        no log: o carregador de fotos pedia uma versao .webp que nunca existiu.
        Se alguem remover o tratador, este teste avisa. */
-    @Test void arquivoEstaticoAusenteDevolve404() {
+    /* Pedido do proprio site (fetch): JSON, que e o que o formulario sabe
+       mostrar. O Accept de um fetch nao pede html. */
+    @Test void arquivoAusentePedidoPelaApiDevolve404EmJson() throws Exception {
         var erro = new NoResourceFoundException(HttpMethod.GET, "assets/img/hero-criancas.webp");
-        var resposta = handler.arquivoNaoEncontrado(erro);
+        var req = mock(HttpServletRequest.class);
+        when(req.getHeader("Accept")).thenReturn("*/*");
+        var resposta = handler.arquivoNaoEncontrado(erro, req, mock(HttpServletResponse.class));
+        assertNotNull(resposta, "sem navegacao, a resposta continua sendo JSON");
         assertEquals(404, resposta.getStatusCode().value());
         assertEquals(404, resposta.getBody().status());
         assertTrue(resposta.getBody().campos().isEmpty());
+    }
+
+    /* Pessoa digitando o endereco no navegador: ai vale a pagina do site.
+       Sem o 404.html no classpath (que e o caso nos testes), o tratador cai
+       de volta no JSON em vez de responder vazio. */
+    @Test void navegacaoSemAPaginaNoPacoteVoltaParaJson() throws Exception {
+        var erro = new NoResourceFoundException(HttpMethod.GET, "paginaquenaoexiste.html");
+        var req = mock(HttpServletRequest.class);
+        when(req.getHeader("Accept")).thenReturn("text/html,application/xhtml+xml");
+        when(req.getHeader("Sec-Fetch-Mode")).thenReturn("navigate");
+        var resposta = handler.arquivoNaoEncontrado(erro, req, mock(HttpServletResponse.class));
+        assertNotNull(resposta);
+        assertEquals(404, resposta.getStatusCode().value());
     }
 
     private static class EndpointFake {

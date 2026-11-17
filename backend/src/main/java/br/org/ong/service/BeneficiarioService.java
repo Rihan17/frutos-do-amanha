@@ -35,5 +35,15 @@ public class BeneficiarioService {
         return beneficiarios.save(b);
     }
     public Beneficiario desativar(String id,DesativarBeneficiarioRequest request){return atualizar(id,new BeneficiarioGestaoRequest(null,false,LocalDate.now(java.time.ZoneId.of("America/Sao_Paulo")),request.motivoSaida()));}
+
+    /* Apaga o cadastro de vez.
+
+       O caminho de sempre é o desativar() aí em cima: ele guarda a data e o
+       motivo da saída, porque a passagem de uma criança pela ONG faz parte
+       do histórico e não pode sumir. Isto aqui é para o outro caso, o do
+       registro que nunca devia existir: cadastro repetido, nome digitado
+       errado, teste que sobrou. Não tem volta, e por isso o painel pergunta
+       antes. */
+    public void excluirPermanente(String id){beneficiarios.delete(obter(id));}
     private ObjectId projetoObjectId(String id){ValidarId.objectId(id);Projeto projeto=projetos.findById(id).orElseThrow(()->new NaoEncontradoException("Projeto não encontrado"));if(!projeto.isAtivo())throw new RequisicaoInvalidaException("Projeto inativo não pode ser associado ao beneficiário");return new ObjectId(id);}
 }

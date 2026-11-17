@@ -121,10 +121,15 @@ main { position: relative; }
 .hero .link { color: var(--papel); }
 /* A semente desenhada era o assunto da capa quando o fundo era liso. Com a
    foto atrás, ela virou uma mancha marrom de meio metro em cima do rosto de
-   quem aparece na imagem. Fica no HTML, porque o home.js anima a radícula
-   dentro dela e procura o elemento, mas deixa de aparecer. Para trazê-la de
-   volta, é só apagar a regra .hero__semente { opacity: 0 } abaixo. */
-.hero__semente { opacity: 0; }
+   quem aparece na imagem. Fica no HTML, porque o home.js procura o elemento
+   e anima a radícula dentro dela, mas deixa de aparecer.
+
+   display: none, e não opacity: 0: com opacity, qualquer regra posterior que
+   mexesse em opacidade a trazia de volta — foi o que aconteceu no celular,
+   onde a regra de até 899px ainda trazia opacity: .9 e a semente reaparecia.
+   O gatilho de scroll do home.js é a seção .hero, não ela, então sumir daqui
+   não afeta a animação. Para trazê-la de volta, apague esta regra. */
+.hero__semente { display: none; }
 .hero__semente {
   position: absolute !important;
   z-index: 1 !important;
@@ -169,7 +174,12 @@ main { position: relative; }
 }
 @media (max-width: 899px) {
   .hero { justify-content: flex-start; padding-top: 7.5rem; }
-  .hero__semente { top: auto; bottom: 6rem; right: -24vw; width: 78vw; opacity: .9; }
+  /* A semente e a polaroid estão escondidas desde que a capa virou foto.
+     Estas duas regras continuavam posicionando as duas aqui, e a da semente
+     ainda trazia opacity: .9 — como vinha depois, ela desfazia o opacity: 0
+     e a semente voltava a aparecer só no celular. Ficam sem o opacity; se um
+     dia as duas voltarem, o posicionamento do celular já está escrito. */
+  .hero__semente { top: auto; bottom: 6rem; right: -24vw; width: 78vw; }
   .hero__foto { position: relative !important; right: auto; bottom: auto; width: 52%; margin-top: var(--e-6); margin-left: auto; }
   .hero__topo .rotulo + .rotulo { display: none; }
 }
@@ -481,12 +491,11 @@ main { position: relative; }
 }
 .bloco__frase em { font-style: italic; font-weight: 380; }
 .bloco__corpo { display: grid; gap: var(--e-5); align-content: start; justify-items: start; }
-.bloco__corpo .niveis, .bloco__corpo .itens, .bloco__corpo .pix { justify-self: stretch; }
-.niveis { list-style: none; padding: 0; display: grid; }
-.nivel { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: var(--e-4); padding-block: var(--e-4); border-bottom: 1.5px dashed rgb(43 29 20 / .45); }
-.nivel__nome { font-weight: 700; font-size: 1.05rem; }
-.nivel__valor { font-family: var(--f-display); font-size: clamp(1.9rem, 3.6vw, 3.2rem); line-height: 1; letter-spacing: -.03em; font-variation-settings: "SOFT" 100, "opsz" 72; }
-.nivel__valor small { font-family: var(--f-texto); font-size: .9rem; letter-spacing: 0; font-weight: 600; }
+/* O estilo dos tres niveis de apoio mensal (Apoiador do Amanha, Solidario e
+   Transformador) saiu junto com a doacao mensal: nenhuma pagina usa mais
+   .niveis nem .nivel__*, e CSS que nao pinta nada so atrapalha quem vier
+   depois procurar de onde vem cada regra. */
+.bloco__corpo .itens, .bloco__corpo .pix { justify-self: stretch; }
 .itens { list-style: none; padding: 0; display: grid; gap: .55rem; }
 .itens li { display: grid; grid-template-columns: 22px 1fr; gap: .7rem; align-items: start; font-weight: 600; }
 .itens svg { width: 22px; height: 22px; stroke: var(--terra); stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; margin-top: .1rem; }

@@ -15,6 +15,19 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 a { color: inherit; }
 ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
 
+/* O clip precisa estar também no html, e não só no body.
+
+   Com ele apenas no body, qualquer coisa mais larga que a tela continuava
+   esticando o viewport de LAYOUT, mesmo sem deixar a página rolar de lado:
+   num celular de 375px o layout ia a 563px. E position: fixed se mede por
+   esse viewport, então o cabeçalho nascia com 563px e o que sobrava de fora
+   era justamente o canto direito — o botão MENU e o "Doar". No painel isso
+   deixava a navegação inalcançável pelo topo no celular.
+
+   Com o clip aqui, o viewport de layout para de crescer: o cabeçalho volta a
+   ter a largura da tela e os botões voltam a aparecer. */
+html { overflow-x: clip; }
+
 body {
   background: var(--papel);
   color: var(--terra);

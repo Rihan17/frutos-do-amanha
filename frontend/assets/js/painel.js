@@ -104,12 +104,35 @@
   }
 
   /* ---------- Preencher a tabela da tela ---------- */
+  /* Um elemento escondido (ou dentro de um [hidden]) não tem offsetParent.
+     É assim que a tela de Doações sabe qual das duas visões está no ar. */
+  function visivel(el) { return !!el && el.offsetParent !== null; }
+
   function corpoDaTabela() {
     /* A maioria das telas tem uma seção #lista-*, que isola a tabela principal
-       das auxiliares. A visão geral não tem, e aí vale a primeira da página. */
-    var secao = $('[id^="lista-"]');
+       das auxiliares. A visão geral não tem, e aí vale a primeira da página.
+       Doações tem duas, uma por visão: vale a que está aparecendo. */
+    var secoes = $$('[id^="lista-"]');
+    var secao = secoes.filter(visivel)[0] || secoes[0];
     var tbody = secao && $('table.tabela tbody', secao);
     return tbody || $('.tabela--rolavel table.tabela tbody') || $('table.tabela tbody');
+  }
+
+  /* Mesma ideia para os filtros: cada visão tem os seus. */
+  function caixaDeFiltros() {
+    var caixas = $$('[data-filtros]');
+    return caixas.filter(visivel)[0] || caixas[0] || null;
+  }
+
+  /* Escreve numa seção específica, e não na visível: a tela de Doações monta
+     as duas de uma vez, para trocar de visão sem ir à API de novo. */
+  function preencherSecao(id, linhas, colunas, vazio) {
+    var secao = document.getElementById(id);
+    var tbody = secao && $('table.tabela tbody', secao);
+    if (!tbody) return;
+    tbody.innerHTML = linhas.length
+      ? linhas.join('')
+      : '<tr data-vazio><td colspan="' + colunas + '">' + esc(vazio) + '</td></tr>';
   }
   function preencher(linhas, colunas, vazio) {
     var tbody = corpoDaTabela();
@@ -248,7 +271,7 @@
   }
 
   function aplicarFiltros() {
-    var caixa = $('[data-filtros]');
+    var caixa = caixaDeFiltros();
     if (!caixa) return;
     var busca = $('[data-filtro-busca]', caixa);
     var termo = busca ? busca.value.trim().toLowerCase() : '';
@@ -291,7 +314,10 @@
       recado.hidden = true;
     }
 
-    var contador = $('[data-filtro-contagem]');
+    /* Cada visão tem o seu contador. Procurar pelo documento inteiro pegaria
+       o da visão escondida, e o número apareceria no lugar errado. */
+    var contadores = $$('[data-filtro-contagem]');
+    var contador = contadores.filter(visivel)[0] || contadores[0];
     if (contador) {
       contador.textContent = visiveis === total
         ? total + (total === 1 ? ' registro' : ' registros')
@@ -304,7 +330,7 @@
      maquete: "Vila Matias", "Jardim Rio Branco" e por aí, bairros que podem
      não existir no banco — e aí filtrar por eles não devolvia nada. */
   function encherFiltrosAutomaticos() {
-    var caixa = $('[data-filtros]');
+    var caixa = caixaDeFiltros();
     if (!caixa) return;
     $$('[data-filtro-auto]', caixa).forEach(function (sel) {
       var i = Number(sel.getAttribute('data-filtro-coluna'));
@@ -327,10 +353,31 @@
     });
   }
 
+  /* Troca entre "Por doação" e "Por pessoa" sem ir à API: as duas tabelas já
+     foram montadas no mesmo carregamento. Cada visão tem os seus filtros, e
+     por isso eles são reaplicados depois da troca. */
+  function ligarVisoes() {
+    var botoes = $$('[data-ver]');
+    if (!botoes.length) return;
+    botoes.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var alvo = b.getAttribute('data-ver');
+        botoes.forEach(function (outro) {
+          outro.setAttribute('aria-selected', String(outro === b));
+        });
+        $$('[data-visao]').forEach(function (painel) {
+          painel.hidden = painel.getAttribute('data-visao') !== alvo;
+        });
+        encherFiltrosAutomaticos();
+        aplicarFiltros();
+      });
+    });
+  }
+
   function ligarFiltros() {
-    var caixa = $('[data-filtros]');
-    if (!caixa) return;
-    $$('input, select', caixa).forEach(function (c) {
+    /* Liga em todas as caixas, e não só na visível: a tela de Doações tem uma
+       por visão, e a escondida vira a visível quando a pessoa troca. */
+    $$('[data-filtros] input, [data-filtros] select').forEach(function (c) {
       c.addEventListener(c.tagName === 'SELECT' ? 'change' : 'input', aplicarFiltros);
     });
   }
@@ -403,6 +450,252 @@
   }
 
   /* ---------- Ações da linha (aprovar, recusar) ---------- */
+  /* ==========================================================
+     Modal
+
+     Substitui o confirm e o prompt do navegador. Os dois tinham o mesmo
+     defeito: cabem uma frase e nada mais. Para decidir uma solicitação de
+     vaga, a pessoa precisa LER o motivo que a família escreveu, e isso não
+     cabia num confirm — ela aprovava ou recusava sem ver o pedido.
+
+     O mesmo modal faz dois trabalhos: a análise, que mostra o pedido inteiro
+     e oferece aprovar ou recusar, e a confirmação simples de uma ação como
+     excluir. Recusar sempre exige um motivo escrito.
+     ========================================================== */
+  var caixa = null;
+  function modal() {
+    if (caixa) return caixa;
+    caixa = document.createElement('dialog');
+    caixa.className = 'modal';
+    caixa.innerHTML =
+      '<div class="modal__caixa">' +
+      '  <h2 class="modal__titulo" data-modal-titulo></h2>' +
+      '  <div class="modal__corpo" data-modal-corpo></div>' +
+      '  <div class="campo modal__campo" data-modal-campo hidden>' +
+      '    <label for="modal-texto" data-modal-rotulo></label>' +
+      '    <textarea id="modal-texto" data-modal-texto rows="3"></textarea>' +
+      '    <small class="modal__erro" data-modal-erro hidden></small>' +
+      '  </div>' +
+      '  <div class="modal__acoes" data-modal-acoes></div>' +
+      '</div>';
+    /* Rede de segurança: qualquer caminho que feche o dialog devolve a bola
+       do cursor para o body. Sem isso, um close() que não passe pelo fechar()
+       a deixaria presa dentro de um dialog escondido, e aí o cursor sumiria
+       de vez, também fora do modal. */
+    caixa.addEventListener('close', devolverCursor);
+    document.body.appendChild(caixa);
+    return caixa;
+  }
+
+  /* O cursor desenhado do site, dentro e fora do modal.
+
+     Um <dialog> aberto com showModal() entra na camada de topo do navegador,
+     que fica acima de tudo o que a página desenha, por maior que seja o
+     z-index. A bola do cursor é um elemento comum do <body>, então ela ficava
+     atrás do modal — e, como o CSS esconde o ponteiro do sistema justamente
+     para dar lugar a ela, não sobrava cursor nenhum na tela.
+
+     A saída é levar a bola para dentro do próprio dialog enquanto ele está
+     aberto: ali ela sobe junto para a camada de topo e volta a aparecer. Ela
+     é position: fixed e nada no caminho do modal cria bloco de contenção
+     (nem transform, nem filter), então continua seguindo o ponteiro pela tela
+     inteira, como se não tivesse saído do lugar. */
+  var bolaDoCursor = null, bolaVizinha = null;
+  function levarCursor(d) {
+    bolaDoCursor = $('[data-cursor-el]', document);
+    if (!bolaDoCursor) return;
+    /* Guarda onde ela mora para devolver no mesmo ponto: a ordem dentro do
+       body decide quem fica por cima entre elementos de mesmo nível. */
+    bolaVizinha = bolaDoCursor.nextSibling;
+    d.appendChild(bolaDoCursor);
+  }
+  function devolverCursor() {
+    if (!bolaDoCursor) return;
+    document.body.insertBefore(bolaDoCursor, bolaVizinha);
+    bolaDoCursor = null;
+  }
+
+  /* Devolve { valor, texto } do botão escolhido, ou null se a pessoa
+     desistiu (Cancelar, Esc ou clique fora). */
+  function abrirModal(opcoes) {
+    var d = modal();
+    var titulo = $('[data-modal-titulo]', d), corpo = $('[data-modal-corpo]', d);
+    var campo = $('[data-modal-campo]', d), rotulo = $('[data-modal-rotulo]', d);
+    var texto = $('[data-modal-texto]', d), erro = $('[data-modal-erro]', d);
+    var botoes = $('[data-modal-acoes]', d);
+
+    titulo.textContent = opcoes.titulo || 'Confirmar';
+    /* Dois tipos de conteúdo no corpo: um recado em prosa, para o que a
+       ação vai causar, e os pares rótulo/valor do pedido que se analisa. */
+    corpo.innerHTML =
+      (opcoes.texto ? '<p class="modal__aviso">' + esc(opcoes.texto) + '</p>' : '') +
+      (opcoes.detalhes || []).map(function (par) {
+        return '<p class="modal__linha"><b>' + esc(par[0]) + '</b><span>' + esc(par[1] || '—') + '</span></p>';
+      }).join('');
+    campo.hidden = true;
+    texto.value = '';
+    erro.hidden = true;
+    botoes.innerHTML = '';
+
+    return new Promise(function (resolve) {
+      var respondido = false;
+      function fechar(resultado) {
+        if (respondido) return;
+        respondido = true;
+        devolverCursor();
+        d.close();
+        resolve(resultado);
+      }
+
+      (opcoes.botoes || []).forEach(function (b) {
+        var el = document.createElement('button');
+        el.type = 'button';
+        el.className = b.tom === 'perigo' ? 'botao botao--doar' : 'botao botao--folha';
+        el.textContent = b.rotulo;
+        el.addEventListener('click', function () {
+          /* Botão que leva para fora em vez de mandar algo para a API. O
+             window.open sai de dentro do clique da pessoa, que é o que o
+             bloqueador de pop-up exige para deixar passar. */
+          if (b.url) { window.open(b.url, '_blank', 'noopener'); fechar({ valor: b.valor }); return; }
+          if (b.pedirTexto && campo.hidden) {
+            /* O primeiro clique abre o campo do motivo; o envio só sai no
+               segundo, com o motivo escrito. Assim ninguém recusa sem
+               justificar por engano. */
+            campo.hidden = false;
+            rotulo.textContent = b.rotuloTexto || 'Escreva o motivo';
+            el.textContent = b.rotuloConfirmar || 'Confirmar';
+            texto.focus();
+            return;
+          }
+          if (b.pedirTexto && !texto.value.trim()) {
+            erro.textContent = b.erroTexto || 'Escreva o motivo para continuar.';
+            erro.hidden = false;
+            texto.focus();
+            return;
+          }
+          fechar({ valor: b.valor, texto: texto.value.trim() });
+        });
+        botoes.appendChild(el);
+      });
+
+      var cancelar = document.createElement('button');
+      cancelar.type = 'button';
+      cancelar.className = 'link';
+      cancelar.textContent = opcoes.rotuloFechar || 'Cancelar';
+      cancelar.addEventListener('click', function () { fechar(null); });
+      botoes.appendChild(cancelar);
+
+      /* Esc dispara "cancel" no dialog; clique no fundo escuro fecha também. */
+      d.oncancel = function (ev) { ev.preventDefault(); fechar(null); };
+      d.onclick = function (ev) { if (ev.target === d) fechar(null); };
+      d.showModal();
+      levarCursor(d);
+      var primeiro = botoes.querySelector('button');
+      if (primeiro) primeiro.focus();
+    });
+  }
+
+  /* Link que abre a análise de um pedido. Os dados vão num JSON no próprio
+     atributo, porque a lista é remontada a cada recarga e guardar referência
+     a objetos daria trabalho sem ganho. */
+  function botaoAnalise(rotulo, dados) {
+    return '<a class="link" href="#" data-analisar="' + esc(JSON.stringify(dados)) + '" data-broto>' +
+      esc(rotulo) + '</a>';
+  }
+
+  /* ==========================================================
+     Avisar pelo WhatsApp
+
+     Quem pede uma vaga ou se candidata ficava sem resposta: a decisão
+     acontecia no painel e parava ali. Agora, assim que a análise é enviada,
+     o painel oferece a conversa certa com o texto já escrito.
+
+     Não é envio automático, e isso é de propósito: mandar sozinho exigiria
+     a conta de WhatsApp Business da Meta, com a ONG verificada, modelos de
+     mensagem aprovados e cobrança por envio. O que dá para fazer sem nada
+     disso é tirar o trabalho manual do caminho — quem está de plantão
+     confere o texto e aperta enviar, em vez de procurar o telefone na lista
+     e escrever tudo de novo.
+     ========================================================== */
+  function numeroWhatsapp(telefone) {
+    var so = String(telefone || '').replace(/\D/g, '');
+    /* O formulário guarda no formato daqui, "(13) 98888-0000": dez ou onze
+       dígitos, com DDD e sem país. O wa.me só aceita com o código do país. */
+    if (so.length === 10 || so.length === 11) return '55' + so;
+    if ((so.length === 12 || so.length === 13) && so.indexOf('55') === 0) return so;
+    /* Telefone estranho (ramal, número de fora, digitação errada): melhor
+       mostrar o texto para copiar do que montar um link que não abre. */
+    return null;
+  }
+
+  function oferecerWhatsapp(whats, aprovado, motivo) {
+    if (!whats || !whats.telefone) return;
+    var texto = aprovado ? whats.aprovado : String(whats.recusado || '').replace('{motivo}', motivo || '');
+    if (!texto) return;
+    var numero = numeroWhatsapp(whats.telefone);
+    return abrirModal({
+      titulo: 'Pronto. Avisar a pessoa?',
+      texto: numero
+        ? 'O WhatsApp abre numa aba nova com a mensagem já escrita. Confira e envie.'
+        : 'O telefone cadastrado não dá para abrir no WhatsApp. Copie a mensagem abaixo.',
+      detalhes: [['Para', (whats.nome || 'contato') + ' · ' + whats.telefone], ['Mensagem', texto]],
+      botoes: numero ? [{ rotulo: 'Abrir o WhatsApp', valor: 'abrir',
+        url: 'https://wa.me/' + numero + '?text=' + encodeURIComponent(texto) }] : [],
+      rotuloFechar: numero ? 'Agora não' : 'Fechar'
+    });
+  }
+
+  function ligarAnalise(recarregar) {
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('[data-analisar]');
+      if (!link) return;
+      e.preventDefault();
+      var dados;
+      try { dados = JSON.parse(link.getAttribute('data-analisar')); } catch (erro) { return; }
+
+      var botoes = [];
+      if (dados.aprovar) {
+        botoes.push({ rotulo: 'Aprovar', valor: 'aprovar' });
+      }
+      if (dados.recusar) {
+        botoes.push({
+          rotulo: 'Recusar', valor: 'recusar', tom: 'perigo', pedirTexto: true,
+          rotuloTexto: 'Por que está recusando? A pessoa recebe este texto.',
+          rotuloConfirmar: 'Confirmar recusa',
+          erroTexto: 'A recusa precisa de um motivo escrito.'
+        });
+      }
+
+      abrirModal({
+        titulo: dados.titulo,
+        detalhes: dados.detalhes,
+        botoes: botoes,
+        rotuloFechar: botoes.length ? 'Cancelar' : 'Fechar'
+      }).then(function (escolha) {
+        if (!escolha) return;
+        var rota = escolha.valor === 'aprovar' ? dados.aprovar : dados.recusar;
+        /* O nome do campo é o do RecusaRequest no backend; "justificativa"
+           sozinho volta 400 com "A justificativa da recusa é obrigatória". */
+        var corpo = escolha.valor === 'recusar' ? { justificativaRecusa: escolha.texto } : undefined;
+        link.textContent = 'Enviando…';
+        return api.request(rota, { method: 'PUT', body: corpo })
+          .then(function () {
+            avisar('Pronto. A lista foi atualizada.');
+            /* O aviso vem antes de recarregar: a lista se refaz enquanto a
+               pessoa lê a mensagem, e não some a linha de baixo dela. */
+            return oferecerWhatsapp(dados.whats, escolha.valor === 'aprovar', escolha.texto);
+          })
+          .then(function () { return recarregar(); })
+          .catch(function (erro) {
+            link.textContent = rotulo(link);
+            avisar(erro.message || 'Não foi possível concluir.', 'erro');
+          });
+      });
+
+      function rotulo() { return dados.aprovar ? 'Analisar' : 'Ver'; }
+    });
+  }
+
   function ligarAcoes(recarregar) {
     document.addEventListener('click', function (e) {
       var botao = e.target.closest('[data-acao]');
@@ -411,47 +704,51 @@
       var acao = botao.getAttribute('data-acao');
       var rota = botao.getAttribute('data-rota');
       var pergunta = botao.getAttribute('data-pergunta') || 'Confirmar?';
-      if (!window.confirm(pergunta)) return;
-      var corpo;
-      if (acao === 'recusar') {
-        var motivo = window.prompt('Motivo da recusa (fica registrado no cadastro):', '');
-        if (motivo === null) return;
-        if (!motivo.trim()) {
-          avisar('A recusa precisa de um motivo. Nada foi alterado.', 'erro');
-          return;
+      /* Algumas ações só valem com um texto escrito: promover pede a função
+         (CargoRequest) e excluir uma criança pede o motivo da saída, que fica
+         guardado no histórico dela. O nome do campo no corpo do pedido vem do
+         próprio botão, em data-campo; sem ele a ação vai sem corpo. */
+      var campoTexto = botao.getAttribute('data-campo') || (acao === 'promover' ? 'cargo' : null);
+      var destrutiva = acao === 'excluir' || acao === 'desativar' || acao === 'rebaixar';
+      var atributo = function (nome, padrao) { return botao.getAttribute(nome) || padrao; };
+
+      abrirModal({
+        titulo: pergunta,
+        texto: botao.getAttribute('data-aviso'),
+        botoes: [{
+          rotulo: campoTexto
+            ? atributo('data-abrir', destrutiva ? botao.textContent : 'Informar a função')
+            : (destrutiva ? botao.textContent : 'Confirmar'),
+          valor: 'ok',
+          tom: destrutiva ? 'perigo' : 'normal',
+          pedirTexto: !!campoTexto,
+          rotuloTexto: atributo('data-rotulo-texto', 'Função desta pessoa na ONG'),
+          rotuloConfirmar: atributo('data-confirmar', 'Dar o acesso'),
+          erroTexto: atributo('data-erro-texto', 'Informe a função para dar o acesso.')
+        }]
+      }).then(function (escolha) {
+        if (!escolha) return;
+        var corpo;
+        if (campoTexto) { corpo = {}; corpo[campoTexto] = escolha.texto; }
+        /* Quase toda ação do painel é um PUT sem corpo (aprovar, encerrar).
+           As notícias fogem disso: despublicar manda {publicada:false} e
+           excluir é um DELETE. Vêm nos atributos do próprio botão. */
+        var metodo = botao.getAttribute('data-metodo') || 'PUT';
+        var corpoFixo = botao.getAttribute('data-corpo');
+        if (corpoFixo && !corpo) {
+          try { corpo = JSON.parse(corpoFixo); } catch (e) { corpo = undefined; }
         }
-        /* O nome do campo é o do RecusaRequest no backend; "justificativa"
-           sozinho volta 400 com "A justificativa da recusa é obrigatória". */
-        corpo = { justificativaRecusa: motivo.trim() };
-      }
-      if (acao === 'promover') {
-        /* Promover exige o cargo (CargoRequest). Rebaixar, não: vai sem corpo. */
-        var cargo = window.prompt('Função desta pessoa na ONG:', botao.getAttribute('data-cargo') || '');
-        if (cargo === null) return;
-        if (!cargo.trim()) {
-          avisar('Informe a função para dar o acesso. Nada foi alterado.', 'erro');
-          return;
-        }
-        corpo = { cargo: cargo.trim() };
-      }
-      /* Quase toda ação do painel é um PUT sem corpo (aprovar, encerrar).
-         As notícias fogem disso: despublicar manda {publicada:false} e
-         excluir é um DELETE. Vêm nos atributos do próprio botão. */
-      var metodo = botao.getAttribute('data-metodo') || 'PUT';
-      var corpoFixo = botao.getAttribute('data-corpo');
-      if (corpoFixo && !corpo) {
-        try { corpo = JSON.parse(corpoFixo); } catch (e) { corpo = undefined; }
-      }
-      var rotulo = botao.textContent;
-      botao.textContent = 'Enviando…';
-      api.request(rota, { method: metodo, body: corpo })
-        .then(function () { avisar('Pronto. A lista foi atualizada.'); return recarregar(); })
-        .catch(function (erro) {
-          /* Sem recarregar a lista, o botão continua na tela: devolve o rótulo
-             dele para a ação poder ser tentada de novo. */
-          botao.textContent = rotulo;
-          avisar(erro.message || 'Não foi possível concluir.', 'erro');
-        });
+        var rotulo = botao.textContent;
+        botao.textContent = 'Enviando…';
+        return api.request(rota, { method: metodo, body: corpo })
+          .then(function () { avisar('Pronto. A lista foi atualizada.'); return recarregar(); })
+          .catch(function (erro) {
+            /* Sem recarregar a lista, o botão continua na tela: devolve o
+               rótulo dele para a ação poder ser tentada de novo. */
+            botao.textContent = rotulo;
+            avisar(erro.message || 'Não foi possível concluir.', 'erro');
+          });
+      });
     });
   }
   function acoes(itens) {
@@ -565,9 +862,12 @@
       return Promise.all([
         api.request('/adm/solicitacoes'), api.request('/adm/voluntarios'),
         api.request('/adm/beneficiarios'), api.request('/adm/doacoes'),
-        api.request('/adm/usuarios'), api.request('/adm/planos')
+        api.request('/adm/usuarios')
       ]).then(function (r) {
-        var sols = r[0], vols = r[1], bens = r[2], doas = r[3], users = r[4], planos = r[5];
+        /* Sem /adm/planos: a doação mensal saiu do site, e o cartão
+           "Doações mensais ativas" saiu junto. Os endpoints de plano
+           continuam na API para quem precisar ver uma assinatura antiga. */
+        var sols = r[0], vols = r[1], bens = r[2], doas = r[3], users = r[4];
         var mes = new Date().getMonth(), ano = new Date().getFullYear();
         var pagas = doas.filter(function (d) { return d.status === 'CONFIRMADA'; });
         var noMes = pagas.filter(function (d) { var x = new Date(d.data); return x.getMonth() === mes && x.getFullYear() === ano; });
@@ -580,12 +880,18 @@
           moeda(total),
           pagas.length,
           doas.filter(function (d) { return String(d.status).toUpperCase() === 'PENDENTE'; }).length,
-          planos.filter(function (p) { return p.status === 'ATIVO'; }).length,
           bens.filter(function (b) { return b.ativo; }).length,
           responsaveis.size,
           vols.filter(function (v) { return v.status === 'APROVADA'; }).length,
           users.filter(function (u) { return u.tipo === 'COMUM' && u.ativo; }).length
         ]);
+        /* O mesmo gráfico da tela de Doações. Aqui as barras tinham ficado
+           como estavam no HTML: alturas inventadas de maio a outubro, que
+           não mudavam com as doações de verdade e não diziam nada ao passar
+           o mouse. Agora as duas telas leem a mesma função e mostram o
+           valor do mês no mesmo lugar. */
+        grafico(doas);
+
         var ultimas = doas.slice().sort(function (a, b) { return new Date(b.data) - new Date(a.data); }).slice(0, 8);
         preencher(ultimas.map(function (d) {
           return linha([data(d.data), esc(d.doadorNome || d.doadorEmail || 'Anônimo'), moeda(d.valor),
@@ -604,10 +910,47 @@
           lista.filter(function (s) { return s.status === 'RECUSADA' && doAno(s); }).length
         ]);
         preencher(lista.map(function (s) {
-          var acao = s.status === 'PENDENTE' ? acoes([
-            botaoAcao('Aprovar', 'aprovar', '/adm/solicitacoes/' + s.id + '/aprovar', 'Aprovar a solicitação de ' + (s.beneficiario && s.beneficiario.nome) + '?'),
-            botaoAcao('Recusar', 'recusar', '/adm/solicitacoes/' + s.id + '/recusar', 'Recusar a solicitação de ' + (s.beneficiario && s.beneficiario.nome) + '?')
-          ]) : '<span class="apoio">—</span>';
+          var b = s.beneficiario || {}, r = s.responsavel || {};
+          /* Uma entrada só, que abre o pedido inteiro. Antes eram dois
+             botões que perguntavam "Aprovar?" num confirm, e quem decidia
+             nunca via o motivo que a família escreveu. */
+          var dados = {
+            titulo: 'Solicitação de vaga — ' + (b.nome || 'criança'),
+            detalhes: [
+              ['Criança', b.nome],
+              ['Idade', idade(b.dataNascimento)],
+              ['Responsável', r.nome],
+              ['Parentesco', r.parentesco],
+              ['Telefone', r.telefone],
+              ['E-mail', r.email],
+              ['Endereço', endereco(r)],
+              ['Recebida em', data(s.dataSolicitacao)],
+              ['Situação', NOME_SITUACAO[String(s.status).toUpperCase()] || s.status],
+              /* A pergunta do formulário público, com as mesmas palavras que
+                 a família leu ao responder: é o texto que quem decide precisa
+                 ler antes de aprovar ou recusar. */
+              ['Por que está procurando a ONG', s.motivo]
+            ].filter(function (par) { return par[1] && par[1] !== '—'; })
+          };
+          if (s.status === 'PENDENTE') {
+            dados.aprovar = '/adm/solicitacoes/' + s.id + '/aprovar';
+            dados.recusar = '/adm/solicitacoes/' + s.id + '/recusar';
+            /* Quem recebe o recado é o responsável, não a criança: o telefone
+               do cadastro é o dele, e é com ele que a ONG combina. */
+            dados.whats = {
+              nome: r.nome, telefone: r.telefone,
+              aprovado: 'Olá, ' + (r.nome || '') + '! Aqui é da ONG Frutos do Amanhã.\n\n' +
+                'A solicitação de vaga para ' + (b.nome || 'a criança') + ' foi aprovada.\n\n' +
+                'Pode falar com a gente por aqui para combinarmos os próximos passos.',
+              recusado: 'Olá, ' + (r.nome || '') + '! Aqui é da ONG Frutos do Amanhã.\n\n' +
+                'Infelizmente não conseguimos aprovar a solicitação de vaga para ' +
+                (b.nome || 'a criança') + ' neste momento.\n\nMotivo: {motivo}\n\n' +
+                'Qualquer dúvida, pode falar com a gente por aqui.'
+            };
+          } else if (s.justificativaRecusa) {
+            dados.detalhes.push(['Motivo da recusa', s.justificativaRecusa]);
+          }
+          var acao = acoes([botaoAnalise(s.status === 'PENDENTE' ? 'Analisar' : 'Ver', dados)]);
           return linha([data(s.dataSolicitacao), esc(s.beneficiario && s.beneficiario.nome),
             idade(s.beneficiario && s.beneficiario.dataNascimento), esc(s.responsavel && s.responsavel.nome),
             etiqueta(s.status), acao]);
@@ -629,10 +972,50 @@
           var obs = String(v.observacao || '');
           var area = (obs.match(/Área:\s*([^.]*)/) || [])[1] || '—';
           var disp = (obs.match(/Disponibilidade:\s*(.*)$/) || [])[1] || '—';
-          var acao = v.status === 'PENDENTE' ? acoes([
-            botaoAcao('Aprovar', 'aprovar', '/adm/voluntarios/' + v.id + '/aprovar', 'Aprovar ' + v.nomeContato + ' como voluntário?'),
-            botaoAcao('Recusar', 'recusar', '/adm/voluntarios/' + v.id + '/recusar', 'Recusar a candidatura de ' + v.nomeContato + '?')
-          ]) : '<span class="apoio">—</span>';
+          var dados = {
+            titulo: 'Candidatura — ' + (v.nomeContato || 'voluntário'),
+            detalhes: [
+              ['Nome', v.nomeContato],
+              ['E-mail', v.emailContato],
+              ['Telefone', v.telefoneContato],
+              ['Área de interesse', area.trim()],
+              ['Disponibilidade', disp.trim()],
+              ['Enviada em', data(v.dataInscricao)],
+              ['Situação', NOME_SITUACAO[String(v.status).toUpperCase()] || v.status],
+              /* A observação inteira, como a pessoa escreveu: é nela que vem
+                 o recado de quem se candidata, e o resumo acima pode ter
+                 deixado algo de fora. */
+              ['O que a pessoa escreveu', v.observacao]
+            ].filter(function (par) { return par[1] && par[1] !== '—'; })
+          };
+          if (v.status === 'PENDENTE') {
+            dados.aprovar = '/adm/voluntarios/' + v.id + '/aprovar';
+            dados.recusar = '/adm/voluntarios/' + v.id + '/recusar';
+            dados.whats = {
+              nome: v.nomeContato, telefone: v.telefoneContato,
+              aprovado: 'Olá, ' + (v.nomeContato || '') + '! Aqui é da ONG Frutos do Amanhã.\n\n' +
+                'Sua candidatura para o voluntariado foi aprovada.\n\n' +
+                'Pode falar com a gente por aqui para combinarmos como você começa.',
+              recusado: 'Olá, ' + (v.nomeContato || '') + '! Aqui é da ONG Frutos do Amanhã.\n\n' +
+                'Neste momento não vamos seguir com a sua candidatura para voluntariado.\n\n' +
+                'Motivo: {motivo}\n\nObrigado pelo interesse — dá para se candidatar de novo mais para a frente.'
+            };
+          } else if (v.justificativaRecusa) {
+            dados.detalhes.push(['Motivo da recusa', v.justificativaRecusa]);
+          }
+          var botoes = [botaoAnalise(v.status === 'PENDENTE' ? 'Analisar' : 'Ver', dados)];
+          /* As mesmas duas saídas da lista de crianças. Encerrar guarda a
+             data e deixa a candidatura na lista; excluir apaga. Quem já
+             está encerrado só tem a segunda. */
+          if (v.status !== 'ENCERRADA') {
+            botoes.push(botaoAcao('Encerrar', 'encerrar', '/adm/voluntarios/' + v.id + '/encerrar',
+              'Encerrar a participação de ' + (v.nomeContato || 'esta pessoa') + '?'));
+          }
+          botoes.push(botaoAcao('Excluir', 'excluir', '/adm/voluntarios/' + v.id,
+            'Apagar a candidatura de ' + (v.nomeContato || 'esta pessoa') + ' para sempre?',
+            ' data-metodo="DELETE" data-aviso="A candidatura some da ONG e não dá para desfazer. ' +
+            'Para só encerrar a participação, feche aqui e use Encerrar."'));
+          var acao = acoes(botoes);
           return linha([data(v.dataInscricao), esc(v.nomeContato || '—'), esc(area.trim()),
             esc(disp.trim()), etiqueta(v.status), acao]);
         }), 6, 'Nenhuma candidatura recebida até agora.');
@@ -647,9 +1030,35 @@
           return p ? p.nome : id;
         };
         preencher(bens.map(function (b) {
+          /* Duas saídas, porque são duas coisas diferentes.
+
+             Encerrar é o caminho de sempre: a criança deixa de ser atendida,
+             mas continua na lista com a data e o motivo — a passagem dela
+             pela ONG faz parte do histórico. Por isso o motivo é
+             obrigatório, como na recusa de uma solicitação. Quem já saiu
+             não tem esse botão: não há o que encerrar de novo.
+
+             Excluir apaga o cadastro e não tem volta. É para o registro que
+             nunca devia existir — nome repetido, digitação errada —, e fica
+             sempre disponível, inclusive para quem já saiu. */
+          var botoes = [];
+          if (b.ativo) {
+            botoes.push(botaoAcao('Encerrar', 'encerrar', '/adm/beneficiarios/' + b.id,
+              'Encerrar o acompanhamento de ' + (b.nome || 'esta criança') + '?',
+              ' data-metodo="DELETE" data-campo="motivoSaida" data-abrir="Encerrar"' +
+              ' data-rotulo-texto="Por que ela está saindo? Fica guardado no histórico dela."' +
+              ' data-confirmar="Confirmar saída"' +
+              ' data-erro-texto="Escreva o motivo da saída para continuar."'));
+          }
+          botoes.push(botaoAcao('Excluir', 'excluir', '/adm/beneficiarios/' + b.id + '/permanente',
+            'Apagar o cadastro de ' + (b.nome || 'esta criança') + ' para sempre?',
+            ' data-metodo="DELETE" data-aviso="O cadastro some da ONG e não dá para desfazer. ' +
+            'Para só tirar da lista de atendidas, feche aqui e use Encerrar."'));
+          var acao = acoes(botoes);
           return linha([esc(b.nome), idade(b.dataNascimento), esc((b.responsavel && b.responsavel.nome) || '—'),
-            esc((b.projetoIds || []).map(nomeProjeto).join(', ') || '—'), etiqueta(b.ativo ? 'ATIVO' : 'INATIVO')]);
-        }), 5, 'Nenhuma criança cadastrada ainda. Elas entram ao aprovar uma solicitação.');
+            esc((b.projetoIds || []).map(nomeProjeto).join(', ') || '—'),
+            etiqueta(b.ativo ? 'ATIVO' : 'INATIVO'), acao]);
+        }), 6, 'Nenhuma criança cadastrada ainda. Elas entram ao aprovar uma solicitação.');
       });
     },
 
@@ -704,41 +1113,9 @@
       });
     },
 
-    doadores: function () {
-      /* Também não tem endpoint próprio: a lista sai das doações, somadas por
-         pessoa. Quem doou sem conta aparece pelo nome e e-mail informados. */
-      return api.request('/adm/doacoes').then(function (doas) {
-        var porPessoa = {};
-        doas.forEach(function (d) {
-          var chave = d.doadorId || d.doadorEmail || d.doadorNome || 'anonimo';
-          if (!porPessoa[chave]) porPessoa[chave] = { nome: d.doadorNome || 'Anônimo', email: d.doadorEmail || '', n: 0, confirmadas: 0, total: 0, ultima: null };
-          var p = porPessoa[chave];
-          p.n++;
-          if (d.status === 'CONFIRMADA') { p.confirmadas++; p.total += Number(d.valor || 0); }
-          if (!p.ultima || new Date(d.data) > new Date(p.ultima)) p.ultima = d.data;
-        });
-        var lista = Object.keys(porPessoa).map(function (k) { return porPessoa[k]; })
-          .sort(function (a, b) { return b.total - a.total; });
-        placares([
-          lista.length,
-          lista.filter(function (p) { return p.confirmadas > 1; }).length,
-          lista.filter(function (p) { return p.confirmadas === 0; }).length,
-          moeda(lista.reduce(function (s, p) { return s + p.total; }, 0))
-        ]);
-        /* A coluna "Doações" conta só as confirmadas, e a situação sai daí.
-           Antes ela era inventada a partir do número de tentativas (n > 1), e
-           por isso quem tinha uma cobrança aberta e nunca paga aparecia como
-           doador ativo, e quem pagou uma vez só aparecia "Em análise". */
-        preencher(lista.map(function (p) {
-          return linha([esc(p.nome), esc(p.email || '—'), String(p.confirmadas), moeda(p.total),
-            etiqueta(p.confirmadas > 0 ? 'CONFIRMADA' : 'SEM_DOACAO')]);
-        }), 5, 'Nenhum doador ainda.');
-      });
-    },
-
     doacoes: function () {
-      return Promise.all([api.request('/adm/doacoes'), api.request('/projetos'), api.request('/adm/planos')]).then(function (r) {
-        var doas = r[0], projetos = r[1], planos = r[2];
+      return Promise.all([api.request('/adm/doacoes'), api.request('/projetos')]).then(function (r) {
+        var doas = r[0], projetos = r[1];
         var nomeProjeto = function (id) {
           if (!id) return 'Onde for mais necessário';
           var p = projetos.filter(function (x) { return x.id === id; })[0];
@@ -750,15 +1127,56 @@
         placares([
           moeda(noMes.reduce(function (s, d) { return s + Number(d.valor || 0); }, 0)),
           pagas.length,
-          doas.filter(function (d) { return String(d.status).toUpperCase() === 'PENDENTE'; }).length,
-          planos.filter(function (p) { return p.status === 'ATIVO'; }).length
+          doas.filter(function (d) { return String(d.status).toUpperCase() === 'PENDENTE'; }).length
         ]);
         var ordenadas = doas.slice().sort(function (a, b) { return new Date(b.data) - new Date(a.data); });
         encherFiltroMes(ordenadas);
-        preencher(ordenadas.map(function (d) {
+
+        /* ---- Visão "Por doação": o extrato, uma linha por doação ---- */
+        preencherSecao('lista-doacoes', ordenadas.map(function (d) {
           return linha([data(d.data), esc(d.doadorNome || d.doadorEmail || 'Anônimo'), moeda(d.valor),
             esc(origem(d.origem)), esc(nomeProjeto(d.projetoId)), etiqueta(d.status)]);
         }), 6, 'Ainda não há doações registradas.');
+
+        /* ---- Visão "Por pessoa": as mesmas doações, agrupadas ----
+           Era a tela de Doadores, que nunca teve fonte própria: o site não
+           tem cadastro de doador, e a lista sempre saiu daqui. */
+        var porPessoa = {};
+        ordenadas.forEach(function (d) {
+          var chave = d.doadorId || d.doadorEmail || d.doadorNome || 'anonimo';
+          if (!porPessoa[chave]) {
+            porPessoa[chave] = { nome: d.doadorNome || 'Anônimo', email: d.doadorEmail || '',
+              confirmadas: 0, total: 0, doacoes: [] };
+          }
+          var p = porPessoa[chave];
+          p.doacoes.push(d);
+          if (d.status === 'CONFIRMADA') { p.confirmadas++; p.total += Number(d.valor || 0); }
+        });
+        var pessoas = Object.keys(porPessoa).map(function (k) { return porPessoa[k]; })
+          .sort(function (a, b) { return b.total - a.total; });
+
+        preencherSecao('lista-pessoas', pessoas.map(function (p) {
+          /* O modal abre o extrato da pessoa: cada doação vira uma linha, com
+             a data e a origem de um lado e o valor e a situação do outro. */
+          var dados = {
+            titulo: p.nome,
+            detalhes: [['Contato', p.email || '—'],
+              ['Doações confirmadas', String(p.confirmadas)],
+              ['Total doado', moeda(p.total)]]
+              .concat(p.doacoes.map(function (d) {
+                return [data(d.data) + ' · ' + origem(d.origem),
+                  moeda(d.valor) + ' — ' + (NOME_SITUACAO[String(d.status).toUpperCase()] || d.status) +
+                  ' · ' + nomeProjeto(d.projetoId)];
+              }))
+          };
+          return linha([esc(p.nome), esc(p.email || '—'), String(p.confirmadas), moeda(p.total),
+            etiqueta(p.confirmadas > 0 ? 'CONFIRMADA' : 'SEM_DOACAO'),
+            acoes([botaoAnalise('Ver doações', dados)])]);
+        }), 6, 'Ninguém doou ainda.');
+
+        encherFiltrosAutomaticos();
+        aplicarFiltros();
+
         /* O gráfico recebe todas, e não só as pagas: é ele que mostra a
            proporção entre o que entrou e o que ficou pelo caminho. */
         grafico(doas);
@@ -1127,6 +1545,8 @@
   if (!api.token()) { location.replace('gestao.html'); return; }
 
   montarSaida();
+  ligarAnalise(function () { return carregar[tela](); });
+  ligarVisoes();
   ligarFiltros();
   ligarExportacao();
   contagensDoMenu();

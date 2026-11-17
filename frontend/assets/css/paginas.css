@@ -602,6 +602,17 @@ main { position: relative; }
 .painel-secao { display: flex; flex-wrap: wrap; gap: var(--e-3) var(--e-5); align-items: baseline; justify-content: space-between; margin-bottom: var(--e-4); }
 .painel-secao .rotulo { margin: 0; }
 
+/* Títulos das seções do painel
+
+   O .rotulo nasceu como etiqueta de apoio do site: "PAINEL · USO INTERNO"
+   em cima de um h1 grande, e aí 0,75rem basta. No painel ele virou o
+   título das seções — "Cadastrar criança", "Buscar criança", "Crianças
+   cadastradas" — e nesse papel ficava menor que o texto da tabela logo
+   abaixo, parecendo legenda em vez de título. Só o h2: o <p class="rotulo">
+   do topo continua sendo etiqueta. O espaçamento entre letras cede um
+   pouco, senão o título maior em caixa alta fica largo demais no celular. */
+body[data-pagina="admin"] h2.rotulo { font-size: 1rem; letter-spacing: .1em; }
+
 /* Ações dentro de uma linha da tabela */
 .tabela .acoes { display: flex; flex-wrap: wrap; gap: .25rem .85rem; }
 .tabela .acoes .link { font-size: .88rem; }
@@ -670,4 +681,96 @@ main { position: relative; }
   [hidden] { display: none !important; }
 
   a[href]::after { content: ""; }
+}
+
+/* ==========================================================
+   Modal do painel — substitui o confirm e o prompt do navegador.
+   Cabe o pedido inteiro, que é o que falta para decidir.
+   ========================================================== */
+.modal {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  max-width: min(42rem, calc(100vw - 2rem));
+  width: 100%;
+  color: var(--terra);
+  /* inset + margin auto centram na tela. Sem isso o dialog encosta na
+     esquerda, porque width: 100% já satisfaz o posicionamento e não sobra
+     margem para distribuir. */
+  inset: 0;
+  margin: auto;
+}
+.modal::backdrop { background: rgb(45 56 34 / .55); backdrop-filter: blur(2px); }
+.modal__caixa {
+  background: var(--papel);
+  border: 1.5px solid rgb(43 29 20 / .25);
+  border-radius: 14px;
+  padding: var(--e-6);
+  display: grid;
+  gap: var(--e-4);
+  box-shadow: 0 18px 50px rgb(43 29 20 / .25);
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+}
+.modal__titulo {
+  font-family: var(--f-display);
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  font-weight: 560;
+  line-height: 1.15;
+  margin: 0;
+}
+.modal__corpo { display: grid; gap: .6rem; }
+/* Rótulo e valor um sobre o outro: o motivo pode ter vários parágrafos, e
+   em duas colunas ele ficaria espremido. */
+.modal__linha { margin: 0; display: grid; gap: .1rem; }
+.modal__linha b {
+  font-size: var(--t-rotulo);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--casca);
+  font-weight: 700;
+}
+.modal__linha span { white-space: pre-wrap; }
+/* O recado do que a ação vai causar, quando não dá para desfazer. Fica
+   antes dos pares rótulo/valor e não é um deles: é prosa, e precisa ser
+   lido antes do botão vermelho logo abaixo. */
+.modal__aviso { margin: 0; max-width: none; color: var(--casca); }
+.modal__campo { margin: 0; }
+.modal__erro { color: var(--pitanga-tinta); font-weight: 600; }
+.modal__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-4);
+  align-items: center;
+  margin-top: var(--e-2);
+}
+@media (max-width: 520px) {
+  .modal__caixa { padding: var(--e-5); }
+  /* No celular os botões ocupam a linha toda: alvo maior e sem ambiguidade
+     sobre qual é a ação principal. */
+  .modal__acoes { flex-direction: column; align-items: stretch; }
+  .modal__acoes .botao { justify-content: center; }
+}
+
+/* Alternador entre "Por doação" e "Por pessoa" na tela de Doações. */
+.painel-visoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: var(--e-5);
+}
+.painel-visao {
+  padding: .45rem .95rem;
+  border: 1.5px solid rgb(43 29 20 / .25);
+  border-radius: 999px;
+  font-size: .92rem;
+  font-weight: 600;
+  color: var(--casca);
+  transition: background .2s var(--ease-brota), color .2s var(--ease-brota), border-color .2s var(--ease-brota);
+}
+.painel-visao:hover { border-color: var(--folha); color: var(--terra); }
+.painel-visao[aria-selected="true"] {
+  background: var(--fundo-escuro);
+  border-color: var(--fundo-escuro);
+  color: var(--papel);
 }

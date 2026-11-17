@@ -1,5 +1,6 @@
 package br.org.ong.security;
 
+import br.org.ong.config.PaginaDeErro;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.Map;
@@ -49,9 +50,20 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/publico/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                /* Quem chega navegando num endereço que não existe recebe a
+                   página 404.html; quem chega pela API recebe o JSON de
+                   sempre. Sem isto, digitar um endereço errado sem ".html"
+                   caía aqui e devolvia "Autenticação necessária" em JSON — a
+                   pessoa via um texto técnico, e não a página de erro. */
                 .exceptionHandling(errors -> errors
-                        .authenticationEntryPoint((request, response, exception) -> escreverErro(mapper, response, 401, "Autenticação necessária"))
-                        .accessDeniedHandler((request, response, exception) -> escreverErro(mapper, response, 403, "Acesso negado")));
+                        .authenticationEntryPoint((request, response, exception) -> {
+                            if (PaginaDeErro.querPagina(request) && PaginaDeErro.escrever(response, 404)) return;
+                            escreverErro(mapper, response, 401, "Autenticação necessária");
+                        })
+                        .accessDeniedHandler((request, response, exception) -> {
+                            if (PaginaDeErro.querPagina(request) && PaginaDeErro.escrever(response, 404)) return;
+                            escreverErro(mapper, response, 403, "Acesso negado");
+                        }));
         return http.build();
     }
 
