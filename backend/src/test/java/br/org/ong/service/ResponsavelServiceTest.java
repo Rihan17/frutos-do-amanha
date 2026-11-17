@@ -91,4 +91,40 @@ class ResponsavelServiceTest {
         when(repo.findById("000000000000000000000007")).thenReturn(Optional.empty());
         assertThrows(NaoEncontradoException.class, () -> service.obter("000000000000000000000007"));
     }
+
+    /* As duas saidas do painel sao coisas diferentes, e trocar uma pela outra
+       custaria o contato de quem responde por uma crianca em acompanhamento.
+       Encerrar guarda o cadastro; excluir apaga. */
+    @Test void encerrarGuardaOCadastroEmVezDeApagar() {
+        Responsavel r = new Responsavel();
+        r.setId("000000000000000000000008");
+        r.setAtivo(true);
+        when(repo.findById(r.getId())).thenReturn(Optional.of(r));
+
+        service.desativar(r.getId());
+
+        assertFalse(r.isAtivo());
+        verify(repo).save(r);
+        verify(repo, never()).delete(any());
+    }
+
+    @Test void exclusaoPermanenteApagaOCadastro() {
+        Responsavel r = new Responsavel();
+        r.setId("000000000000000000000009");
+        when(repo.findById(r.getId())).thenReturn(Optional.of(r));
+
+        service.excluirPermanente(r.getId());
+
+        verify(repo).delete(r);
+        verify(repo, never()).save(any());
+    }
+
+    @Test void exclusaoPermanenteDeCadastroInexistenteNaoApagaNada() {
+        when(repo.findById("000000000000000000000010")).thenReturn(Optional.empty());
+
+        assertThrows(NaoEncontradoException.class,
+                () -> service.excluirPermanente("000000000000000000000010"));
+
+        verify(repo, never()).delete(any());
+    }
 }

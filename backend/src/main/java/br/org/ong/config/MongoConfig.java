@@ -22,6 +22,9 @@ public class MongoConfig {
             mongo.indexOps("usuarios").ensureIndex(new Index().on("cpfCnpj", Sort.Direction.ASC)
                     .unique().partial(PartialIndexFilter.of(new Document("cpfCnpj", new Document("$type", "string")))));
             mongo.indexOps("beneficiarios").ensureIndex(new Index().on("projetoIds", Sort.Direction.ASC));
+            /* Toda tela de atividade conta inscritos por este campo, e a
+               contagem roda uma vez por turma a cada carga da lista. */
+            mongo.indexOps("beneficiarios").ensureIndex(new Index().on("atividadeIds", Sort.Direction.ASC));
             mongo.indexOps("planos").ensureIndex(new Index().on("doadorId", Sort.Direction.ASC));
             mongo.indexOps("doacoes").ensureIndex(new Index().on("doadorId", Sort.Direction.ASC));
             mongo.indexOps("doacoes").ensureIndex(new Index().on("mercadoPagoPaymentId", Sort.Direction.ASC).unique()

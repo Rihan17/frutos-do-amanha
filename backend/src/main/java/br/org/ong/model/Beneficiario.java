@@ -21,11 +21,18 @@ public class Beneficiario {
     private boolean ativo;
     @Indexed(unique = true) @Field(targetType = FieldType.OBJECT_ID) private String solicitacaoOrigemId;
     private List<ObjectId> projetoIds;
+    /* As turmas em que a criança está: dia, hora e vaga moram na Atividade.
+       projetoIds continua aqui e guarda outra coisa — a ligação com o que o
+       site mostra ao público. Documentos gravados antes desta mudança não
+       têm o campo, e o driver o lê como null; por isso o getter nunca
+       devolve null, para quem chama não precisar conferir. */
+    private List<ObjectId> atividadeIds;
     private DadosResponsavel responsavel;
 
     public Beneficiario() {
         this.ativo = true;
         this.projetoIds = new ArrayList<>();
+        this.atividadeIds = new ArrayList<>();
     }
 
     public String getId() { return id; }
@@ -48,6 +55,8 @@ public class Beneficiario {
     public void setSolicitacaoOrigemId(String solicitacaoOrigemId) { this.solicitacaoOrigemId = solicitacaoOrigemId; }
     public List<ObjectId> getProjetoIds() { return projetoIds; }
     public void setProjetoIds(List<ObjectId> projetoIds) { this.projetoIds = projetoIds; }
+    public List<ObjectId> getAtividadeIds() { return atividadeIds == null ? new ArrayList<>() : atividadeIds; }
+    public void setAtividadeIds(List<ObjectId> atividadeIds) { this.atividadeIds = atividadeIds; }
     public DadosResponsavel getResponsavel() { return responsavel; }
     public void setResponsavel(DadosResponsavel responsavel) { this.responsavel = responsavel; }
 }
