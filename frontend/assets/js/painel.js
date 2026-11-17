@@ -1639,7 +1639,9 @@
       ligarForm($('form'), function () {
         return { rota: '/adm/doacoes', corpo: {
           doadorNome: valor('doa-nome'),
-          valor: Number(valor('doa-valor')),
+          /* Campo mascarado: "1.234,56" nao e Number(). */
+          valor: window.FDA && FDA.valorEmNumero ? FDA.valorEmNumero(valor('doa-valor'))
+            : Number(valor('doa-valor')),
           data: valor('doa-data'),
           projetoId: projetoEscolhido(destino),
           observacao: valor('doa-obs').slice(0, 140) || null

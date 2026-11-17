@@ -200,7 +200,7 @@
         campo.hidden = !livre;
         outro.disabled = !livre;
         if (livre) outro.focus();
-        const v = livre ? parseFloat(outro.value || 0) : parseFloat((marcado && marcado.value) || 0);
+        const v = livre ? numeroDeMoeda(outro.value) : parseFloat((marcado && marcado.value) || 0);
         if (resumo) resumo.textContent = (v > 0 ? v : 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       };
       radios.forEach((r) => r.addEventListener('change', atualizar));
@@ -275,6 +275,35 @@
     return '(' + d.slice(0, 2) + ') ' + corpo.slice(0, corte) + '-' + corpo.slice(corte);
   }
 
+  /* ---- Dinheiro ----
+
+     Digitado da direita para a esquerda, como na maquininha e no caixa
+     eletronico: cada tecla empurra os centavos, e 5000 vira 50,00. Parece
+     estranho na primeira vez e acaba com a duvida de onde fica a virgula —
+     ninguem digita "50" esperando 50 e recebe 5000.
+
+     Como a mascara escreve ponto e virgula no campo, ele nao pode mais ser
+     type="number": o navegador recusa qualquer coisa que nao seja numero e o
+     value chegaria vazio. Por isso o campo virou texto com inputmode
+     decimal, que no celular abre o teclado numerico do mesmo jeito. */
+  function numeroDeMoeda(valor) {
+    const d = String(valor == null ? '' : valor).replace(/\D/g, '');
+    return d ? Number(d) / 100 : 0;
+  }
+
+  function formatarMoeda(valor) {
+    /* Onze digitos vao ate R$ 999.999.999,99. Acima disso e dedo preso na
+       tecla, nao doacao. */
+    const d = String(valor == null ? '' : valor).replace(/\D/g, '').slice(0, 11);
+    if (!d) return '';
+    return (Number(d) / 100).toLocaleString('pt-BR',
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  /* Quem le o campo depois mora em outro arquivo (painel.js, ligacao.js), e
+     precisa desfazer exatamente o que a mascara fez. */
+  FDA.valorEmNumero = numeroDeMoeda;
+
   function mascaras() {
     const regras = {
       cpf: {
@@ -288,6 +317,18 @@
           if (!d) return '';
           return d.length === 10 || d.length === 11 ? ''
             : 'Informe o telefone com DDD, por exemplo (13) 98858-5602.';
+        }
+      },
+      moeda: {
+        formatar: formatarMoeda,
+        /* O min do HTML so vale em campo numerico, e este deixou de ser um.
+           O minimo volta pelo data-minimo, conferido aqui. */
+        conferir: (v, campo) => {
+          const minimo = Number((campo && campo.dataset.minimo) || 0);
+          if (!v || !minimo) return '';
+          return numeroDeMoeda(v) >= minimo ? ''
+            : 'O valor mínimo é ' + minimo.toLocaleString('pt-BR',
+                { style: 'currency', currency: 'BRL' }) + '.';
         }
       }
     };
@@ -312,10 +353,10 @@
         campo.setCustomValidity('');
       };
       campo.addEventListener('input', aplicar);
-      campo.addEventListener('blur', () => campo.setCustomValidity(regra.conferir(campo.value)));
+      campo.addEventListener('blur', () => campo.setCustomValidity(regra.conferir(campo.value, campo)));
       /* Sem isto, o recado de erro fica preso depois de a pessoa corrigir. */
       campo.form && campo.form.addEventListener('submit', () => {
-        campo.setCustomValidity(regra.conferir(campo.value));
+        campo.setCustomValidity(regra.conferir(campo.value, campo));
       }, true);
       aplicar();
     });

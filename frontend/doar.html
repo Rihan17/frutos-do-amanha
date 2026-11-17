@@ -149,8 +149,8 @@
               </div>
               <div class="campo" data-valor-livre hidden>
                 <label for="valor-outro">Quanto você quer doar?</label>
-                <input type="number" id="valor-outro" name="valor-outro" min="5" step="1" inputmode="numeric" placeholder="R$" data-valor-outro disabled>
-                <small>Valor mínimo de R$ 5,00.</small>
+                <input type="text" id="valor-outro" name="valor-outro" inputmode="decimal" placeholder="0,00" data-mascara="moeda" data-minimo="5" data-valor-outro disabled>
+                <small>Valor mínimo de R$ 5,00. Digite só os números: 5000 vira 50,00.</small>
               </div>
             </fieldset>
 

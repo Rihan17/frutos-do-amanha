@@ -154,7 +154,7 @@
             <legend>Lançamento manual</legend>
             <div class="campo"><label for="doa-nome">Nome de quem doou <em>*</em></label><input type="text" id="doa-nome" name="doa-nome" required><small>Use "Anônimo" quando a pessoa não quiser aparecer.</small></div>
             <div class="dupla-coluna">
-              <div class="campo"><label for="doa-valor">Valor <em>*</em></label><input type="number" id="doa-valor" name="doa-valor" min="1" step="0.01" placeholder="0,00" required></div>
+              <div class="campo"><label for="doa-valor">Valor <em>*</em></label><input type="text" id="doa-valor" name="doa-valor" inputmode="decimal" placeholder="0,00" data-mascara="moeda" data-minimo="1" required><small>Digite só os números: 5000 vira 50,00.</small></div>
               <div class="campo"><label for="doa-data">Data do recebimento <em>*</em></label><input type="date" id="doa-data" name="doa-data" required></div>
             </div>
             <div class="campo">
