@@ -451,21 +451,6 @@ html.intro-ativa, html.intro-ativa body { overflow: hidden; }
 body.menu-aberto .topo { z-index: calc(var(--z-menu) + 1); transform: none; }
 .tem-cursor body, .tem-cursor a, .tem-cursor button, .tem-cursor summary, .tem-cursor [data-cursor] { cursor: none; }
 .tem-cursor input, .tem-cursor textarea, .tem-cursor select { cursor: text; }
-/* Enquanto um modal esta aberto, o ponteiro do sistema volta.
-
-   Um <dialog> aberto com showModal() entra na camada de topo do navegador,
-   que fica acima de tudo o que a pagina desenha, por maior que seja o
-   z-index. A bola do cursor e um elemento comum da pagina, entao ela passa
-   a ficar atras do modal; e como as regras acima escondem o ponteiro de
-   verdade para dar lugar a ela, quem abria o modal ficava sem cursor
-   nenhum. Aqui o ponteiro volta e a bola sai de cena, em vez de ficar
-   presa atras do modal. */
-.tem-cursor.modal-aberto body,
-.tem-cursor.modal-aberto summary,
-.tem-cursor.modal-aberto [data-cursor] { cursor: auto; }
-.tem-cursor.modal-aberto a,
-.tem-cursor.modal-aberto button { cursor: pointer; }
-.modal-aberto .cursor { display: none; }
 .cursor { opacity: 0; transition: opacity .3s; }
 .loader::after {
   content: "";

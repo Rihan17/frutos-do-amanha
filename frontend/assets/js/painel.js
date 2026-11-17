@@ -478,8 +478,41 @@
       '  </div>' +
       '  <div class="modal__acoes" data-modal-acoes></div>' +
       '</div>';
+    /* Rede de segurança: qualquer caminho que feche o dialog devolve a bola
+       do cursor para o body. Sem isso, um close() que não passe pelo fechar()
+       a deixaria presa dentro de um dialog escondido, e aí o cursor sumiria
+       de vez, também fora do modal. */
+    caixa.addEventListener('close', devolverCursor);
     document.body.appendChild(caixa);
     return caixa;
+  }
+
+  /* O cursor desenhado do site, dentro e fora do modal.
+
+     Um <dialog> aberto com showModal() entra na camada de topo do navegador,
+     que fica acima de tudo o que a página desenha, por maior que seja o
+     z-index. A bola do cursor é um elemento comum do <body>, então ela ficava
+     atrás do modal — e, como o CSS esconde o ponteiro do sistema justamente
+     para dar lugar a ela, não sobrava cursor nenhum na tela.
+
+     A saída é levar a bola para dentro do próprio dialog enquanto ele está
+     aberto: ali ela sobe junto para a camada de topo e volta a aparecer. Ela
+     é position: fixed e nada no caminho do modal cria bloco de contenção
+     (nem transform, nem filter), então continua seguindo o ponteiro pela tela
+     inteira, como se não tivesse saído do lugar. */
+  var bolaDoCursor = null, bolaVizinha = null;
+  function levarCursor(d) {
+    bolaDoCursor = $('[data-cursor-el]', document);
+    if (!bolaDoCursor) return;
+    /* Guarda onde ela mora para devolver no mesmo ponto: a ordem dentro do
+       body decide quem fica por cima entre elementos de mesmo nível. */
+    bolaVizinha = bolaDoCursor.nextSibling;
+    d.appendChild(bolaDoCursor);
+  }
+  function devolverCursor() {
+    if (!bolaDoCursor) return;
+    document.body.insertBefore(bolaDoCursor, bolaVizinha);
+    bolaDoCursor = null;
   }
 
   /* Devolve { valor, texto } do botão escolhido, ou null se a pessoa
@@ -509,8 +542,8 @@
       function fechar(resultado) {
         if (respondido) return;
         respondido = true;
+        devolverCursor();
         d.close();
-        document.documentElement.classList.remove('modal-aberto');
         resolve(resultado);
       }
 
@@ -555,14 +588,8 @@
       /* Esc dispara "cancel" no dialog; clique no fundo escuro fecha também. */
       d.oncancel = function (ev) { ev.preventDefault(); fechar(null); };
       d.onclick = function (ev) { if (ev.target === d) fechar(null); };
-      /* Um dialog aberto com showModal() vai para a camada de topo do
-         navegador, que fica acima de qualquer z-index. O cursor desenhado do
-         site é um elemento comum, então ele passa a ficar atrás do modal — e,
-         como o ponteiro do sistema está escondido para dar lugar a ele, não
-         sobrava cursor nenhum. Esta classe devolve o ponteiro enquanto o
-         modal está aberto. */
-      document.documentElement.classList.add('modal-aberto');
       d.showModal();
+      levarCursor(d);
       var primeiro = botoes.querySelector('button');
       if (primeiro) primeiro.focus();
     });
