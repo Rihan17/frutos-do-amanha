@@ -491,12 +491,11 @@ main { position: relative; }
 }
 .bloco__frase em { font-style: italic; font-weight: 380; }
 .bloco__corpo { display: grid; gap: var(--e-5); align-content: start; justify-items: start; }
-.bloco__corpo .niveis, .bloco__corpo .itens, .bloco__corpo .pix { justify-self: stretch; }
-.niveis { list-style: none; padding: 0; display: grid; }
-.nivel { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: var(--e-4); padding-block: var(--e-4); border-bottom: 1.5px dashed rgb(43 29 20 / .45); }
-.nivel__nome { font-weight: 700; font-size: 1.05rem; }
-.nivel__valor { font-family: var(--f-display); font-size: clamp(1.9rem, 3.6vw, 3.2rem); line-height: 1; letter-spacing: -.03em; font-variation-settings: "SOFT" 100, "opsz" 72; }
-.nivel__valor small { font-family: var(--f-texto); font-size: .9rem; letter-spacing: 0; font-weight: 600; }
+/* O estilo dos tres niveis de apoio mensal (Apoiador do Amanha, Solidario e
+   Transformador) saiu junto com a doacao mensal: nenhuma pagina usa mais
+   .niveis nem .nivel__*, e CSS que nao pinta nada so atrapalha quem vier
+   depois procurar de onde vem cada regra. */
+.bloco__corpo .itens, .bloco__corpo .pix { justify-self: stretch; }
 .itens { list-style: none; padding: 0; display: grid; gap: .55rem; }
 .itens li { display: grid; grid-template-columns: 22px 1fr; gap: .7rem; align-items: start; font-weight: 600; }
 .itens svg { width: 22px; height: 22px; stroke: var(--terra); stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; margin-top: .1rem; }
